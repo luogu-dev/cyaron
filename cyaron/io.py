@@ -1,4 +1,7 @@
-class io(object):
+import subprocess
+
+
+class IO(object):
     def __init__(self, *args, **kwargs):
         if len(args) == 0:
             if not "file_prefix" in kwargs:
@@ -36,16 +39,23 @@ class io(object):
             if arg != "\n":
                 file.write(" ")
 
-    def input_write(self, *args):
-        io.__write(self.input_file, *args)
+    def write(self, *args):
+        IO.__write(self.input_file, *args)
 
-    def input_writeln(self, *args):
+    def writeln(self, *args):
         args = list(args)
         args.append("\n")
-        self.input_write(*args)
+        self.write(*args)
+
+    def output_gen(self, shell_cmd):
+        self.input_file.close()
+        with open(self.input_filename, 'r') as f:
+            self.output_write(subprocess.check_output(shell_cmd, shell=True, stdin=f))
+
+        self.input_file = open(self.input_filename, 'a')
 
     def output_write(self, *args):
-        io.__write(self.output_file, *args)
+        IO.__write(self.output_file, *args)
 
     def output_writeln(self, *args):
         args = list(args)

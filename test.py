@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-from cyaron import io
+from cyaron import *
 
-a = io("test1.in", "test1.out")
-
-a.input_write(1, 2, 3)
-a.input_writeln(1, 2, 3, 4)
-a.input_write(1, 2, 3)
-a.input_writeln(1, 2, 3, 4)
+a = Graph.binary_tree(100, 0.5, 0.5, weight_limit=5)
