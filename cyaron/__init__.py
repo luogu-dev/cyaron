@@ -1,5 +1,5 @@
-from io import IO
-from graph import Graph, Edge
+from .io import IO
+from .graph import Graph, Edge
 from random import randint, randrange, uniform, choice, random
 
 
