@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='CYaRon: Yet Another Random Olympic-iNformatics test data generator',
+    name='cyaron',
     version='0.0.1',
     keywords='cyaron luogu',
-    description='A library for automatically generating test data for Online Judge, Olympic Informatics or automatic application testing',
+    description='CYaRon: Yet Another Random Olympic-iNformatics test data generator, A library for automatically generating test data for Online Judge, Olympic Informatics or automatic application testing',
     license='MIT License',
     url='https://www.luogu.org/',
     author='Luogu Development Team',
