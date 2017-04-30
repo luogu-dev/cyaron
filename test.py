@@ -2,15 +2,19 @@
 
 from cyaron import *
 
-test_data = IO("heat1.in", "heat1.out")
+_n = ati([0, 7, 50])
+_m = ati([0, 11, 100])
 
-n = 7
-m = 11
-s = random.randint(1, n)
-t = random.randint(1, n)
-test_data.writeln(n, m, s, t)
+for i in range(1, 3):
+    test_data = IO(file_prefix="heat", data_id=i)
 
-graph = Graph.graph(n, m, weight_limit=5)
-test_data.writeln(graph)
+    n = _n[i]
+    m = _m[i]
+    s = randint(1, n)
+    t = randint(1, n)
+    test_data.writeln(n, m, s, t)
 
-test_data.output_gen("~/Downloads/test")
+    graph = Graph.graph(n, m, weight_limit=5)
+    test_data.writeln(graph)
+
+    test_data.output_gen("~/Downloads/test")
