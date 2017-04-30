@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='CYaRon TestData Generator',
+    name='CYaRon: Yet Another Random Olympic-iNformatics test data generator',
     version='0.0.1',
     keywords='cyaron luogu',
     description='A library for automatically generating test data for Online Judge, Olympic Informatics or automatic application testing',
