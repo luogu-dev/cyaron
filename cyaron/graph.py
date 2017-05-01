@@ -132,16 +132,45 @@ class Graph:
 
     @staticmethod
     def graph(point_count, edge_count, **kwargs):
-        directed = kwargs.get("directed", True)
+        directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1,1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
-
-        graph = Graph(point_count)
+        graph = Graph(point_count,directed)
         for i in range(edge_count):
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
             weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(u, v, weight=weight, directed=directed)
+            graph.add_edge(u, v, weight=weight)
+        return graph
 
+    #hack spfa (maybe?)
+    @staticmethod
+    def hack_spfa(point_count, **kwargs):
+        directed = kwargs.get("directed", False)
+        extraedg = kwargs.get("extra_edge", 2)
+        weight_limit = kwargs.get("weight_limit", (1,1))
+        if not isinstance(weight_limit, tuple):
+            weight_limit = (1, weight_limit)
+        skp=point_count+3
+        graph=Graph(point_count,directed)
+        if point_count%2==1:
+            skp=point_count/2+1
+        half=point_count/2
+        for i in range(1,half):
+            (x,y)=(i,i+1)
+            weight = random.randint(weight_limit[0], weight_limit[1])
+            graph.add_edge(x+(x>=skp),y+(y>=skp),weight=weight)
+            (x,y)=(i+half,i+half+1)
+            weight = random.randint(weight_limit[0], weight_limit[1])
+            graph.add_edge(x+(x>=skp),y+(y>=skp),weight=weight)
+        for i in range(1,half+1):
+            (x,y)=(i,i+half)
+            weight = random.randint(weight_limit[0], weight_limit[1])
+            graph.add_edge(x+(x>=skp),y+(y>=skp),weight=weight)
+        for i in range(extraedg):
+            u = random.randint(1, point_count)
+            v = random.randint(1, point_count)
+            weight = random.randint(weight_limit[0], weight_limit[1])
+            graph.add_edge(u, v, weight=weight)
         return graph
