@@ -5,7 +5,7 @@ from cyaron import *
 _n = ati([0, 7, 50])
 
 def oper(x):
-  return "%d %d" % (x.start, x.end)
+    return "%d %d" % (x.start, x.end)
 
 for i in range(1, 3):
     test_data = IO(file_prefix="test", data_id=i)

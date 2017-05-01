@@ -67,6 +67,7 @@ class Graph:
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
+        weight_gen = kwargs.get("weight_gen",lambda:random.randint(weight_limit[0],weight_limit[1]))
 
         if not 0 <= chain <= 1 or not 0 <= flower <= 1:
             raise Exception("chain and flower must be between 0 and 1")
@@ -83,15 +84,15 @@ class Graph:
         random_count = point_count - 1 - chain_count - flower_count
 
         for i in range(2, chain_count+2):
-            weight = random.randint(weight_limit[0], weight_limit[1])
+            weight = weight_gen()
             graph.add_edge(i-1, i, weight=weight)
 
         for i in range(chain_count+2, chain_count+flower_count+2):
-            weight = random.randint(weight_limit[0], weight_limit[1])
+            weight = weight_gen()
             graph.add_edge(1, i, weight=weight)
 
         for i in range(point_count-random_count+1, point_count+1):
-            weight = random.randint(weight_limit[0], weight_limit[1])
+            weight = weight_gen()
             u = random.randrange(1, i)
             graph.add_edge(u, i, weight=weight)
 
@@ -103,6 +104,7 @@ class Graph:
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
+        weight_gen = kwargs.get("weight_gen",lambda:random.randint(weight_limit[0],weight_limit[1]))
 
         if not 0 <= left <= 1 or not 0 <= right <= 1:
             raise Exception("left and right must be between 0 and 1")
@@ -114,7 +116,7 @@ class Graph:
         graph = Graph(point_count,directed)
         for i in range(2, point_count+1):
             edge_pos = random.uniform(0, 1)
-            weight = random.randint(weight_limit[0], weight_limit[1])
+            weight = weight_gen()
 
             node = 0
             if edge_pos < left or left+right < edge_pos <= (1.0-left-right)/2: # Left
@@ -136,11 +138,12 @@ class Graph:
         weight_limit = kwargs.get("weight_limit", (1,1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
+        weight_gen = kwargs.get("weight_gen",lambda:random.randint(weight_limit[0],weight_limit[1]))
         graph = Graph(point_count,directed)
         for i in range(edge_count):
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
-            weight = random.randint(weight_limit[0], weight_limit[1])
+            weight = weight_gen()
             graph.add_edge(u, v, weight=weight)
         return graph
 
@@ -152,25 +155,22 @@ class Graph:
         weight_limit = kwargs.get("weight_limit", (1,1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
+        weight_gen = kwargs.get("weight_gen",lambda:random.randint(weight_limit[0],weight_limit[1]))
         skp=point_count+3
         graph=Graph(point_count,directed)
         if point_count%2==1:
             skp=point_count/2+1
         half=point_count/2
         for i in range(1,half):
-            (x,y)=(i,i+1)
-            weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(x+(x>=skp),y+(y>=skp),weight=weight)
-            (x,y)=(i+half,i+half+1)
-            weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(x+(x>=skp),y+(y>=skp),weight=weight)
+            (x,y) = (i,i+1)
+            graph.add_edge(x+(x>=skp), y+(y>=skp), weight=weight_gen())
+            (x,y) = (i+half,i+half+1)
+            graph.add_edge(x+(x>=skp), y+(y>=skp), weight=weight_gen())
         for i in range(1,half+1):
-            (x,y)=(i,i+half)
-            weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(x+(x>=skp),y+(y>=skp),weight=weight)
+            (x,y) = (i,i+half)
+            graph.add_edge(x+(x>=skp), y+(y>=skp), weight=weight_gen())
         for i in range(extraedg):
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
-            weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(u, v, weight=weight)
+            graph.add_edge(u, v, weight=weight_gen())
         return graph
