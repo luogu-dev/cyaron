@@ -1,6 +1,8 @@
 # CYaRon Documentation
 CYaRon: Yet Another Random Olympic-iNformatics test data generator
+
 CYaRon 是一个可以帮助你快速生成随机数据的工具库，目标是实现5分钟生成一个测试数据。
+
 CYaRon 目前包括图、树、向量和IO工具包。
 
 **使用CYaRon**
