@@ -1,3 +1,4 @@
+from .utils import *
 import random
 
 
@@ -27,7 +28,7 @@ class Graph:
             edge_buf = []
             for edge in self.iterate_edges():
                 edge_buf.append(
-                    Edge(tmp[edge.start], tmp[edge.end], edge.weight))
+                    Edge(new_node_id[edge.start], new_node_id[edge.end], edge.weight))
             random.shuffle(edge_buf)
             for edge in edge_buf:
                 if not self.directed and random.randint(0, 1) == 0:
@@ -68,7 +69,7 @@ class Graph:
     def tree(point_count, chain=0, flower=0, **kwargs):
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -102,7 +103,7 @@ class Graph:
     def binary_tree(point_count, left=0, right=0, **kwargs):
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -117,7 +118,7 @@ class Graph:
         can_right = {1}
         graph = Graph(point_count, directed)
         for i in range(2, point_count + 1):
-            edge_pos = random.uniform(0, 1)
+            edge_pos = random.random()
             node = 0
             # Left
             if edge_pos < left or left + right < edge_pos <= (1.0 - left - right) / 2:
@@ -137,7 +138,7 @@ class Graph:
     def graph(point_count, edge_count, **kwargs):
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -155,7 +156,7 @@ class Graph:
         directed = kwargs.get("directed", False)
         extraedg = kwargs.get("extra_edge", 2)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
