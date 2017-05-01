@@ -1,6 +1,5 @@
 import random
 
-
 class Edge:
     def __init__(self, u, v, w):
         self.start = u
@@ -10,31 +9,51 @@ class Edge:
     def __str__(self):
         return "%d %d %d" % (self.start, self.end, self.weight)
 
-
 class Graph:
-    def __init__(self, point_count):
+    def __init__(self, point_count, directed=False):
+        self.directed = directed
         self.edges = [[] for i in range(point_count+1)]
 
     def __str__(self):
         buf = []
         for edge in self.iterate_edges():
             buf.append(str(edge))
-
+        return "\n".join(buf)
+        
+    def tostr(self, **kwargs):
+        shuffle = kwargs.get("shuffle",False)
+        op = kwargs.get("output",str)
+        buf = []
+        if shuffle:
+            tmp = [i for i in range(1,len(self.edges))]
+            random.shuffle(tmp)
+            tmp = [0] + tmp
+            tat = []
+            for edge in self.iterate_edges():
+                tat.append(Edge(tmp[edge.start], tmp[edge.end], edge.weight))
+            random.shuffle(tat)
+            for edge in tat:
+                if not self.directed and random.randint(0,1) == 0:
+                    (edge.start, edge.end)=(edge.end, edge.start)
+                buf.append(op(edge))
+        else:
+            for edge in self.iterate_edges():
+                buf.append(op(edge))
         return "\n".join(buf)
 
     def iterate_edges(self):
         for node in self.edges:
             for edge in node:
-                yield edge
+                if edge.end >= edge.start or self.directed:
+                    yield edge
 
     def __add_edge(self, x, y, w):
         self.edges[x].append(Edge(x, y, w))
 
     def add_edge(self, x, y, **kwargs):
         weight = kwargs.get("weight", 1)
-        directed = kwargs.get("directed", True)
         self.__add_edge(x, y, weight)
-        if not directed:
+        if not self.directed and x != y:
             self.__add_edge(y, x, weight)
 
     @staticmethod
@@ -47,7 +66,7 @@ class Graph:
 
     @staticmethod
     def tree(point_count, chain=0, flower=0, **kwargs):
-        directed = kwargs.get("directed", True)
+        directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
@@ -57,29 +76,33 @@ class Graph:
         if chain+flower > 1:
             raise Exception("chain plus flower must be smaller than 1")
 
-        graph = Graph(point_count)
-        chain_count = (point_count-1) * chain
-        flower_count = (point_count-1) * flower
+        graph = Graph(point_count, directed)
+        chain_count = int((point_count-1) * chain)
+        flower_count = int((point_count-1) * flower)
+        if chain_count > point_count - 1:
+            chain_count = point_count - 1
+        if chain_count + flower_count > point_count - 1:
+            flower_count = point_count - 1 - chain_count
         random_count = point_count - 1 - chain_count - flower_count
 
         for i in range(2, chain_count+2):
             weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(i-1, i, weight=weight, directed=directed)
+            graph.add_edge(i-1, i, weight=weight)
 
         for i in range(chain_count+2, chain_count+flower_count+2):
             weight = random.randint(weight_limit[0], weight_limit[1])
-            graph.add_edge(1, i, weight=weight, directed=directed)
+            graph.add_edge(1, i, weight=weight)
 
         for i in range(point_count-random_count+1, point_count+1):
             weight = random.randint(weight_limit[0], weight_limit[1])
             u = random.randrange(1, i)
-            graph.add_edge(u, i, weight=weight, directed=directed)
+            graph.add_edge(u, i, weight=weight)
 
         return graph
 
     @staticmethod
     def binary_tree(point_count, left=0, right=0, **kwargs):
-        directed = kwargs.get("directed", True)
+        directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
@@ -91,7 +114,7 @@ class Graph:
 
         can_left = {1}
         can_right = {1}
-        graph = Graph(point_count)
+        graph = Graph(point_count,directed)
         for i in range(2, point_count+1):
             edge_pos = random.uniform(0, 1)
             weight = random.randint(weight_limit[0], weight_limit[1])
@@ -104,7 +127,7 @@ class Graph:
                 node = random.choice(tuple(can_right))
                 can_right.remove(node)
 
-            graph.add_edge(node, i, weight=weight, directed=directed)
+            graph.add_edge(node, i, weight=weight)
             can_left.add(i)
             can_right.add(i)
 
@@ -125,5 +148,3 @@ class Graph:
             graph.add_edge(u, v, weight=weight, directed=directed)
 
         return graph
-
-

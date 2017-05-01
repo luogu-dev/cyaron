@@ -17,4 +17,4 @@ for i in range(1, 3):
     graph = Graph.graph(n, m, weight_limit=5)
     test_data.writeln(graph)
 
-    test_data.output_gen("~/Downloads/a.out")
+    test_data.output_gen("~/Downloads/std_binary") # A binary file or shell command that accepts input from stdin and outputs to stdout
