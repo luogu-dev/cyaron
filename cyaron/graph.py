@@ -2,20 +2,35 @@ import random
 
 
 class Edge:
+    """Class Edge: A class of the edge in the graph"""
     def __init__(self, u, v, w):
+        """__init__(self, u, v, w) -> None
+            Initialize a edge. U is the start vertex, V is the end vertex and w is the weight.
+        """
         self.start = u
         self.end = v
         self.weight = w
 
     def __str__(self):
+        """__str__(self) -> str
+            Return a string to output the edge. The string contains the start vertex, end vertex and weight(u,v,w) and splits with space.
+        """
         return "%d %d %d" % (self.start, self.end, self.weight)
 
 
 class Graph:
+    """Class Graph: A class of the graph
+    """
     def __init__(self, point_count):
-        self.edges = [[] for i in range(point_count+1)]
+        """__init__(self, point_count) -> None
+            Initialize a graph. Point_count is the count of the vertexes in the graph.
+        """
+        self.edges = [[] for i in range(point_count+1)] # 
 
     def __str__(self):
+        """__str__(self) -> str
+            Return a string to output the graph. The string contains all the edges of the graph, splits with "\n".
+        """
         buf = []
         for edge in self.iterate_edges():
             buf.append(str(edge))
