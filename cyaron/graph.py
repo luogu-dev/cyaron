@@ -14,13 +14,7 @@ class Graph:
         self.directed = directed
         self.edges = [[] for i in range(point_count+1)]
 
-    def __str__(self):
-        buf = []
-        for edge in self.iterate_edges():
-            buf.append(str(edge))
-        return "\n".join(buf)
-        
-    def tostr(self, **kwargs):
+    def to_str(self, **kwargs):
         shuffle = kwargs.get("shuffle",False)
         op = kwargs.get("output",str)
         buf = []
@@ -40,6 +34,9 @@ class Graph:
             for edge in self.iterate_edges():
                 buf.append(op(edge))
         return "\n".join(buf)
+
+    def __str__(self):
+        return self.to_str()
 
     def iterate_edges(self):
         for node in self.edges:
