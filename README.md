@@ -19,12 +19,10 @@ By Luogu
 
 你可以下载github源代码  https://github.com/luogu-dev/cyaron ，或者`pip install cyaron`。在此之前，需要准备好python2/3。
 
-暂时文档没有写好，之后将慢慢补充。请根据demo (`test.py`)和源代码进行YY。
+[文档](https://github.com/luogu-dev/cyaron/wiki/%E9%A6%96%E9%A1%B5)仍在建设中，尚不完整，之后将慢慢补充。请根据`examples`和源代码进行YY。
 
 首批贡献者 @fjzzq2002 @lin_toto @kkksc03 
 
 之后计划实现云Generator，即只需提供写好的python脚本以及std，上传到服务器，即可下载一个测试数据的压缩包，真正实现5分钟生成一个测试数据！
 
 目前CYaRon的功能还比较初级，希望各位大佬一起来协助改进这个项目。希望这个项目可以帮助大家节省时间！
-
-Disclaimer：This project is not related to the idol group of the same name, GanBaRuByi!
