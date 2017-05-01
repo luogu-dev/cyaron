@@ -19,7 +19,7 @@ By Luogu
 
 你可以下载github源代码  https://github.com/luogu-dev/cyaron ，或者`pip install cyaron`。在此之前，需要准备好python2/3。
 
-暂时文档没有写好，之后将慢慢补充。请根据demo和源代码进行YY。
+暂时文档没有写好，之后将慢慢补充。请根据demo (`test.py`)和源代码进行YY。
 
 首批贡献者 @fjzzq2002 @lin_toto @kkksc03 
 
