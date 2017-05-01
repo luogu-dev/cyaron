@@ -39,13 +39,13 @@ class IO(object):
             if arg != "\n":
                 file.write(" ")
 
-    def write(self, *args):
+    def input_write(self, *args):
         IO.__write(self.input_file, *args)
 
-    def writeln(self, *args):
+    def input_writeln(self, *args):
         args = list(args)
         args.append("\n")
-        self.write(*args)
+        self.input_write(*args)
 
     def output_gen(self, shell_cmd):
         self.input_file.close()

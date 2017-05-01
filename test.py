@@ -12,10 +12,10 @@ for i in range(1, 3):
     m = _m[i]
     s = randint(1, n)
     t = randint(1, n)
-    test_data.writeln(n, m, s, t)
+    test_data.input_writeln(n, m, s, t)
 
     graph = Graph.graph(n, m, weight_limit=5)
-    test_data.writeln(graph)
+    test_data.input_writeln(graph)
 
     test_data.output_gen("~/Downloads/std_binary")
     # A binary file or shell command that accepts input from stdin and outputs to stdout
