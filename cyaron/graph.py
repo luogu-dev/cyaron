@@ -166,7 +166,7 @@ class Graph:
         graph = Graph(point_count, directed)
         if point_count % 2 == 1:
             point_to_skip = point_count / 2 + 1
-        half = point_count / 2
+        half = int(point_count / 2)
 
         for i in range(1, half):
             (x, y) = (i, i + 1)

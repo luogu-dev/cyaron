@@ -36,9 +36,12 @@ class IO(object):
     @staticmethod
     def __write(file, *args):
         for arg in args:
-            file.write(str(arg))
-            if arg != "\n":
-                file.write(" ")
+            if list_like(arg):
+                IO.__write(file, *arg)
+            else:
+                file.write(str(arg))
+                if arg != "\n":
+                    file.write(" ")
 
     def input_write(self, *args):
         IO.__write(self.input_file, *args)

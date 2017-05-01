@@ -1,5 +1,6 @@
 from .consts import ALPHABET_SMALL, SENTENCE_SEPARATORS, SENTENCE_TERMINATORS
 from .utils import *
+from functools import reduce
 import random
 
 
