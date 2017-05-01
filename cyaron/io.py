@@ -15,8 +15,12 @@ class IO(object):
 
             input_suffix = kwargs.get("input_suffix", ".in")
             output_suffix = kwargs.get("output_suffix", ".out")
+            disable_output = kwargs.get("disable_output", False)
             self.input_filename = filename_prefix + input_suffix
-            self.output_filename = filename_prefix + output_suffix
+            self.output_filename = filename_prefix + output_suffix if not disable_output else None
+        elif len(args) == 1:
+            self.input_filename = args[0]
+            self.output_filename = None
         elif len(args) == 2:
             self.input_filename = args[0]
             self.output_filename = args[1]
@@ -24,7 +28,7 @@ class IO(object):
             raise Exception("Invalid argument count")
 
         self.input_file = open(self.input_filename, 'w')
-        self.output_file = open(self.output_filename, 'w')
+        self.output_file = open(self.output_filename, 'w') if self.output_filename else None
 
     def __del__(self):
         try:
