@@ -84,17 +84,14 @@ class Graph:
         random_count = point_count - 1 - chain_count - flower_count
 
         for i in range(2, chain_count+2):
-            weight = weight_gen()
-            graph.add_edge(i-1, i, weight=weight)
+            graph.add_edge(i-1, i, weight=weight_gen())
 
         for i in range(chain_count+2, chain_count+flower_count+2):
-            weight = weight_gen()
-            graph.add_edge(1, i, weight=weight)
+            graph.add_edge(1, i, weight=weight_gen())
 
         for i in range(point_count-random_count+1, point_count+1):
-            weight = weight_gen()
             u = random.randrange(1, i)
-            graph.add_edge(u, i, weight=weight)
+            graph.add_edge(u, i, weight=weight_gen())
 
         return graph
 
@@ -116,8 +113,6 @@ class Graph:
         graph = Graph(point_count,directed)
         for i in range(2, point_count+1):
             edge_pos = random.uniform(0, 1)
-            weight = weight_gen()
-
             node = 0
             if edge_pos < left or left+right < edge_pos <= (1.0-left-right)/2: # Left
                 node = random.choice(tuple(can_left))
@@ -126,7 +121,7 @@ class Graph:
                 node = random.choice(tuple(can_right))
                 can_right.remove(node)
 
-            graph.add_edge(node, i, weight=weight)
+            graph.add_edge(node, i, weight=weight_gen())
             can_left.add(i)
             can_right.add(i)
 
@@ -143,8 +138,7 @@ class Graph:
         for i in range(edge_count):
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
-            weight = weight_gen()
-            graph.add_edge(u, v, weight=weight)
+            graph.add_edge(u, v, weight=weight_gen())
         return graph
 
     #hack spfa (maybe?)
