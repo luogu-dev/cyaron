@@ -12,8 +12,8 @@ class Vector:
         if(not list_like(position_range)):
             raise Exception("the 2nd param must be a list, whose length = 1st param")
         dimension = len(position_range)
-        offset = [];
-        vector_space = 1;
+        offset = []
+        vector_space = 1
         for i in range(0, dimension):
             if(list_like(position_range[i])):
                 if(position_range[i][1] < position_range[i][0]):
@@ -25,18 +25,18 @@ class Vector:
             if(position_range[i] <= 0):
                 raise Exception("the difference must more than 0")
             vector_space *= (position_range[i] + 1)
-        result = [];
+        result = []
         
         if(mode == 2 or mode == 1):
             for i in range(0, num):
-                tmp = [];
+                tmp = []
                 for j in range(0, dimension):
                     one_num = random.randint(0,position_range[j]) if mode == 1 else random.uniform(0,position_range[j])
                     tmp.insert(j, one_num + offset[j])
                 result.insert(i, tmp)
                 
         elif((mode == 0 and vector_space > 5 * num)):
-            num_set = set([]);
+            num_set = set([])
             rand = 0;
             for i in range(0, num):
                 while True:
@@ -61,14 +61,13 @@ class Vector:
                     tmp[j] += offset[j]
                 result.insert(i, tmp)
         return result
-            
-            
+
     @staticmethod      
     def get_vector(dimension, position_range, hashnum):
         tmp = []
         for i in range(0, dimension):
             tmp.insert(i, hashnum % (position_range[i] + 1))
-            hashnum = hashnum // (position_range[i] + 1)
+            hashnum //= (position_range[i] + 1)
         return tmp
         
             
