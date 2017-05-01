@@ -26,3 +26,5 @@ By Luogu
 之后计划实现云Generator，即只需提供写好的python脚本以及std，上传到服务器，即可下载一个测试数据的压缩包，真正实现5分钟生成一个测试数据！
 
 目前CYaRon的功能还比较初级，希望各位大佬一起来协助改进这个项目。希望这个项目可以帮助大家节省时间！
+
+Disclaimer：This project is not related to the idol group of the same name, GanBaRuByi!
