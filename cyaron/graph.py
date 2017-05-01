@@ -5,7 +5,10 @@ class Edge:
     """Class Edge: A class of the edge in the graph"""
     def __init__(self, u, v, w):
         """__init__(self, u, v, w) -> None
-            Initialize a edge. U is the start vertex, V is the end vertex and w is the weight.
+            Initialize a edge. 
+            int u -> the start vertex
+            int v -> the end vertex
+            int w -> the weight.
         """
         self.start = u
         self.end = v
@@ -23,9 +26,10 @@ class Graph:
     """
     def __init__(self, point_count):
         """__init__(self, point_count) -> None
-            Initialize a graph. Point_count is the count of the vertexes in the graph.
+            Initialize a graph.
+            int point_count -> the count of the vertexes in the graph.
         """
-        self.edges = [[] for i in range(point_count+1)] # 
+        self.edges = [[] for i in range(point_count+1)]
 
     def __str__(self):
         """__str__(self) -> str
@@ -38,14 +42,28 @@ class Graph:
         return "\n".join(buf)
 
     def iterate_edges(self):
+        """iterate_edges(self) -> Edge
+            Iter the graph. Order by the start vertex.
+        """
         for node in self.edges:
             for edge in node:
                 yield edge
 
     def __add_edge(self, x, y, w):
+        """__add_edge(self, x, y, w) -> None
+            Add an edge to the graph.
+        """
         self.edges[x].append(Edge(x, y, w))
 
     def add_edge(self, x, y, **kwargs):
+        """add_edge(self, x, y, **kwargs) -> None
+            int x -> the start vertex
+            int y -> the end vertex
+            **kwargs(Keyword args):
+                int weight = 1 -> the weight 
+                bool directed = True -> whether the graph is directed(true:directed,false:not directed)
+                                        not directed means if you added the edge x->y, you would also add the edge y->x
+        """
         weight = kwargs.get("weight", 1)
         directed = kwargs.get("directed", True)
         self.__add_edge(x, y, weight)
@@ -54,14 +72,41 @@ class Graph:
 
     @staticmethod
     def chain(point_count, **kwargs):
+        """chain(point_count, **kwargs) -> Graph
+               Factory method. Return a chain graph with point_count vertexes.
+               int point_count -> the count of vertexes
+               **kwargs(Keyword args):
+                   bool directed = True -> whether the chain is directed(true:directed,false:not directed)
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+        """
         return Graph.tree(point_count, 1, 0, **kwargs)
 
     @staticmethod
     def flower(point_count, **kwargs):
+        """flower(point_count, **kwargs) -> Graph
+               Factory method. Return a flower graph with point_count vertexes.
+               int point_count -> the count of vertexes
+               **kwargs(Keyword args):
+                   bool directed = True -> whether the chain is directed(true:directed,false:not directed)
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+        """
         return Graph.tree(point_count, 0, 1, **kwargs)
 
     @staticmethod
     def tree(point_count, chain=0, flower=0, **kwargs):
+        """tree(point_count, chain=0, flower=0, **kwargs) -> Graph
+               Factory method. Return a tree with point_count vertexes.
+               int point_count -> the count of vertexes
+               bool chain = 0 -> whether the tree is a chain
+               bool flower = 0 -> whether the tree is a flower
+               NOTICE:only either chain or flower can be True
+               **kwargs(Keyword args):
+                   bool directed = True -> whether the chain is directed(true:directed,false:not directed)
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+        """
         directed = kwargs.get("directed", True)
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not isinstance(weight_limit, tuple):
@@ -94,6 +139,17 @@ class Graph:
 
     @staticmethod
     def binary_tree(point_count, left=0, right=0, **kwargs):
+        """binary_tree(point_count, left=0, right=0, **kwargs) -> Graph
+               Factory method. Return a binary tree with point_count vertexes.
+               int point_count -> the count of vertexes
+               float left = 0 -> random arg. should be in [0,1]
+               float right = 0 -> random arg. should be in [0,1]
+               NOTICE:left+right mustn't be greater than 1
+               **kwargs(Keyword args):
+                   bool directed = True -> whether the chain is directed(true:directed,false:not directed)
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+        """
         directed = kwargs.get("directed", True)
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not isinstance(weight_limit, tuple):
@@ -127,6 +183,15 @@ class Graph:
 
     @staticmethod
     def graph(point_count, edge_count, **kwargs):
+        """graph(point_count, edge_count, **kwargs) -> Graph
+               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               int point_count -> the count of vertexes
+               int edge_count -> the count of edges
+               **kwargs(Keyword args):
+                   bool directed = True -> whether the chain is directed(true:directed,false:not directed)
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+        """
         directed = kwargs.get("directed", True)
         weight_limit = kwargs.get("weight_limit", (1,1))
         if not isinstance(weight_limit, tuple):
