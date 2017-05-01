@@ -16,23 +16,23 @@ class Graph:
 
     def to_str(self, **kwargs):
         shuffle = kwargs.get("shuffle",False)
-        op = kwargs.get("output",str)
+        output = kwargs.get("output",str)
         buf = []
         if shuffle:
-            tmp = [i for i in range(1,len(self.edges))]
-            random.shuffle(tmp)
-            tmp = [0] + tmp
-            tat = []
+            new_node_id = [i for i in range(1,len(self.edges))]
+            random.shuffle(new_node_id)
+            new_node_id = [0] + new_node_id
+            edge_buf = []
             for edge in self.iterate_edges():
-                tat.append(Edge(tmp[edge.start], tmp[edge.end], edge.weight))
-            random.shuffle(tat)
-            for edge in tat:
+                edge_buf.append(Edge(tmp[edge.start], tmp[edge.end], edge.weight))
+            random.shuffle(edge_buf)
+            for edge in edge_buf:
                 if not self.directed and random.randint(0,1) == 0:
                     (edge.start, edge.end)=(edge.end, edge.start)
-                buf.append(op(edge))
+                buf.append(output(edge))
         else:
             for edge in self.iterate_edges():
-                buf.append(op(edge))
+                buf.append(output(edge))
         return "\n".join(buf)
 
     def __str__(self):
@@ -73,8 +73,8 @@ class Graph:
             raise Exception("chain and flower must be between 0 and 1")
         if chain+flower > 1:
             raise Exception("chain plus flower must be smaller than 1")
-
         graph = Graph(point_count, directed)
+
         chain_count = int((point_count-1) * chain)
         flower_count = int((point_count-1) * flower)
         if chain_count > point_count - 1:
@@ -85,10 +85,8 @@ class Graph:
 
         for i in range(2, chain_count+2):
             graph.add_edge(i-1, i, weight=weight_gen())
-
         for i in range(chain_count+2, chain_count+flower_count+2):
             graph.add_edge(1, i, weight=weight_gen())
-
         for i in range(point_count-random_count+1, point_count+1):
             u = random.randrange(1, i)
             graph.add_edge(u, i, weight=weight_gen())
@@ -120,7 +118,6 @@ class Graph:
             elif left <= edge_pos <= left+right or (1.0-left-right)/2 < edge_pos < 1: # Right
                 node = random.choice(tuple(can_right))
                 can_right.remove(node)
-
             graph.add_edge(node, i, weight=weight_gen())
             can_left.add(i)
             can_right.add(i)
@@ -150,21 +147,25 @@ class Graph:
         if not isinstance(weight_limit, tuple):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get("weight_gen",lambda:random.randint(weight_limit[0],weight_limit[1]))
-        skp=point_count+3
+
+        point_to_skip = point_count+3
         graph=Graph(point_count,directed)
         if point_count%2==1:
-            skp=point_count/2+1
+            point_to_skip=point_count/2+1
         half=point_count/2
+
         for i in range(1,half):
             (x,y) = (i,i+1)
-            graph.add_edge(x+(x>=skp), y+(y>=skp), weight=weight_gen())
+            graph.add_edge(x+(x>=point_to_skip), y+(y>=point_to_skip), weight=weight_gen())
             (x,y) = (i+half,i+half+1)
-            graph.add_edge(x+(x>=skp), y+(y>=skp), weight=weight_gen())
+            graph.add_edge(x+(x>=point_to_skip), y+(y>=point_to_skip), weight=weight_gen())
         for i in range(1,half+1):
             (x,y) = (i,i+half)
-            graph.add_edge(x+(x>=skp), y+(y>=skp), weight=weight_gen())
+            graph.add_edge(x+(x>=point_to_skip), y+(y>=point_to_skip), weight=weight_gen())
+
         for i in range(extraedg):
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
             graph.add_edge(u, v, weight=weight_gen())
+            
         return graph
