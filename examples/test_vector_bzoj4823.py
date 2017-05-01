@@ -16,5 +16,3 @@ for i in range(1, 5):
     squre = Vector.random(n,[(1,x),(1,x)])
     for j in range(0,n):
         test_data.input_writeln(squre[j][0], squre[j][1], randint(1,100))
-    # A binary file or shell command that accepts input from stdin and outputs to stdout
-    test_data =1;
