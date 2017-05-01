@@ -38,22 +38,23 @@ class IO(object):
             pass
 
     @staticmethod
-    def __write(file, *args):
+    def __write(file, *args, **kwargs):
+        separator = kwargs.get("separator", " ")
         for arg in args:
             if list_like(arg):
-                IO.__write(file, *arg)
+                IO.__write(file, *arg, **kwargs)
             else:
                 file.write(str(arg))
                 if arg != "\n":
-                    file.write(" ")
+                    file.write(separator)
 
-    def input_write(self, *args):
-        IO.__write(self.input_file, *args)
+    def input_write(self, *args, **kwargs):
+        IO.__write(self.input_file, *args, **kwargs)
 
-    def input_writeln(self, *args):
+    def input_writeln(self, *args, **kwargs):
         args = list(args)
         args.append("\n")
-        self.input_write(*args)
+        self.input_write(*args, **kwargs)
 
     def output_gen(self, shell_cmd):
         self.input_file.close()
@@ -62,10 +63,10 @@ class IO(object):
 
         self.input_file = open(self.input_filename, 'a')
 
-    def output_write(self, *args):
-        IO.__write(self.output_file, *args)
+    def output_write(self, *args, **kwargs):
+        IO.__write(self.output_file, *args, **kwargs)
 
-    def output_writeln(self, *args):
+    def output_writeln(self, *args, **kwargs):
         args = list(args)
         args.append("\n")
-        self.output_write(*args)
+        self.output_write(*args, **kwargs)
