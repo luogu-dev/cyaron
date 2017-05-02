@@ -112,7 +112,7 @@ class IO(object):
         """
         self.input_file.close()
         with open(self.input_filename, 'r') as f:
-            self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f))
+            self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f).decode('ascii'))
 
         self.input_file = open(self.input_filename, 'a')
 

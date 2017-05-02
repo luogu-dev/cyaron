@@ -33,8 +33,10 @@ class TestIO(unittest.TestCase):
             test.output_writeln(6, 5, 4)
             test.output_writeln([3], 2, [1])
 
-        input = open("test_write.in").read()
-        output = open("test_write.out").read()
+        with open("test_write.in") as f:
+            input = f.read()
+        with open("test_write.out") as f:
+            output = f.read()
         self.assertEqual(input.split(), ['1', '2', '3', '4', '5', '6', '7', '8', '9'])
         self.assertEqual(output.split(), ['9', '8', '7', '6', '5', '4', '3', '2', '1'])
         self.assertEqual(input.count("\n"), 2)
@@ -44,5 +46,6 @@ class TestIO(unittest.TestCase):
         with IO("test_gen.in", "test_gen.out") as test:
             test.output_gen("echo 233")
 
-        output = open("test_gen.out").read()
+        with open("test_gen.out") as f:
+            output = f.read()
         self.assertEqual(output.strip("\n"), "233")
