@@ -4,8 +4,8 @@ class Sequence:
     """Class Sequence: the tool class for sequences.
     """
 
-    def __init__(self, formula, initial_values=[]):
-        """__init__(self, formula, initial_values=[]) -> None
+    def __init__(self, formula, initial_values=()):
+        """__init__(self, formula, initial_values=() -> None
             Create a sequence object.
             int formula(int, function) -> the formula function ...
         """

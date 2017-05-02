@@ -1,5 +1,4 @@
 import unittest
-
 from cyaron import Sequence
 
 
