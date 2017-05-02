@@ -2,7 +2,6 @@ import unittest
 import os
 import shutil
 import tempfile
-
 from cyaron import IO
 
 
