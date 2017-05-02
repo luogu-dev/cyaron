@@ -1,3 +1,5 @@
+#coding=utf8
+
 from .consts import ALPHABET_SMALL
 from .utils import *
 import random
