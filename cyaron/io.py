@@ -57,6 +57,19 @@ class IO(object):
         except Exception:
             pass
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """__del__(self) -> None
+            Exit the context of the IO object and close the input file and the output file
+        """
+        try:
+            self.input_file.close()
+            self.output_file.close()
+        except Exception:
+            pass
+
     @staticmethod
     def __write(file, *args, **kwargs):
         """__write(file, *args, **kwargs) -> None
