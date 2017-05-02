@@ -11,7 +11,7 @@ class Sequence:
         """
         self.formula = formula
         if list_like(initial_values):
-            self.values = {k: v for (k, v) in enumerate(initial_values)}
+            self.values = dict(enumerate(initial_values))
         elif isinstance(initial_values, dict):
             self.values = initial_values
         else:
