@@ -106,6 +106,9 @@ class Graph:
                    bool directed = True -> whether the chain is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+                   int/float weight_gen() 
+                   = lambda: random.randint(weight_limit[0], weight_limit[1]) 
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         return Graph.tree(point_count, 1, 0, **kwargs)
 
@@ -118,6 +121,9 @@ class Graph:
                    bool directed = True -> whether the chain is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+                   int/float weight_gen() 
+                   = lambda: random.randint(weight_limit[0], weight_limit[1]) 
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         return Graph.tree(point_count, 0, 1, **kwargs)
 
@@ -126,16 +132,16 @@ class Graph:
         """tree(point_count, chain=0, flower=0, **kwargs) -> Graph
                Factory method. Return a tree with point_count vertexes.
                int point_count -> the count of vertexes
-               bool chain = 0 -> whether the tree is a chain
-               bool flower = 0 -> whether the tree is a flower
+               float chain = 0 -> 1 means the tree is a chain
+               float flower = 0 -> 1 means the tree is a flower
                NOTICE:only either chain or flower can be True
                **kwargs(Keyword args):
                    bool directed = False -> whether the chain is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
-                   int weight_gen() 
+                   int/float weight_gen() 
                    = lambda: random.randint(weight_limit[0], weight_limit[1]) 
-                   -> the generator of the weights. It should return a weight between weight_limit[0] and [1]. The default way is to use the random.randint()
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
@@ -181,9 +187,9 @@ class Graph:
                    bool directed = False -> whether the chain is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
-                   int weight_gen() 
+                   int/float weight_gen() 
                    = lambda: random.randint(weight_limit[0], weight_limit[1]) 
-                   -> the generator of the weights. It should return a weight between weight_limit[0] and [1]. The default way is to use the random.randint()
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
@@ -228,6 +234,9 @@ class Graph:
                    bool directed = False -> whether the chain is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+                   int/float weight_gen() 
+                   = lambda: random.randint(weight_limit[0], weight_limit[1]) 
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
@@ -254,7 +263,9 @@ class Graph:
                (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
                int extra_edge = 2 -> the number of extra edges
-               
+               int/float weight_gen() 
+                   = lambda: random.randint(weight_limit[0], weight_limit[1]) 
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         directed = kwargs.get("directed", False)
         extraedg = kwargs.get("extra_edge", 2)
