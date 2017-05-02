@@ -1,1 +1,1 @@
-from sequence_test import TestSequence
+from .sequence_test import TestSequence

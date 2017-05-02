@@ -204,8 +204,8 @@ class Graph:
         if left + right > 1:
             raise Exception("left plus right must be smaller than 1")
 
-        can_left = {1}
-        can_right = {1}
+        can_left = set([1])
+        can_right = set([1])
         graph = Graph(point_count, directed)
         for i in range(2, point_count + 1):
             edge_pos = random.random()
