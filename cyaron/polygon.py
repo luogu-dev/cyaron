@@ -2,7 +2,18 @@ from .utils import *
 from .consts import *
 import random
 
-class Geometry:
+class Polygon:
+    def __init__(self,points=[]):
+        if not list_like(points):
+            raise Exception("polygon must be constructed by a list of points")
+        self.points = points
+
+    def __str__(self):
+        buf = []
+        for point in self.points:
+            buf.append(str(point[0]) + " " + str(point[1]))
+        return '\n'.join(buf)
+
     @staticmethod
     def convex_hull(n, **kwargs):
         # fx, fy are functions which map [0,1] to int or float
@@ -56,9 +67,13 @@ class Geometry:
                 st.append(points[i])
             result = st
             sz = int(sz * 1.7) + 3  # if failed, increase size and try again
-        random.shuffle(result)
-        result = result[0:n]
-        return result
+        ids = [i for i in range(0, len(result))]
+        random.shuffle(ids)
+        ids = ids[0:n]
+        ids = sorted(ids)
+        output = [result[ids[i]] for i in range(0, n)]
+        poly = Polygon(output)
+        return poly
 
     # find a path from points[0] to points[1] and cross all points in [points]
     @staticmethod
@@ -90,8 +105,8 @@ class Geometry:
                 continue
             pt = (divide_line[0] * points[i][0] + divide_line[1] * points[i][1] + divide_line[2] >= 0)
             s[pt].append(points[i])
-        pa = Geometry.__conquer(s[p0])
-        pb = Geometry.__conquer(s[not p0])
+        pa = Polygon.__conquer(s[p0])
+        pb = Polygon.__conquer(s[not p0])
         pb.pop(0)
         return pa + pb
 
@@ -117,8 +132,9 @@ class Geometry:
         for i in range(2, len(points)):
             pt = (divide_line[0] * points[i][0] + divide_line[1] * points[i][1] + divide_line[2] >= 0)
             s[pt].append(points[i])
-        pa = Geometry.__conquer(s[0])
-        pb = Geometry.__conquer(s[1])
+        pa = Polygon.__conquer(s[0])
+        pb = Polygon.__conquer(s[1])
         pa.pop(0)
         pb.pop(0)
-        return pa + pb
+        poly = Polygon(pa + pb)
+        return poly
