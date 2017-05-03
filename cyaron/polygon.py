@@ -1,6 +1,7 @@
 from .utils import *
 from .consts import *
 import random
+import math
 
 class Polygon:
     def __init__(self,points=[]):
@@ -13,6 +14,26 @@ class Polygon:
         for point in self.points:
             buf.append(str(point[0]) + " " + str(point[1]))
         return '\n'.join(buf)
+
+    def perimeter(self):
+        ans = 0
+        for i in range(0, len(self.points)):
+            a = self.points[i]
+            b = self.points[(i + 1) % len(self.points)]
+            ans = ans + math.sqrt((a[0] - b[0]) * (a[0] - b[0]) +
+                                  (a[1] - b[1]) * (a[1] - b[1]))
+        return ans
+
+    def area(self):
+        ans = 0
+        for i in range(0, len(self.points)):
+            a = self.points[i]
+            b = self.points[(i + 1) % len(self.points)]
+            ans = ans + a[0] * b[1] - a[1] * b[0]
+        if ans < 0:
+            ans = -ans
+        ans = ans / 2
+        return ans
 
     @staticmethod
     def convex_hull(n, **kwargs):
@@ -94,7 +115,7 @@ class Polygon:
         p0 = (divide_line[0] * points[0][0] + divide_line[1] * points[0][1] + divide_line[2] >= 0)
         p1 = (divide_line[0] * points[1][0] + divide_line[1] * points[1][1] + divide_line[2] >= 0)
         if p0 == p1:  # the divide point isn't good enough...
-            return __conquer(points)
+            return Polygon.__conquer(points)
         s = [[], []]
         s[p0].append(points[0])
         s[p0].append(divide_point1)
