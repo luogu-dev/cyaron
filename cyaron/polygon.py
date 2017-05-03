@@ -144,7 +144,7 @@ class Polygon:
         if not list_like(points):
             raise Exception("source point is not a list")
         random.shuffle(points)
-        if len(points) < 3:
+        if len(points) <= 3:
             return points
         # divide by points[0], points[1]
         divide_line = [points[1][1] - points[0][1],
