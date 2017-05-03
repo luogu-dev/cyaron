@@ -1,11 +1,17 @@
 from .utils import *
 
 class Sequence:
+    """Class Sequence: the tool class for sequences.
+    """
 
-    def __init__(self, formula, initial_values=[]):
+    def __init__(self, formula, initial_values=()):
+        """__init__(self, formula, initial_values=() -> None
+            Create a sequence object.
+            int formula(int, function) -> the formula function ...
+        """
         self.formula = formula
         if list_like(initial_values):
-            self.values = {k: v for (k, v) in enumerate(initial_values)}
+            self.values = dict(enumerate(initial_values))
         elif isinstance(initial_values, dict):
             self.values = initial_values
         else:

@@ -1,3 +1,5 @@
+#coding=utf8
+
 from .consts import ALPHABET_SMALL
 from .utils import *
 import random
@@ -10,7 +12,8 @@ class Vector:
         if(num > 1000000):
             raise Exception("num no more than 1e6")
         if(not list_like(position_range)):
-            raise Exception("the 2nd param must be a list, whose length = 1st param")
+            raise Exception("the 2nd param must be a list")
+
         dimension = len(position_range)
         offset = []
         vector_space = 1
@@ -25,6 +28,8 @@ class Vector:
             if(position_range[i] <= 0):
                 raise Exception("the difference must more than 0")
             vector_space *= (position_range[i] + 1)
+        if(mode == 0 and num > vector_space):
+            raise Exception("1st param is too large that CYaRon can not generate unique vectors")
         result = []
         
         if(mode == 2 or mode == 1):
@@ -43,7 +48,7 @@ class Vector:
                     rand = random.randint(0, vector_space - 1);
                     if(not rand in num_set):
                         break
-                # Todo: 这边效率如何？我认为是logn级别的检查
+                # Todo: So how to analyse then complexity? I think it is logn
                 num_set.add(rand)
                 tmp = Vector.get_vector(dimension, position_range, rand)
                 for j in range(0, dimension):
@@ -52,7 +57,7 @@ class Vector:
                          
             
         else:
-            # 生成0~vector_space的所有向量空间
+            # generate 0~vector_space and shuffle
             rand_arr = [i for i in range(0, vector_space)]
             random.shuffle(rand_arr)
             for i in range(0, num):

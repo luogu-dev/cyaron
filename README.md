@@ -2,7 +2,7 @@
 CYaRon: Yet Another Random Olympic-iNformatics test data generator
 
 By Luogu
-
+[![](https://travis-ci.org/luogu-dev/cyaron.svg?branch=master)](https://travis-ci.org/luogu-dev/cyaron)
 
 你是否遇到以下情况：
 - 希望在5分钟内写出一组随机数据
