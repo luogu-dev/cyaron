@@ -2,7 +2,7 @@ import unittest
 from cyaron import Polygon,Vector
 class TestPolygon(unittest.TestCase):
     def test_convex_hull(self):
-        hull = Polygon.convex_hull(300, fx=lambda x:int(x*1000), fy=lambda x:int(x*1000))
+        hull = Polygon.convex_hull(300, fx=lambda x:int(x*100000), fy=lambda x:int(x*100000))
         points = hull.points
         points = sorted(points)
         # unique
@@ -33,6 +33,7 @@ class TestPolygon(unittest.TestCase):
                     break
                 st.pop()
             st.append(points[i])
+        st.pop()
         self.assertEqual(len(st), len(hull.points))
     def test_perimeter_area(self):
         poly = Polygon([[0,0],[0,1],[1,1],[1,0]])

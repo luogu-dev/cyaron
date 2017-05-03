@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from cyaron import *
 print "random convex hull of size 300:"
-hull=Polygon.convex_hull(300, fx=lambda x:int(x*1000), fy=lambda x:int(x*1000))
+hull=Polygon.convex_hull(300, fx=lambda x:int(x*100000), fy=lambda x:int(x*100000))
 print hull
 print "perimeter:"
 print hull.perimeter()

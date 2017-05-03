@@ -35,6 +35,8 @@ class Polygon:
         ans = ans / 2
         return ans
 
+    #generate a convex hull with n points
+    #it's possible to have even edges
     @staticmethod
     def convex_hull(n, **kwargs):
         # fx, fy are functions which map [0,1] to int or float
@@ -45,7 +47,7 @@ class Polygon:
         while len(result) < n:
             points = []
             # about 10 points will be randomized
-            randomize_prob = sz / 10 + 1
+            randomize_prob = int(sz / 10) + 1
             if randomize_prob < 10:
                 randomize_prob = 10
             for i in range(0, sz):
@@ -86,6 +88,7 @@ class Polygon:
                         break
                     st.pop()
                 st.append(points[i])
+            st.pop()
             result = st
             sz = int(sz * 1.7) + 3  # if failed, increase size and try again
         ids = [i for i in range(0, len(result))]
@@ -100,6 +103,9 @@ class Polygon:
     @staticmethod
     def __conquer(points):
         if len(points) <= 2:
+            return points
+        if len(points) == 3:
+            (points[1],points[2])=(points[2],points[1])
             return points
         divide_id = random.randint(2, len(points) - 1)
         divide_point1 = points[divide_id]
