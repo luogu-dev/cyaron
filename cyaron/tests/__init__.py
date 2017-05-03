@@ -1,1 +1,2 @@
 from sequence_test import TestSequence
+from polygon_test import TestPolygon
