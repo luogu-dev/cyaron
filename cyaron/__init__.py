@@ -5,4 +5,5 @@ from .sequence import Sequence
 from .utils import *
 from .consts import *
 from .vector import Vector
+from .geometry import Geometry
 from random import randint, randrange, uniform, choice, random
