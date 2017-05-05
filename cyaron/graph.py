@@ -51,7 +51,7 @@ class Graph:
             edge_buf = []
             for edge in self.iterate_edges():
                 edge_buf.append(
-                    Edge(tmp[edge.start], tmp[edge.end], edge.weight))
+                    Edge(new_node_id[edge.start], new_node_id[edge.end], edge.weight))
             random.shuffle(edge_buf)
             for edge in edge_buf:
                 if not self.directed and random.randint(0, 1) == 0:
@@ -74,7 +74,8 @@ class Graph:
         """
         for node in self.edges:
             for edge in node:
-                yield edge
+                if edge.end >= edge.start or self.directed:
+                    yield edge
 
     def __add_edge(self, x, y, w):
         """__add_edge(self, x, y, w) -> None
@@ -92,7 +93,6 @@ class Graph:
                                         not directed means if you added the edge x->y, you would also add the edge y->x
         """
         weight = kwargs.get("weight", 1)
-        directed = kwargs.get("directed", True)
         self.__add_edge(x, y, weight)
         if not self.directed and x != y:
             self.__add_edge(y, x, weight)
@@ -145,7 +145,7 @@ class Graph:
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -193,7 +193,7 @@ class Graph:
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -204,11 +204,11 @@ class Graph:
         if left + right > 1:
             raise Exception("left plus right must be smaller than 1")
 
-        can_left = {1}
-        can_right = {1}
+        can_left = set([1])
+        can_right = set([1])
         graph = Graph(point_count, directed)
         for i in range(2, point_count + 1):
-            edge_pos = random.uniform(0, 1)
+            edge_pos = random.random()
             node = 0
             # Left
             if edge_pos < left or left + right < edge_pos <= (1.0 - left - right) / 2:
@@ -240,7 +240,7 @@ class Graph:
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -250,9 +250,8 @@ class Graph:
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
             graph.add_edge(u, v, weight=weight_gen())
-    return graph
-    
-    # hack spfa (maybe?)
+        return graph
+
     @staticmethod
     def hack_spfa(point_count, **kwargs):
         """hack_spfa(point_count, **kwargs) -> None
@@ -270,7 +269,7 @@ class Graph:
         directed = kwargs.get("directed", False)
         extraedg = kwargs.get("extra_edge", 2)
         weight_limit = kwargs.get("weight_limit", (1, 1))
-        if not isinstance(weight_limit, tuple):
+        if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
@@ -280,7 +279,7 @@ class Graph:
         graph = Graph(point_count, directed)
         if point_count % 2 == 1:
             point_to_skip = point_count / 2 + 1
-        half = point_count / 2
+        half = int(point_count / 2)
 
         for i in range(1, half):
             (x, y) = (i, i + 1)
@@ -298,4 +297,5 @@ class Graph:
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
             graph.add_edge(u, v, weight=weight_gen())
+
         return graph

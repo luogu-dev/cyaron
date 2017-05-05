@@ -1,4 +1,6 @@
 config.py
+*.in
+*.out
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

@@ -2,7 +2,7 @@
 CYaRon: Yet Another Random Olympic-iNformatics test data generator
 
 By Luogu
-
+[![](https://travis-ci.org/luogu-dev/cyaron.svg?branch=master)](https://travis-ci.org/luogu-dev/cyaron)
 
 你是否遇到以下情况：
 - 希望在5分钟内写出一组随机数据
@@ -14,12 +14,15 @@ By Luogu
 - 建一个随机图（简单图或者非简单图，有向图或无向图，带权图或者无权图）
 - 建一个随机树（链状、随机树、或者菊花图，而且可以设定树的强弱）
 - 生成一组允许相同或者互相不同的多维向量（可以较快速度生成10^6组、范围到10^9的向量或者数列）
+- 根据函数解析式生成数列
+- 生成一些随机多边形，并且可以求面积、周长等
+- 从字典生成随机字符串、单词、句子、段落
 
 **快速上手指南**
 
 你可以下载github源代码  https://github.com/luogu-dev/cyaron ，或者`pip install cyaron`。在此之前，需要准备好python2/3。
 
-暂时文档没有写好，之后将慢慢补充。请根据demo和源代码进行YY。
+[文档](https://github.com/luogu-dev/cyaron/wiki/%E9%A6%96%E9%A1%B5)仍在建设中，尚不完整，之后将慢慢补充。请根据`examples`和源代码进行YY。
 
 首批贡献者 @fjzzq2002 @lin_toto @kkksc03 
 

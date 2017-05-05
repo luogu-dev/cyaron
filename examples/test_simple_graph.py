@@ -14,11 +14,11 @@ for i in range(1, 3):
     m = _m[i] # The m for this data
     s = randint(1, n) # 
     t = randint(1, n) # 
-    test_data.writeln(n, m, s, t) # Write n,m,s,t to the input file
+    test_data.input_writeln(n, m, s, t) # Write n,m,s,t to the input file
 
     graph = Graph.graph(n, m, weight_limit=5) # Generate a graph with n vertexs, m edges and weights less than 5
-    test_data.writeln(graph) # Write the graph (the graph object will process the string)
+    test_data.input_writeln(graph) # Write the graph (the graph object will process the string)
 
-    test_data.output_gen("~/Downloads/a.out") # Use the solve programme to generate the output file
+    test_data.output_gen("~/Downloads/std_binary") # Use the solve programme to generate the output file
     
     # You don't need to close the files, the IO object will do it

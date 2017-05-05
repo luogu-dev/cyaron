@@ -94,3 +94,4 @@ class String:
 
         paragraph = reduce(lambda x, y: x + random.choice(sentence_joiners) + y, sentences)
         return paragraph
+

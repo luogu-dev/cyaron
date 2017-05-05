@@ -1,3 +1,4 @@
+from .utils import *
 import subprocess
 
 
@@ -31,8 +32,12 @@ class IO(object):
 
             input_suffix = kwargs.get("input_suffix", ".in")
             output_suffix = kwargs.get("output_suffix", ".out")
+            disable_output = kwargs.get("disable_output", False)
             self.input_filename = filename_prefix + input_suffix
-            self.output_filename = filename_prefix + output_suffix
+            self.output_filename = filename_prefix + output_suffix if not disable_output else None
+        elif len(args) == 1:
+            self.input_filename = args[0]
+            self.output_filename = None
         elif len(args) == 2:
             self.input_filename = args[0]
             self.output_filename = args[1]
@@ -40,7 +45,7 @@ class IO(object):
             raise Exception("Invalid argument count")
 
         self.input_file = open(self.input_filename, 'w')
-        self.output_file = open(self.output_filename, 'w')
+        self.output_file = open(self.output_filename, 'w') if self.output_filename else None
 
     def __del__(self):
         """__del__(self) -> None
@@ -52,30 +57,53 @@ class IO(object):
         except Exception:
             pass
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """__del__(self) -> None
+            Exit the context of the IO object and close the input file and the output file
+        """
+        try:
+            self.input_file.close()
+            self.output_file.close()
+        except Exception:
+            pass
+
     @staticmethod
-    def __write(file, *args):
-        """__write(file, *args) -> None
+    def __write(file, *args, **kwargs):
+        """__write(file, *args, **kwargs) -> None
             Write every element in *args into file. If the element isn't "\n", insert a space. It will convert every element into str
             file file -> the file object to write
+            **kwargs:
+                str separator = " " -> a string used to separate every element
         """
+        separator = kwargs.get("separator", " ")
         for arg in args:
-            file.write(str(arg))
-            if arg != "\n":
-                file.write(" ")
+            if list_like(arg):
+                IO.__write(file, *arg, **kwargs)
+            else:
+                file.write(str(arg))
+                if arg != "\n":
+                    file.write(separator)
 
-    def write(self, *args):
-        """write(self, *args) -> None
+    def input_write(self, *args, **kwargs):
+        """input_write(self, *args, **kwargs) -> None
             Write every element in *args into the input file. Splits with spaces. It will convert every element into string
+            **kwargs:
+                str separator = " " -> a string used to separate every element
         """
-        IO.__write(self.input_file, *args)
+        IO.__write(self.input_file, *args, **kwargs)
 
-    def writeln(self, *args):
-        """writeln(self, *args) -> None
+    def input_writeln(self, *args, **kwargs):
+        """input_writeln(self, *args, **kwargs) -> None
             Write every element in *args into the input file and turn to a new line. Splits with spaces. It will convert every element into string
+            **kwargs:
+                str separator = " " -> a string used to separate every element
         """
         args = list(args)
         args.append("\n")
-        self.write(*args)
+        self.input_write(*args, **kwargs)
 
     def output_gen(self, shell_cmd):
         """output_gen(self, shell_cmd) -> None
@@ -84,20 +112,24 @@ class IO(object):
         """
         self.input_file.close()
         with open(self.input_filename, 'r') as f:
-            self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f))
+            self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f).decode('ascii'))
 
         self.input_file = open(self.input_filename, 'a')
 
-    def output_write(self, *args):
-        """output_write(self, *args) -> None
+    def output_write(self, *args, **kwargs):
+        """output_write(self, *args, **kwargs) -> None
             Write every element in *args into the output file. Splits with spaces. It will convert every element into string
+            **kwargs:
+                str separator = " " -> a string used to separate every element
         """
-        IO.__write(self.output_file, *args)
+        IO.__write(self.output_file, *args, **kwargs)
 
-    def output_writeln(self, *args):
-        """output_writeln(self, *args) -> None
+    def output_writeln(self, *args, **kwargs):
+        """output_writeln(self, *args, **kwargs) -> None
             Write every element in *args into the output file and turn to a new line. Splits with spaces. It will convert every element into string
+            **kwargs:
+                str separator = " " -> a string used to separate every element
         """
         args = list(args)
         args.append("\n")
-        self.output_write(*args)
+        self.output_write(*args, **kwargs)
