@@ -46,6 +46,7 @@ class IO(object):
 
         self.input_file = open(self.input_filename, 'w')
         self.output_file = open(self.output_filename, 'w') if self.output_filename else None
+        print(self.input_filename," start")
 
     def __del__(self):
         """__del__(self) -> None
@@ -69,6 +70,7 @@ class IO(object):
             self.output_file.close()
         except Exception:
             pass
+        
 
     @staticmethod
     def __write(file, *args, **kwargs):
@@ -115,6 +117,7 @@ class IO(object):
             self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f).decode('ascii'))
 
         self.input_file = open(self.input_filename, 'a')
+        print(self.output_filename," done")
 
     def output_write(self, *args, **kwargs):
         """output_write(self, *args, **kwargs) -> None
