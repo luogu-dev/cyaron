@@ -11,5 +11,6 @@ from .sequence import Sequence
 from .utils import *
 from .consts import *
 from .vector import Vector
+from .polygon import Polygon
 from random import randint, randrange, uniform, choice, random
 
