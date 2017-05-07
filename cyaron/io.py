@@ -117,7 +117,7 @@ class IO(object):
             self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f).decode('ascii'))
 
         self.input_file = open(self.input_filename, 'a')
-        print(self.output_filename," done")
+        print(self.output_filename, " done")
 
     def output_write(self, *args, **kwargs):
         """output_write(self, *args, **kwargs) -> None

@@ -3,6 +3,7 @@ from .consts import *
 import random
 import math
 
+
 class Polygon:
     def __init__(self,points=[]):
         if not list_like(points):
