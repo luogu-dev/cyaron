@@ -24,7 +24,7 @@ By Luogu
 
 若您对Python不熟悉，可看[快速入门教程](https://github.com/luogu-dev/cyaron/wiki/Python-30%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97)。
 
-[文档](https://github.com/luogu-dev/cyaron/wiki/%E9%A6%96%E9%A1%B5)仍在建设中，尚不完整，之后将慢慢补充。请根据`examples`和源代码进行YY。
+[文档](https://github.com/luogu-dev/cyaron/wiki/%E9%A6%96%E9%A1%B5)已经大体完整，若有缺漏，请提出Issue并暂时根据`examples`和源代码进行YY。
 
 首批贡献者 @fjzzq2002 @lin_toto @kkksc03 
 
