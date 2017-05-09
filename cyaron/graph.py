@@ -89,8 +89,6 @@ class Graph:
             int y -> the end vertex
             **kwargs(Keyword args):
                 int weight = 1 -> the weight 
-                bool directed = True -> whether the graph is directed(true:directed,false:not directed)
-                                        not directed means if you added the edge x->y, you would also add the edge y->x
         """
         weight = kwargs.get("weight", 1)
         self.__add_edge(x, y, weight)
