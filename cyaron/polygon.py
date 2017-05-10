@@ -3,6 +3,7 @@ from .consts import *
 import random
 import math
 
+
 class Polygon:
     def __init__(self,points=[]):
         if not list_like(points):
@@ -32,7 +33,7 @@ class Polygon:
             ans = ans + a[0] * b[1] - a[1] * b[0]
         if ans < 0:
             ans = -ans
-        ans = ans / 2
+        ans = ans / 2.0
         return ans
 
     #generate a convex hull with n points
