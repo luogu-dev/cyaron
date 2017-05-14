@@ -46,7 +46,8 @@ class IO(object):
 
         self.input_file = open(self.input_filename, 'w')
         self.output_file = open(self.output_filename, 'w') if self.output_filename else None
-        print(self.input_filename," start")
+        self.is_first_char = dict()
+        print("Processing %s" % self.input_filename)
 
     def __del__(self):
         """__del__(self) -> None
@@ -70,11 +71,9 @@ class IO(object):
             self.output_file.close()
         except Exception:
             pass
-        
 
-    @staticmethod
-    def __write(file, *args, **kwargs):
-        """__write(file, *args, **kwargs) -> None
+    def __write(self, file, *args, **kwargs):
+        """__write(self, file, *args, **kwargs) -> None
             Write every element in *args into file. If the element isn't "\n", insert a space. It will convert every element into str
             file file -> the file object to write
             **kwargs:
@@ -83,11 +82,14 @@ class IO(object):
         separator = kwargs.get("separator", " ")
         for arg in args:
             if list_like(arg):
-                IO.__write(file, *arg, **kwargs)
+                self.__write(file, *arg, **kwargs)
             else:
-                file.write(str(arg))
-                if arg != "\n":
+                if arg != "\n" and not self.is_first_char.get(file, True):
                     file.write(separator)
+                self.is_first_char[file] = False
+                file.write(str(arg))
+                if arg == "\n":
+                    self.is_first_char[file] = True
 
     def input_write(self, *args, **kwargs):
         """input_write(self, *args, **kwargs) -> None
@@ -95,7 +97,7 @@ class IO(object):
             **kwargs:
                 str separator = " " -> a string used to separate every element
         """
-        IO.__write(self.input_file, *args, **kwargs)
+        self.__write(self.input_file, *args, **kwargs)
 
     def input_writeln(self, *args, **kwargs):
         """input_writeln(self, *args, **kwargs) -> None
@@ -125,7 +127,7 @@ class IO(object):
             **kwargs:
                 str separator = " " -> a string used to separate every element
         """
-        IO.__write(self.output_file, *args, **kwargs)
+        self.__write(self.output_file, *args, **kwargs)
 
     def output_writeln(self, *args, **kwargs):
         """output_writeln(self, *args, **kwargs) -> None
