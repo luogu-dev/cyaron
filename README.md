@@ -5,7 +5,7 @@ By Luogu
 [![](https://travis-ci.org/luogu-dev/cyaron.svg?branch=master)](https://travis-ci.org/luogu-dev/cyaron)
 
 你是否遇到以下情况：
-- 希望在5分钟内写出一组随机数据
+- 希望在5分钟内写出一组随机数据，并方便地使用它们对拍几个程序
 - 希望生成一个合适的随机图或者树，且有一定强度
 - 希望生成一组随机数列或者向量，且不能重复。
 
