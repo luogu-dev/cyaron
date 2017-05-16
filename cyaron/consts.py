@@ -19,3 +19,5 @@ ALPHABET = string.ascii_uppercase
 NUMBERS = string.digits
 SENTENCE_SEPARATORS = ',,,,,,,;;:' # 70% ',' 20% ';' 10% ':'
 SENTENCE_TERMINATORS = '....!' # 80% '.' 20% '!'
+
+DEFAULT_GRADER = "NOIPStyle"

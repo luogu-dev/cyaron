@@ -1,5 +1,7 @@
 from .utils import *
 import subprocess
+import tempfile
+import os
 
 
 class IO(object):
@@ -23,29 +25,37 @@ class IO(object):
         """
         if len(args) == 0:
             if not "file_prefix" in kwargs:
-                raise Exception("You must specify either two file names or file_prefix.")
-
-            if "data_id" in kwargs:
-                filename_prefix = "%s%d" % (kwargs["file_prefix"], kwargs["data_id"])
+                self.file_flag = 0
+                (fd, self.input_filename) = tempfile.mkstemp()
+                os.close(fd)
+                (fd, self.output_filename) = tempfile.mkstemp()
+                os.close(fd)
             else:
-                filename_prefix = kwargs["file_prefix"]
+                self.file_flag = 2
+                if "data_id" in kwargs:
+                    filename_prefix = "%s%d" % (kwargs["file_prefix"], kwargs["data_id"])
+                else:
+                    filename_prefix = kwargs["file_prefix"]
 
-            input_suffix = kwargs.get("input_suffix", ".in")
-            output_suffix = kwargs.get("output_suffix", ".out")
-            disable_output = kwargs.get("disable_output", False)
-            self.input_filename = filename_prefix + input_suffix
-            self.output_filename = filename_prefix + output_suffix if not disable_output else None
+                input_suffix = kwargs.get("input_suffix", ".in")
+                output_suffix = kwargs.get("output_suffix", ".out")
+                disable_output = kwargs.get("disable_output", False)
+                self.input_filename = filename_prefix + input_suffix
+                self.output_filename = filename_prefix + output_suffix if not disable_output else None
         elif len(args) == 1:
+            self.file_flag = 1
             self.input_filename = args[0]
-            self.output_filename = None
+            (fd, self.output_filename) = tempfile.mkstemp()
+            os.close(fd)
         elif len(args) == 2:
+            self.file_flag = 2
             self.input_filename = args[0]
             self.output_filename = args[1]
         else:
             raise Exception("Invalid argument count")
 
-        self.input_file = open(self.input_filename, 'w')
-        self.output_file = open(self.output_filename, 'w') if self.output_filename else None
+        self.input_file = open(self.input_filename, 'w+')
+        self.output_file = open(self.output_filename, 'w+') if self.output_filename else None
         self.is_first_char = dict()
         print("Processing %s" % self.input_filename)
 
@@ -56,6 +66,10 @@ class IO(object):
         try:
             self.input_file.close()
             self.output_file.close()
+            if self.file_flag <= 1:
+                os.remove(self.output_filename)
+            if self.file_flag == 0:
+                os.remove(self.input_filename)
         except Exception:
             pass
 
@@ -69,6 +83,10 @@ class IO(object):
         try:
             self.input_file.close()
             self.output_file.close()
+            if self.file_flag <= 1:
+                os.remove(self.output_filename)
+            if self.file_flag == 0:
+                os.remove(self.input_filename)
         except Exception:
             pass
 
@@ -118,7 +136,7 @@ class IO(object):
         with open(self.input_filename, 'r') as f:
             self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f).decode('ascii'))
 
-        self.input_file = open(self.input_filename, 'a')
+        self.input_file = open(self.input_filename, 'a+')
         print(self.output_filename, " done")
 
     def output_write(self, *args, **kwargs):
@@ -138,3 +156,6 @@ class IO(object):
         args = list(args)
         args.append("\n")
         self.output_write(*args, **kwargs)
+
+    def flush_buffer(self):
+        self.input_file.flush()

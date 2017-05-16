@@ -3,6 +3,7 @@ import os
 import shutil
 import tempfile
 from cyaron import IO
+from cyaron.output_capture import captured_output
 
 
 class TestIO(unittest.TestCase):
@@ -15,23 +16,26 @@ class TestIO(unittest.TestCase):
         shutil.rmtree(self.temp_directory)
 
     def test_create_files_simple(self):
-        IO("test_simple.in", "test_simple.out")
+        with captured_output() as (out, err):
+            IO("test_simple.in", "test_simple.out")
         self.assertTrue(os.path.exists("test_simple.in"))
         self.assertTrue(os.path.exists("test_simple.out"))
 
     def test_create_files_prefix_id(self):
-        IO(file_prefix="test_prefix", data_id=233, input_suffix=".inp", output_suffix=".ans")
+        with captured_output() as (out, err):
+            IO(file_prefix="test_prefix", data_id=233, input_suffix=".inp", output_suffix=".ans")
         self.assertTrue(os.path.exists("test_prefix233.inp"))
         self.assertTrue(os.path.exists("test_prefix233.ans"))
 
     def test_write_stuff(self):
-        with IO("test_write.in", "test_write.out") as test:
-            test.input_write(1, 2, 3)
-            test.input_writeln([4, 5, 6])
-            test.input_writeln(7, [8, 9])
-            test.output_write([9, 8], 7)
-            test.output_writeln(6, 5, 4)
-            test.output_writeln([3], 2, [1])
+        with captured_output() as (out, err):
+            with IO("test_write.in", "test_write.out") as test:
+                test.input_write(1, 2, 3)
+                test.input_writeln([4, 5, 6])
+                test.input_writeln(7, [8, 9])
+                test.output_write([9, 8], 7)
+                test.output_writeln(6, 5, 4)
+                test.output_writeln([3], 2, [1])
 
         with open("test_write.in") as f:
             input = f.read()
@@ -43,8 +47,9 @@ class TestIO(unittest.TestCase):
         self.assertEqual(output.count("\n"), 2)
 
     def test_output_gen(self):
-        with IO("test_gen.in", "test_gen.out") as test:
-            test.output_gen("echo 233")
+        with captured_output() as (out, err):
+            with IO("test_gen.in", "test_gen.out") as test:
+                test.output_gen("echo 233")
 
         with open("test_gen.out") as f:
             output = f.read()
