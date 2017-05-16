@@ -57,7 +57,8 @@ class IO(object):
         self.input_file = open(self.input_filename, 'w+')
         self.output_file = open(self.output_filename, 'w+') if self.output_filename else None
         self.is_first_char = dict()
-        print("Processing %s" % self.input_filename)
+        if self.file_flag != 0:
+            print("Processing %s" % self.input_filename)
 
     def __del__(self):
         """__del__(self) -> None

@@ -1,6 +1,9 @@
 from contextlib import contextmanager
-from StringIO import StringIO
 import sys
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 @contextmanager
 def captured_output():
