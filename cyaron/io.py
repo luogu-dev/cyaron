@@ -8,20 +8,20 @@ class IO(object):
     """Class IO: IO tool class. It will process the input and output files."""
     def __init__(self, *args, **kwargs):
         """__init__(self, *args, **kwargs) -> None
-            (str,str) args -> The file names of input file and output file. Index 0 is the name of input file, and index 1 is for ouput file
+            (str,str) args -> The file names of input file and output file. Index 0 is the name of input file, and index 1 is for output file
             **kwargs:
-                str file_perfix -> the perfix for the input and output files
+                str file_prefix -> the prefix for the input and output files
                 int data_id -> the id of the data. if it's None, the file names will not contain the id.
                 str input_suffix = ".in" -> the suffix of the input file
                 str output_suffix = ".out" -> the suffix of the output file
             Examples:
                 IO("a","b") -> create input file "a" and output file "b"
                 IO("a.in","b.out") -> create input file "a.in" and output file "b.out"
-                IO(file_perfix="data") -> create input file "data.in" and output file "data.out"
-                IO(file_perfix="data",data_id=1) -> create input file "data1.in" and output file "data1.out"
-                IO(file_perfix="data",input_suffix=".input") -> create input file "data.input" and output file "data.out"
-                IO(file_perfix="data",output_suffix=".output") -> create input file "data.in" and output file "data.output"
-                IO(file_perfix="data",data_id=2,input_suffix=".input") -> create input file "data2.input" and output file "data2.out"
+                IO(file_prefix="data") -> create input file "data.in" and output file "data.out"
+                IO(file_prefix="data",data_id=1) -> create input file "data1.in" and output file "data1.out"
+                IO(file_prefix="data",input_suffix=".input") -> create input file "data.input" and output file "data.out"
+                IO(file_prefix="data",output_suffix=".output") -> create input file "data.in" and output file "data.output"
+                IO(file_prefix="data",data_id=2,input_suffix=".input") -> create input file "data2.input" and output file "data2.out"
         """
         if len(args) == 0:
             if not "file_prefix" in kwargs:

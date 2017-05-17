@@ -2,16 +2,36 @@ from cyaron import IO
 from cyaron.consts import *
 from cyaron.graders import CYaRonGraders
 import subprocess
+import sys
+import io
 
 
 class Compare:
     @staticmethod
-    def __compare_two(name, content, std, grader):
+    def __compare_two(name, content, std, grader, **kwargs):
         (result, info) = CYaRonGraders.invoke(grader, content, std)
 
         info = info if info is not None else ""
         status = "Correct" if result else "!!!INCORRECT!!!"
         print("%s: %s %s" % (name, status, info))
+
+        stop_on_incorrect = kwargs.get("stop_on_incorrect", False)
+        custom_dump_data = kwargs.get("dump_data", None)
+        if stop_on_incorrect and not result:
+            if custom_dump_data:
+                (dump_name, dump_lambda) = custom_dump_data
+                with open(dump_name, "w") as f:
+                    f.write(dump_lambda())
+
+            with open("std.out", "w") as f:
+                f.write(std)
+            with open("%s.out" % name, "w") as f:
+                f.write(content)
+
+            print("Relevant files dumped.")
+
+            sys.exit(0)
+
 
     @staticmethod
     def __process_file(file):
@@ -33,10 +53,11 @@ class Compare:
         (_, std) = Compare.__process_file(kwargs["std"])
 
         grader = kwargs.get("grader", DEFAULT_GRADER)
+        stop_on_incorrect = kwargs.get("stop_on_incorrect", False)
 
         for file in args:
             (file_name, content) = Compare.__process_file(file)
-            Compare.__compare_two(file_name, content, std, grader)
+            Compare.__compare_two(file_name, content, std, grader, stop_on_incorrect=stop_on_incorrect)
 
     @staticmethod
     def program(*args, **kwargs):
@@ -61,9 +82,15 @@ class Compare:
                 (_, std) = Compare.__process_file(kwargs["std"])
 
         grader = kwargs.get("grader", DEFAULT_GRADER)
+        stop_on_incorrect = kwargs.get("stop_on_incorrect", False)
 
         for program_name in args:
+            input.input_file.seek(0)
             content = subprocess.check_output(program_name, shell=True, stdin=input.input_file)
-            Compare.__compare_two(program_name, content, std, grader)
 
+            input.input_file.seek(0)
+            Compare.__compare_two(program_name, content, std, grader,
+                                  stop_on_incorrect=stop_on_incorrect,
+                                  dump_data=("error_input.in", lambda: input.input_file.read())) # Lazy dump
 
+        input.input_file.seek(0, 2)
