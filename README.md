@@ -1,7 +1,9 @@
 # Project CYaRon
-CYaRon: Yet Another Random Olympic-iNformatics test data generator
+**CYaRon** **Y**et **A**nother **R**andom **O**lympic-i**N**formatics test data generator
 
-By Luogu
+**By Luogu** 项目地址: [https://github.com/luogu-dev/cyaron](https://github.com/luogu-dev/cyaron)
+
+
 [![](https://travis-ci.org/luogu-dev/cyaron.svg?branch=master)](https://travis-ci.org/luogu-dev/cyaron)
 
 你是否遇到以下情况：
@@ -9,7 +11,7 @@ By Luogu
 - 希望生成一个合适的随机图或者树，且有一定强度
 - 希望生成一组随机数列或者向量，且不能重复。
 
-那么，你可以借助CYaRon和Python，来快速生成一组数据。目前支持的特性有：
+那么，你可以借助 CYaRon 和 Python ，来快速生成一组数据。目前支持的特性有：
 
 - 建一个随机图（简单图或者非简单图，有向图或无向图，带权图或者无权图）
 - 建一个随机树（链状、随机树、或者菊花图，而且可以设定树的强弱）
@@ -17,6 +19,23 @@ By Luogu
 - 根据函数解析式生成数列
 - 生成一些随机多边形，并且可以求面积、周长等
 - 从字典生成随机字符串、单词、句子、段落
+- 使用以上功能生成的数据和您其他地方下载的测试数据方便地进行程序对拍
+
+**快速上手指南**
+
+稳定版本可以从pip获取: `pip install cyaron`，在此之前，需要准备好Python。
+
+最新开发版可以克隆GitHub源代码: `git clone https://github.com/luogu-dev/cyaron.git`
+
+请您查看[CYaRon文档](https://github.com/luogu-dev/cyaron/wiki)和[CYaRon基本入门](https://github.com/luogu-dev/cyaron/wiki/%E5%9F%BA%E6%9C%AC%E5%85%A5%E9%97%A8)来学习如何使用CYaRon。
+
+若您发现文档中有缺漏，请提出Issue并暂时根据`examples`和源代码进行YY。 
+
+CYaRon基于Python。若您对Python不熟悉，可看[快速入门教程](https://github.com/luogu-dev/cyaron/wiki/Python-30%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97)。
+
+之后计划实现云Generator，即只需提供写好的脚本以及std，上传到服务器，即可下载一个测试数据的压缩包，真正实现5分钟生成一个测试数据！
+
+希望各位大佬一起来协助改进这个项目。希望这个项目可以帮助大家节省时间！
 
 **使用范例**
 ```python
@@ -43,16 +62,8 @@ for i in range(1, 4): # 即在[1, 4)范围内循环，也就是从1到3
     test_data.output_gen("D:\\std_binary.exe") # 标程编译后的可执行文件，不需要freopen等，CYaRon自动给该程序输入并获得输出作为.out
 ```
 
-**快速上手指南**
+**贡献者**
 
-你可以下载github源代码  https://github.com/luogu-dev/cyaron ，或者`pip install cyaron`。在此之前，需要准备好python2/3。
+请查看[光荣榜](https://github.com/luogu-dev/cyaron/wiki/光荣榜)页面，衷心感谢他们对CYaRon项目的付出。
 
-若您对Python不熟悉，可看[快速入门教程](https://github.com/luogu-dev/cyaron/wiki/Python-30%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97)。
-
-[文档](https://github.com/luogu-dev/cyaron/wiki)已经大体完整，若有缺漏，请提出Issue并暂时根据`examples`和源代码进行YY。
-
-首批贡献者 @fjzzq2002 @lin_toto @kkksc03 
-
-之后计划实现云Generator，即只需提供写好的python脚本以及std，上传到服务器，即可下载一个测试数据的压缩包，真正实现5分钟生成一个测试数据！
-
-目前CYaRon的功能还比较初级，希望各位大佬一起来协助改进这个项目。希望这个项目可以帮助大家节省时间！
+欢迎您对 CYaRon 做出贡献。若您有希望我们加入的功能，可以给我们提出 Issue ，或者自己动手实现，然后发起 Pull Request 。
