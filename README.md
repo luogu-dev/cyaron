@@ -62,8 +62,10 @@ for i in range(1, 4): # 即在[1, 4)范围内循环，也就是从1到3
     test_data.output_gen("D:\\std_binary.exe") # 标程编译后的可执行文件，不需要freopen等，CYaRon自动给该程序输入并获得输出作为.out
 ```
 
-**贡献者**
+**贡献**
 
-请查看[光荣榜](https://github.com/luogu-dev/cyaron/wiki/光荣榜)页面，衷心感谢他们对CYaRon项目的付出。
+所有的贡献者请查看[光荣榜](https://github.com/luogu-dev/cyaron/wiki/光荣榜)页面，衷心感谢他们对CYaRon项目的付出。
 
-欢迎您对 CYaRon 做出贡献。若您有希望我们加入的功能，可以给我们提出 Issue ，或者自己动手实现，然后发起 Pull Request 。
+欢迎您对 CYaRon 做出贡献。若您有希望加入的功能，可以给我们提出 Issue ，或者自己动手实现，然后发起 Pull Request。
+
+有关于如何做出贡献的更详细内容，请查看[如何做出贡献](https://github.com/luogu-dev/cyaron/wiki/%E5%A6%82%E4%BD%95%E5%81%9A%E5%87%BA%E8%B4%A1%E7%8C%AE)。
