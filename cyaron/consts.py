@@ -5,7 +5,7 @@ import string
 Constants:
 ALPHABET_SMALL -> All the lower ascii letters
 ALPHABET_CAPITAL -> All the upper ascii letters
-ALPHABET -> All the upper ascii letters
+ALPHABET -> All the ascii letters
 NUMBERS -> All the numbers(0-9)
 SENTENCE_SEPARATORS -> Includes 70% ",", 20% ";" and 10% ":"
 SENTENCE_TERMINATORS -> Includes 80% "." and 20% "!"
