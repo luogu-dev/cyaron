@@ -54,6 +54,8 @@ class String:
         if list_like(sentence_count_range):
             sentence_count = random.randint(sentence_count_range[0], sentence_count_range[1])
 
+        word_count_range = kwargs.get("word_count_range", (6, 10))
+
         first_letter_uppercase = kwargs.get("first_letter_uppercase", True)
         kwargs["first_letter_uppercase"] = False
 
@@ -77,7 +79,7 @@ class String:
         sentences = []
         capitalize_next_sentence = True
         for i in range(sentence_count):
-            string = String.random_sentence(**kwargs)
+            string = String.random_sentence(word_count_range, **kwargs)
             sep_or_term = random.random()
 
             if capitalize_next_sentence and first_letter_uppercase:
