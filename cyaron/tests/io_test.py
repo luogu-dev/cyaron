@@ -13,7 +13,10 @@ class TestIO(unittest.TestCase):
         os.chdir(self.temp_directory)
 
     def tearDown(self):
-        shutil.rmtree(self.temp_directory)
+        try:
+            shutil.rmtree(self.temp_directory)
+        except:
+            pass
 
     def test_create_files_simple(self):
         with captured_output() as (out, err):

@@ -12,7 +12,10 @@ class TestCompare(unittest.TestCase):
         os.chdir(self.temp_directory)
 
     def tearDown(self):
-        shutil.rmtree(self.temp_directory)
+        try:
+            shutil.rmtree(self.temp_directory)
+        except:
+            pass
 
     def test_noipstyle_correct(self):
         io = None
