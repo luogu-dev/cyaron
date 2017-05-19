@@ -1,4 +1,6 @@
+from __future__ import absolute_import
 from .utils import *
+from io import open
 import subprocess
 import tempfile
 import os
@@ -54,8 +56,8 @@ class IO(object):
         else:
             raise Exception("Invalid argument count")
 
-        self.input_file = open(self.input_filename, 'w+')
-        self.output_file = open(self.output_filename, 'w+') if self.output_filename else None
+        self.input_file = open(self.input_filename, 'w+', newline='\n')
+        self.output_file = open(self.output_filename, 'w+', newline='\n') if self.output_filename else None
         self.is_first_char = dict()
         if self.file_flag != 0:
             print("Processing %s" % self.input_filename)
@@ -104,9 +106,9 @@ class IO(object):
                 self.__write(file, *arg, **kwargs)
             else:
                 if arg != "\n" and not self.is_first_char.get(file, True):
-                    file.write(separator)
+                    file.write(make_unicode(separator))
                 self.is_first_char[file] = False
-                file.write(str(arg))
+                file.write(make_unicode(arg))
                 if arg == "\n":
                     self.is_first_char[file] = True
 
@@ -135,7 +137,7 @@ class IO(object):
         """
         self.input_file.close()
         with open(self.input_filename, 'r') as f:
-            self.output_file.write(subprocess.check_output(shell_cmd, shell=True, stdin=f).decode('ascii'))
+            self.output_file.write(make_unicode(subprocess.check_output(shell_cmd, shell=True, stdin=f, universal_newlines=True)))
 
         self.input_file = open(self.input_filename, 'a+')
         print(self.output_filename, " done")

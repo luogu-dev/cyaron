@@ -21,3 +21,10 @@ def strtolines(str):
     while len(lines) > 0 and len(lines[len(lines) - 1]) == 0:
         del lines[len(lines) - 1]
     return lines
+
+
+def make_unicode(data):
+    try:
+        return unicode(data)
+    except NameError:
+        return str(data)

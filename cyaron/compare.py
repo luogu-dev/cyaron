@@ -1,9 +1,11 @@
+from __future__ import absolute_import
 from cyaron import IO
+from cyaron.utils import *
 from cyaron.consts import *
 from cyaron.graders import CYaRonGraders
 import subprocess
 import sys
-import io
+from io import open
 
 
 class Compare:
@@ -20,12 +22,12 @@ class Compare:
         if stop_on_incorrect and not result:
             if custom_dump_data:
                 (dump_name, dump_lambda) = custom_dump_data
-                with open(dump_name, "w") as f:
+                with open(dump_name, "w", newline='\n') as f:
                     f.write(dump_lambda())
 
-            with open("std.out", "w") as f:
+            with open("std.out", "w", newline='\n') as f:
                 f.write(std)
-            with open("%s.out" % name, "w") as f:
+            with open("%s.out" % name, "w", newline='\n') as f:
                 f.write(content)
 
             print("Relevant files dumped.")
@@ -40,7 +42,7 @@ class Compare:
             file.output_file.seek(0)
             return file.output_filename, file.output_file.read()
         else:
-            with open(file, "r") as f:
+            with open(file, "r", newline='\n') as f:
                 return file, f.read()
 
     @staticmethod
@@ -77,7 +79,7 @@ class Compare:
             raise Exception("You must specify a std or a std_program.")
         else:
             if "std_program" in kwargs:
-                std = subprocess.check_output(kwargs['std_program'], shell=True, stdin=input.input_file).decode('ascii')
+                std = make_unicode(subprocess.check_output(kwargs['std_program'], shell=True, stdin=input.input_file, universal_newlines=True))
             else:
                 (_, std) = Compare.__process_file(kwargs["std"])
 
@@ -86,7 +88,7 @@ class Compare:
 
         for program_name in args:
             input.input_file.seek(0)
-            content = subprocess.check_output(program_name, shell=True, stdin=input.input_file)
+            content = make_unicode(subprocess.check_output(program_name, shell=True, stdin=input.input_file, universal_newlines=True))
 
             input.input_file.seek(0)
             Compare.__compare_two(program_name, content, std, grader,
