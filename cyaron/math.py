@@ -147,15 +147,15 @@ def miller_rabin_pass(a, s, d, n):
 
 
 #--- factor a number into primes and frequency----------------------------------------------------
-"""
-    find the prime factors of n along with their frequencies. Example:
-
-    >>> factor(786456)
-    [(2,3), (3,3), (11,1), (331,1)]
-    
-    Source: Project Euler forums for problem #3
-"""
 def factor(n):
+    """
+        find the prime factors of n along with their frequencies. Example:
+
+        >>> factor(786456)
+        [(2,3), (3,3), (11,1), (331,1)]
+
+        Source: Project Euler forums for problem #3
+    """
     f, factors, prime_gaps = 1, [], [2, 4, 2, 4, 6, 2, 6, 4]
     if n < 1:
         return []
@@ -268,9 +268,9 @@ def exgcd(a,b):
 
     Result is the tuple: (u, v, gcd(a,b)). Examples:
 
-    >>> bezout(7*3, 15*3)
+    >>> exgcd(7*3, 15*3)
     (-2, 1, 3)
-    >>> bezout(24157817, 39088169)    #sequential Fibonacci numbers
+    >>> exgcd(24157817, 39088169)    #sequential Fibonacci numbers
     (-14930352, 9227465, 1)
 
     Algorithm source: Pierre L. Douillet

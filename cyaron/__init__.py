@@ -16,4 +16,3 @@ from .polygon import Polygon
 from .compare import Compare
 from .math import *
 from random import randint, randrange, uniform, choice, random
-

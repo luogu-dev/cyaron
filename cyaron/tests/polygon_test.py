@@ -40,7 +40,7 @@ class TestPolygon(unittest.TestCase):
         self.assertEqual(poly.perimeter(),4)
         self.assertEqual(poly.area(),1)
     def test_simple_polygon(self):
-        poly = Polygon.simple_polygon(Vector.random(300, [1000, 1000]))
+        poly = Polygon.simple_polygon(Vector.random(300, [1000, 1000], 2))
         points = poly.points
         for i in range(0,len(points)):
             for j in range(i+2,len(points)):
