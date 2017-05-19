@@ -44,7 +44,7 @@ class Polygon:
         # fx, fy are functions which map [0,1] to int or float
         fx = kwargs.get("fx", lambda x: x)
         fy = kwargs.get("fy", lambda x: x)
-        strict = kwargs.get("strict", True)
+        strict = kwargs.get("strict", False)
         sz = n * 2
         result = []
         while len(result) < n:
