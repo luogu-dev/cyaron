@@ -16,9 +16,11 @@ for i in range(1, 3):
     t = randint(1, n) # 
     test_data.input_writeln(n, m, s, t) # Write n,m,s,t to the input file
 
-    graph = Graph.graph(n, m, weight_limit=5) # Generate a graph with n vertexs, m edges and weights less than 5
-    test_data.input_writeln(graph) # Write the graph (the graph object will process the string)
+    graph = Graph.graph(n, m, weight_limit=5, self_loop=False, repeated_edges=False)
+    # Generate a graph with n vertexs, m edges and weights less than 5, no self loops and repeated edges
+    test_data.input_writeln(graph.to_str(shuffle=True))
+    # Write the graph and shuffle it
 
-    test_data.output_gen("~/Downloads/std_binary") # Use the solve programme to generate the output file
+    #test_data.output_gen("~/Downloads/std_binary") # Use the solve programme to generate the output file
     
     # You don't need to close the files, the IO object will do it

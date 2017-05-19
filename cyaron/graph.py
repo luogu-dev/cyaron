@@ -229,6 +229,8 @@ class Graph:
                int point_count -> the count of vertexes
                int edge_count -> the count of edges
                **kwargs(Keyword args):
+                   bool self_loop = True -> whether to allow self loops or not
+                   bool repeated_edges = True -> whether to allow repeated edges or not
                    bool directed = False -> whether the chain is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
@@ -237,6 +239,8 @@ class Graph:
                    -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         directed = kwargs.get("directed", False)
+        self_loop = kwargs.get("self_loop", True)
+        repeated_edges = kwargs.get("repeated_edges", True)
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -244,10 +248,22 @@ class Graph:
             "weight_gen", lambda: random.randint(
                 weight_limit[0], weight_limit[1]))
         graph = Graph(point_count, directed)
+        used_edges = set()
         for i in range(edge_count):
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
+
+            if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
+                # Then we generate a new pair of nodes
+                i -= 1
+                continue
+
             graph.add_edge(u, v, weight=weight_gen())
+
+            if not repeated_edges:
+                used_edges.add((u, v))
+                if not directed:
+                    used_edges.add((v, u))
         return graph
 
     @staticmethod
