@@ -249,13 +249,13 @@ class Graph:
                 weight_limit[0], weight_limit[1]))
         graph = Graph(point_count, directed)
         used_edges = set()
-        for i in range(edge_count):
+        i = 0
+        while i < edge_count:
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
 
             if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
                 # Then we generate a new pair of nodes
-                i -= 1
                 continue
 
             graph.add_edge(u, v, weight=weight_gen())
@@ -264,6 +264,8 @@ class Graph:
                 used_edges.add((u, v))
                 if not directed:
                     used_edges.add((v, u))
+
+            i += 1
         return graph
 
     @staticmethod
