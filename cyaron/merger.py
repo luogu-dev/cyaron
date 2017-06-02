@@ -20,8 +20,8 @@ class Merger:
                                 weight=edge.weight)
             counter += len(graph.edges) - 1
 
-    def add_edge(self, u, v, **kwargs):
-        """add_edge(self, u, v, **kwargs)
+    def __add_edge(self, u, v, **kwargs):
+        """__add_edge(self, u, v, **kwargs)
             tuple u -> (graph_index, vertex) indicating the start point
             tuple v -> (graph_index, vertex) indicating the end point
             **kwargs:
@@ -30,6 +30,11 @@ class Merger:
         self.G.add_edge(self.graphs[ u[0] ].offset + u[1],
                         self.graphs[ v[0] ].offset + v[1], 
                         weight=kwargs.get("weight", 1)) 
+    
+    def add_edge(self, u, v, **kwargs):
+        """add_edge(self, u, v, **kwargs) -> None
+        """
+        self.__add_edge(u, v, **kwargs)
 
     def to_str(self, **kwargs):
         return self.G.to_str(**kwargs)
