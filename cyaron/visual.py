@@ -1,13 +1,14 @@
 from .graph import * 
+from .merger import Merger
 import pygraphviz as pgv
 
-def visualize(graph, **kwargs):
+def visualize(graph, output_path="a.png"):
     """visualize(graph, **kwargs) -> None
-        Graph graph -> the graph that will be visualized
-        **kwargs(Keyword args):
-            string outptu_file -> the path of the image
+        Graph/Merger graph -> the graph/Merger that will be visualized
+        string output_path-> the output path of the image
     """
-    output_file = kwargs.get("output_file", "a.png")
+
+    if isinstance(graph, Merger): graph = Merger.G
     G = pgv.AGraph(directed=graph.directed)
 
     G.add_nodes_from([i for i in xrange(1, len(graph.edges))])
@@ -20,6 +21,6 @@ def visualize(graph, **kwargs):
     G.edge_attr['arrowhead'] = 'open'
 
     G.layout(prog='dot')
-    G.draw(output_file)
+    G.draw(output_path)
     
 

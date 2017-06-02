@@ -31,8 +31,11 @@ class Merger:
                         self.graphs[ v[0] ].offset + v[1], 
                         weight=kwargs.get("weight", 1)) 
 
-    def result(self):
-        return self.G
+    def to_str(self, **kwargs):
+        return self.G.to_str(**kwargs)
+    
+    def __str__(self):
+        return self.to_str()
 
     @staticmethod
     def component(point_count, edge_count, **kwargs):
@@ -51,4 +54,4 @@ class Merger:
         for i in xrange(real_count):
             graphs[i] = Graph.graph(point_count, edge_count, **kwargs)
         G = Merger(*graphs)
-        return G.result() 
+        return G.G
