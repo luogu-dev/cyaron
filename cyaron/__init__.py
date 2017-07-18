@@ -7,7 +7,7 @@ It has tools for graphs and IO files.
 from __future__ import absolute_import
 from .io import IO
 from .graph import Graph, Edge
-from .str import String
+from .string import String
 from .sequence import Sequence
 from .utils import *
 from .consts import *
