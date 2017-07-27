@@ -5,5 +5,6 @@ python:
   - "3.6"
   - "pypy"
   - "pypy3"
-script: python unit_test.py
-
+script:
+  - python setup.py install
+  - python unit_test.py
