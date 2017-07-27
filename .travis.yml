@@ -5,6 +5,5 @@ python:
   - "3.6"
   - "pypy"
   - "pypy3"
-script:
-  - if [ $TRAVIS_BUILD_NUMBER != 5 ]; pip install colorful>=0.3.5; fi
-  - python unit_test.py
+install: pip install tox-travis
+script: tox
