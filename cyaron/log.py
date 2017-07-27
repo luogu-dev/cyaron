@@ -45,8 +45,8 @@ def register_logfunc(funcname, func):
 
 _nb_print = lambda *args, **kwargs: _print(*args, **_join_dict(kwargs, {'flush': True}))
 _nb_print_e = lambda *args, **kwargs: _print(*args, **_join_dict(kwargs, {'file': sys.stderr, 'flush': True}))
-_cl_print = lambda color, *args, **kwargs: _nb_print(*[color(make_unicode(item)) for item in args], **kwargs)
-_cl_print_e = lambda color, *args, **kwargs: _nb_print_e(*[color(make_unicode(item)) for item in args], **kwargs)
+_cl_print = lambda color, *args, **kwargs: _nb_print(*[color(make_unicode(item)) for item in args], **kwargs) if sys.stdout.isatty() else _nb_print(*args, **kwargs)
+_cl_print_e = lambda color, *args, **kwargs: _nb_print_e(*[color(make_unicode(item)) for item in args], **kwargs) if sys.stderr.isatty() else _nb_print_e(*args, **kwargs)
 
 _default_debug = partial(_cl_print, colorful.cyan)
 _default_info = partial(_cl_print, colorful.blue)
