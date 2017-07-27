@@ -1,7 +1,13 @@
 from __future__ import print_function
 from functools import partial
 import sys
-import colorful
+try:
+    import colorful
+except ImportError:
+    class colorful:
+        def __getattr__(self, attr):
+            return lambda st: st
+    colorful = colorful()
 from .utils import make_unicode
 
 __print = print

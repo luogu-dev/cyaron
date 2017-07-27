@@ -6,5 +6,5 @@ python:
   - "pypy"
   - "pypy3"
 script:
-  - python setup.py install
+  - if [ $TRAVIS_BUILD_NUMBER != 5 ]; pip install colorful>=0.3.5; fi
   - python unit_test.py
