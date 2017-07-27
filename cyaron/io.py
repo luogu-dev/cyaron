@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from .utils import *
+from . import log
 from io import open, IOBase
 import subprocess
 import tempfile
@@ -70,6 +71,7 @@ class IO(object):
             filename = f.format(data_id)
             if file_type == 'i':
                 self.input_filename = filename
+                log.info("Processing %s" % self.input_filename)
             else:
                 self.output_filename = filename
             self.__init_file(open(filename, 'w+', newline='\n'), data_id, file_type)
@@ -163,7 +165,7 @@ class IO(object):
         subprocess.check_call(shell_cmd, shell=True, stdin=self.input_file, stdout=self.output_file, universal_newlines=True)
         self.input_file.seek(origin_pos)
 
-        print(self.output_filename, " done")
+        log.info(self.output_filename, " done")
 
     def output_write(self, *args, **kwargs):
         """output_write(self, *args, **kwargs) -> None
