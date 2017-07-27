@@ -5,7 +5,7 @@ class Mismatch(ValueError):
         content -> content got
         std -> content expected
         """
-        super().__init__(content, std, *args)
+        super(Mismatch, self).__init__(content, std, *args)
         self.content = content
         self.std = std
 
@@ -17,7 +17,7 @@ class HashMismatch(Mismatch):
 class TextMismatch(Mismatch):
     """exception for text mismatch"""
     def __init__(self, content, std, err_msg, lineno=None, colno=None, content_token=None, std_token=None):
-        super().__init__(content, std, err_msg, lineno, colno, content_token, std_token)
+        super(TextMismatch, self).__init__(content, std, err_msg, lineno, colno, content_token, std_token)
         self.err_msg = err_msg.format(lineno, colno, content_token, std_token)
         self.lineno = lineno
         self.colno = colno
