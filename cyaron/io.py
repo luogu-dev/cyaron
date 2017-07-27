@@ -49,7 +49,11 @@ class IO(object):
         self.is_first_char = {}
 
     def __init_file(self, f, data_id, file_type):
-        if isinstance(f, IOBase):
+        try:
+            is_file = isinstance(f, file)
+        except NameError:
+            is_file = False
+        if isinstance(f, IOBase) or is_file:
             # consider ``f`` as a file object
             if file_type == 'i':
                 self.input_file = f
