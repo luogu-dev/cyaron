@@ -57,3 +57,16 @@ class TestIO(unittest.TestCase):
         with open("test_gen.out") as f:
             output = f.read()
         self.assertEqual(output.strip("\n"), "233")
+
+    def test_init_overload(self):
+        with IO(file_prefix='data{', data_id=5) as test:
+            self.assertEqual(test.input_filename, 'data{5.in')
+            self.assertEqual(test.output_filename, 'data{5.out')
+        with IO('data{}.in', 'data{}.out', 5) as test:
+            self.assertEqual(test.input_filename, 'data5.in')
+            self.assertEqual(test.output_filename, 'data5.out')
+        with open('data5.in', 'w+') as fin:
+            with open('data5.out', 'w+') as fout:
+                with IO(fin, fout) as test:
+                    self.assertEqual(test.input_file, fin)
+                    self.assertEqual(test.output_file, fout)

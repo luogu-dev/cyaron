@@ -67,7 +67,12 @@ class IO(object):
                 self.__output_temp = True
         else:
             # consider ``f`` as filename template
-            self.__init_file(open(f.format(data_id), 'w+', newline='\n'), data_id, file_type)
+            filename = f.format(data_id)
+            if file_type == 'i':
+                self.input_filename = filename
+            else:
+                self.output_filename = filename
+            self.__init_file(open(filename, 'w+', newline='\n'), data_id, file_type)
 
     def __escape_format(self, st):
         """replace "{}" to "{{}}" """
