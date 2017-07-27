@@ -4,7 +4,15 @@ import sys
 import colorful
 from .utils import make_unicode
 
-_print = print
+__print = print
+def _print(*args, **kwargs):
+    flush = False
+    if 'flush' in kwargs:
+        flush = kwargs['flush']
+        del kwargs['flush']
+    __print(*args, **kwargs)
+    if flush:
+        kwargs.get('file', sys.stdout).flush()
 
 def _join_dict(a, b):
     """join two dict"""
