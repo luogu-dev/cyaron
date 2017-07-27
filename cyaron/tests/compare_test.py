@@ -45,7 +45,9 @@ class TestCompare(unittest.TestCase):
             Compare.output("test_another_incorrect.out", std=io)
 
         result = out.getvalue().strip()
-        self.assertEqual(result, "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3.")
+        stderr = err.getvalue().strip()
+        self.assertEqual(result, "")
+        self.assertEqual(stderr, "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3.")
 
     def test_fulltext_program(self):
         with open("correct.py", "w") as f:
@@ -64,6 +66,8 @@ class TestCompare(unittest.TestCase):
             Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
 
         result = out.getvalue().strip()
-        correct_text = 'python correct.py: Correct \npython incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
-        self.assertEqual(result, correct_text)
-
+        stderr = err.getvalue().strip()
+        correct_out = 'python correct.py: Correct'
+        correct_err = 'python incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
+        self.assertEqual(result, correct_out)
+        self.assertEqual(stderr, correct_err)
