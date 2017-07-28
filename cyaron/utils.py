@@ -28,3 +28,27 @@ def make_unicode(data):
         return unicode(data)
     except NameError:
         return str(data)
+
+def unpack_kwargs(funcname, kwargs, arg_pattern):
+    rv = {}
+    kwargs = kwargs.copy()
+    for tp in arg_pattern:
+        if list_like(tp):
+            k, v = tp
+            rv[k] = kwargs.get(k, v)
+            try:
+                del kwargs[k]
+            except KeyError:
+                pass
+        else:
+            error = False
+            try:
+                rv[tp] = kwargs[tp]
+                del kwargs[tp]
+            except KeyError as e:
+                error = True
+            if error:
+                raise TypeError('{}() missing 1 required keyword-only argument: \'{}\''.format(funcname, tp))
+    if kwargs:
+        raise TypeError('{}() got an unexpected keyword argument \'{}\''.format(funcname, next(iter(kwargs.items()))[0]))
+    return rv

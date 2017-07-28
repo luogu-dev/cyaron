@@ -30,7 +30,12 @@ class Compare:
                 return file, f.read()
 
     @classmethod
-    def output(cls, *files, std, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
+    def output(cls, *files, **kwargs):
+        kwargs = unpack_kwargs('output', kwargs, ('std', ('grader', DEFAULT_GRADER), ('max_workers', -1), ('job_pool', None)))
+        std = kwargs['std']
+        grader = kwargs['grader']
+        max_workers = kwargs['max_workers']
+        job_pool = kwargs['job_pool']
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             try:
                 from concurrent.futures import ThreadPoolExecutor
@@ -40,12 +45,11 @@ class Compare:
                 pass
 
         def get_std():
-            nonlocal std
-            (_, std) = cls.__process_file(std)
+            return cls.__process_file(std)[1]
         if job_pool is not None:
-            job_pool.submit(get_std).result()
+            std = job_pool.submit(get_std).result()
         else:
-            get_std()
+            std = get_std()
 
         def do(file):
             (file_name, content) = cls.__process_file(file)
@@ -57,7 +61,14 @@ class Compare:
             [x for x in map(do, files)]
 
     @classmethod
-    def program(cls, *programs, input, std=None, std_program=None, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
+    def program(cls, *programs, **kwargs):
+        kwargs = unpack_kwargs('program', kwargs, ('input', ('std', None), ('std_program', None), ('grader', DEFAULT_GRADER), ('max_workers', -1), ('job_pool', None)))
+        input = kwargs['input']
+        std = kwargs['std']
+        std_program = kwargs['std_program']
+        grader = kwargs['grader']
+        max_workers = kwargs['max_workers']
+        job_pool = kwargs['job_pool']
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             try:
                 from concurrent.futures import ThreadPoolExecutor
@@ -73,25 +84,23 @@ class Compare:
 
         if std_program is not None:
             def get_std():
-                nonlocal std
-                std = make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
+                return make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
             if job_pool is not None:
-                job_pool.submit(get_std).result()
+                std = job_pool.submit(get_std).result()
             else:
-                get_std()
+                std = get_std()
         elif std is not None:
             def get_std():
-                nonlocal std
-                (_, std) = cls.__process_file(std)
+                return cls.__process_file(std)[1]
             if job_pool is not None:
-                job_pool.submit(get_std).result()
+                std = job_pool.submit(get_std).result()
             else:
-                get_std()
+                std = get_std()
         else:
-            raise TypeError('program() missing 1 required non-None positional argument: \'std\' or \'std_program\'')
+            raise TypeError('program() missing 1 required non-None keyword-only argument: \'std\' or \'std_program\'')
 
         def do(program_name):
-            with os.fdopen(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
+            with open(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
                 content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True))
             cls.__compare_two(program_name, content, std, grader)
 

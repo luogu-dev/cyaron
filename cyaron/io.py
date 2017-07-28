@@ -61,7 +61,7 @@ class IO(object):
                 self.output_file = f
         elif isinstance(f, int):
             # consider ``f`` as a file descor
-            self.__init_file(os.fdopen(f, 'w+', newline='\n'), data_id, file_type)
+            self.__init_file(open(f, 'w+', newline='\n'), data_id, file_type)
         elif f is None:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
