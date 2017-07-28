@@ -95,3 +95,14 @@ class TestCompare(unittest.TestCase):
             f.write('print({})'.format(16))
         with IO() as test:
             Compare.program(*[(sys.executable, program) for program in programs], std_program=(sys.executable, 'std.py'), max_workers=None, input=test)
+
+        ios = [IO() for i in range(16)]
+        try:
+            for f in ios:
+                f.output_write('16')
+            with IO() as std:
+                std.output_write('16')
+                Compare.output(*ios, std=std, max_workers=None)
+        finally:
+            for io in ios:
+                io.close()
