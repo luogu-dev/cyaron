@@ -28,7 +28,7 @@ def _join_dict(a, b):
     return c
 
 _log_funcs = {}
-_log = lambda funcname, *args, **kwargs: _log_funcs.get(funcname, lambda *args, **kwargs: None)(*args, **kwargs)
+log = lambda funcname, *args, **kwargs: _log_funcs.get(funcname, lambda *args, **kwargs: None)(*args, **kwargs)
 
 """5 log levels
 1. debug:   debug info
@@ -38,11 +38,11 @@ _log = lambda funcname, *args, **kwargs: _log_funcs.get(funcname, lambda *args, 
 5. error:   errors
 """
 
-debug = partial(_log, 'debug')
-info = partial(_log, 'info')
-print = partial(_log, 'print')
-warn = partial(_log, 'warn')
-error = partial(_log, 'error')
+debug = partial(log, 'debug')
+info = partial(log, 'info')
+print = partial(log, 'print')
+warn = partial(log, 'warn')
+error = partial(log, 'error')
 
 def register_logfunc(funcname, func):
     """register logfunc
