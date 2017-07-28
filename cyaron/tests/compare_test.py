@@ -49,7 +49,7 @@ class TestCompare(unittest.TestCase):
             with captured_output() as (out, err):
                 Compare.output("test_another_incorrect.out", std=io)
         except TextMismatch as e:
-            self.assertEqual(e.content, 'test123\r\r\ntest124 ')
+            self.assertEqual(e.content, 'test123\r\ntest124 ')
             self.assertEqual(e.std, 'test123 \ntest123\n\n')
             self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')
         else:
