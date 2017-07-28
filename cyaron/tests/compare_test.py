@@ -1,9 +1,13 @@
 import unittest
 import os
+import sys
 import shutil
 import tempfile
-from cyaron import IO, Compare
+from cyaron import IO, Compare, log
 from cyaron.output_capture import captured_output
+from cyaron.graders.mismatch import *
+
+log.set_verbose()
 
 class TestCompare(unittest.TestCase):
 
@@ -41,13 +45,18 @@ class TestCompare(unittest.TestCase):
         with open("test_another_incorrect.out", "w") as f:
             f.write("test123\r\ntest124 ")
 
-        with captured_output() as (out, err):
-            Compare.output("test_another_incorrect.out", std=io)
+        try:
+            with captured_output() as (out, err):
+                Compare.output("test_another_incorrect.out", std=io)
+        except TextMismatch as e:
+            self.assertEqual(e.content, 'test123\r\r\ntest124 ')
+            self.assertEqual(e.std, 'test123 \ntest123\n\n')
+            self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')
+        else:
+            self.assertTrue(False)
 
         result = out.getvalue().strip()
-        stderr = err.getvalue().strip()
-        self.assertEqual(result, "")
-        self.assertEqual(stderr, "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3.")
+        self.assertEqual(result, "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3.")
 
     def test_fulltext_program(self):
         with open("correct.py", "w") as f:
@@ -62,12 +71,27 @@ class TestCompare(unittest.TestCase):
 
         io.output_writeln("1")
 
-        with captured_output() as (out, err):
-            Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
+        try:
+            with captured_output() as (out, err):
+                Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
+        except HashMismatch as e:
+            self.assertEqual(e.content, '2\n')
+            self.assertEqual(e.std, '1\n')
+            self.assertEqual(e.content_hash, '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3')
+            self.assertEqual(e.std_hash, '4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865')
+        else:
+            self.assertTrue(False)
 
         result = out.getvalue().strip()
-        stderr = err.getvalue().strip()
-        correct_out = 'python correct.py: Correct'
-        correct_err = 'python incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
+        correct_out = 'python correct.py: Correct \npython incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
         self.assertEqual(result, correct_out)
-        self.assertEqual(stderr, correct_err)
+
+    def test_concurrent(self):
+        programs = ['test{}.py'.format(i) for i in range(16)]
+        for fn in programs:
+            with open(fn, 'w') as f:
+                f.write('print({})'.format(16))
+        with open('std.py', 'w') as f:
+            f.write('print({})'.format(16))
+        with IO() as test:
+            Compare.program(*[(sys.executable, program) for program in programs], std_program=(sys.executable, 'std.py'), max_workers=None, input=test)

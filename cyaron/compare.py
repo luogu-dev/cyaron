@@ -6,40 +6,18 @@ from cyaron.graders import CYaRonGraders
 import subprocess
 import sys
 from io import open
+import os
 
 
 class Compare:
     @staticmethod
-    def __compare_two(name, content, std, grader, **kwargs):
+    def __compare_two(name, content, std, grader):
         (result, info) = CYaRonGraders.invoke(grader, content, std)
-
-        info = info if info is not None else ""
         status = "Correct" if result else "!!!INCORRECT!!!"
-        (log.print if result else log.error)("%s: %s %s" % (name, status, info))
-
-        stop_on_incorrect = kwargs.get("stop_on_incorrect", False)
-        raise_on_incorrect = kwargs.get("raise_on_incorrect", False)
-        dump_on_incorrect = kwargs.get("dump_on_incorrect", True)
-        custom_dump_data = kwargs.get("dump_data", None)
-        if (stop_on_incorrect or raise_on_incorrect) and not result:
-            if custom_dump_data:
-                (dump_name, dump_lambda) = custom_dump_data
-                with open(dump_name, "w", newline='\n') as f:
-                    f.write(dump_lambda())
-
-            if dump_on_incorrect:
-                with open("std.out", "w", newline='\n') as f:
-                    f.write(std)
-                with open("%s.out" % name, "w", newline='\n') as f:
-                    f.write(content)
-
-            log.info("Relevant files dumped.")
-
-            if stop_on_incorrect:
-                sys.exit(1)
-            else:
-                raise info
-
+        info = info if info is not None else ""
+        log.debug("{}: {} {}".format(name, status, info))
+        if not result:
+            raise info
 
     @staticmethod
     def __process_file(file):
@@ -52,60 +30,72 @@ class Compare:
                 return file, f.read()
 
     @staticmethod
-    def output(*args, **kwargs):
-        if len(args) == 0:
-            raise TypeError("You must specify some files to compare.")
+    def output(*files, std, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
+        if (max_workers is None or max_workers >= 0) and job_pool is None:
+            try:
+                from concurrent.futures import ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
+                    return Compare.output(*files, std=std, grader=grader, max_workers=max_workers, job_pool=job_pool)
+            except ImportError:
+                pass
 
-        if "std" not in kwargs:
-            raise TypeError("You must specify a std.")
-        (_, std) = Compare.__process_file(kwargs["std"])
+        def get_std():
+            nonlocal std
+            (_, std) = Compare.__process_file(std)
+        if job_pool is not None:
+            job_pool.submit(get_std).result()
+        else:
+            get_std()
 
-        grader = kwargs.get("grader", DEFAULT_GRADER)
-        del kwargs["std"]
-        try: del kwargs["grader"]
-        except KeyError: pass
-
-        for file in args:
+        def do(file):
             (file_name, content) = Compare.__process_file(file)
-            Compare.__compare_two(file_name, content, std, grader, **kwargs)
+            Compare.__compare_two(file_name, content, std, grader)
+
+        if job_pool is not None:
+            job_pool.map(do, files)
+        else:
+            [x for x in map(do, files)]
 
     @staticmethod
-    def program(*args, **kwargs):
-        if len(args) == 0:
-            raise TypeError("You must specify some programs to compare.")
+    def program(*programs, input, std=None, std_program=None, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
+        if (max_workers is None or max_workers >= 0) and job_pool is None:
+            try:
+                from concurrent.futures import ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
+                    return Compare.program(*programs, input=input, std=std, std_program=std_program, grader=grader, max_workers=max_workers, job_pool=job_pool)
+            except ImportError:
+                pass
 
-        if "input" not in kwargs:
-            raise TypeError("You must specify an input.")
-        input = kwargs['input']
-        del kwargs['input']
         if not isinstance(input, IO):
-            raise TypeError("Input must be an IO instance.")
+            raise TypeError("expect {}, got {}".format(type(IO).__name__, type(input).__name__))
         input.flush_buffer()
         input.input_file.seek(0)
 
-        std = None
-        if "std" not in kwargs and "std_program" not in kwargs:
-            raise TypeError("You must specify a std or a std_program.")
-        else:
-            if "std_program" in kwargs:
-                std = make_unicode(subprocess.check_output(kwargs['std_program'], shell=True, stdin=input.input_file, universal_newlines=True))
-                del kwargs['std_program']
+        if std_program is not None:
+            def get_std():
+                nonlocal std
+                std = make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
+            if job_pool is not None:
+                job_pool.submit(get_std).result()
             else:
-                (_, std) = Compare.__process_file(kwargs["std"])
-                del kwargs['std']
+                get_std()
+        elif std is not None:
+            def get_std():
+                nonlocal std
+                (_, std) = Compare.__process_file(std)
+            if job_pool is not None:
+                job_pool.submit(get_std).result()
+            else:
+                get_std()
+        else:
+            raise TypeError('program() missing 1 required non-None positional argument: \'std\' or \'std_program\'')
 
-        grader = kwargs.get("grader", DEFAULT_GRADER)
-        try: del kwargs["grader"]
-        except KeyError: pass
+        def do(program_name):
+            with os.fdopen(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
+                content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True))
+            Compare.__compare_two(program_name, content, std, grader)
 
-        for program_name in args:
-            kws = kwargs.copy()
-            input.input_file.seek(0)
-            content = make_unicode(subprocess.check_output(program_name, shell=True, stdin=input.input_file, universal_newlines=True))
-
-            input.input_file.seek(0)
-            kws['dump_data'] = kws.get('dump_data', ("error_input.in", lambda: input.input_file.read())) # Lazy dump
-            Compare.__compare_two(program_name, content, std, grader,
-                                  **kws)
-
-        input.input_file.seek(0, 2)
+        if job_pool is not None:
+            job_pool.map(do, programs)
+        else:
+            [x for x in map(do, programs)]

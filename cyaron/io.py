@@ -75,7 +75,7 @@ class IO(object):
             filename = f.format(data_id)
             if file_type == 'i':
                 self.input_filename = filename
-                log.info("Processing %s" % self.input_filename)
+                log.debug("Processing %s" % self.input_filename)
             else:
                 self.output_filename = filename
             self.__init_file(open(filename, 'w+', newline='\n'), data_id, file_type)
@@ -86,9 +86,9 @@ class IO(object):
 
     def __del_files(self):
         """delete files"""
-        if self.__input_temp:
+        if self.__input_temp and self.input_filename is not None:
             os.remove(self.input_filename)
-        if self.__output_temp:
+        if self.__output_temp and self.output_filename is not None:
             os.remove(self.output_filename)
 
     def close(self):
@@ -169,7 +169,7 @@ class IO(object):
         subprocess.check_call(shell_cmd, shell=True, stdin=self.input_file, stdout=self.output_file, universal_newlines=True)
         self.input_file.seek(origin_pos)
 
-        log.info(self.output_filename, " done")
+        log.debug(self.output_filename, " done")
 
     def output_write(self, *args, **kwargs):
         """output_write(self, *args, **kwargs) -> None
