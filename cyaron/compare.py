@@ -29,40 +29,40 @@ class Compare:
             with open(file, "r", newline='\n') as f:
                 return file, f.read()
 
-    @staticmethod
-    def output(*files, std, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
+    @classmethod
+    def output(cls, *files, std, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             try:
                 from concurrent.futures import ThreadPoolExecutor
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
-                    return Compare.output(*files, std=std, grader=grader, max_workers=max_workers, job_pool=job_pool)
+                    return cls.output(*files, std=std, grader=grader, max_workers=max_workers, job_pool=job_pool)
             except ImportError:
                 pass
 
         def get_std():
             nonlocal std
-            (_, std) = Compare.__process_file(std)
+            (_, std) = cls.__process_file(std)
         if job_pool is not None:
             job_pool.submit(get_std).result()
         else:
             get_std()
 
         def do(file):
-            (file_name, content) = Compare.__process_file(file)
-            Compare.__compare_two(file_name, content, std, grader)
+            (file_name, content) = cls.__process_file(file)
+            cls.__compare_two(file_name, content, std, grader)
 
         if job_pool is not None:
             job_pool.map(do, files)
         else:
             [x for x in map(do, files)]
 
-    @staticmethod
-    def program(*programs, input, std=None, std_program=None, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
+    @classmethod
+    def program(cls, *programs, input, std=None, std_program=None, grader=DEFAULT_GRADER, max_workers=-1, job_pool=None):
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             try:
                 from concurrent.futures import ThreadPoolExecutor
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
-                    return Compare.program(*programs, input=input, std=std, std_program=std_program, grader=grader, max_workers=max_workers, job_pool=job_pool)
+                    return cls.program(*programs, input=input, std=std, std_program=std_program, grader=grader, max_workers=max_workers, job_pool=job_pool)
             except ImportError:
                 pass
 
@@ -82,7 +82,7 @@ class Compare:
         elif std is not None:
             def get_std():
                 nonlocal std
-                (_, std) = Compare.__process_file(std)
+                (_, std) = cls.__process_file(std)
             if job_pool is not None:
                 job_pool.submit(get_std).result()
             else:
@@ -93,7 +93,7 @@ class Compare:
         def do(program_name):
             with os.fdopen(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
                 content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True))
-            Compare.__compare_two(program_name, content, std, grader)
+            cls.__compare_two(program_name, content, std, grader)
 
         if job_pool is not None:
             job_pool.map(do, programs)
