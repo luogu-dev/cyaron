@@ -1,6 +1,7 @@
 from __future__ import print_function
 from functools import partial
 import sys
+from threading import Lock
 try:
     import colorful
 except ImportError:
@@ -28,7 +29,13 @@ def _join_dict(a, b):
     return c
 
 _log_funcs = {}
-log = lambda funcname, *args, **kwargs: _log_funcs.get(funcname, lambda *args, **kwargs: None)(*args, **kwargs)
+_log_lock = Lock()
+def log(funcname, *args, **kwargs):
+    """log with log function specified by ``funcname``"""
+    _log_lock.acquire()
+    rv = _log_funcs.get(funcname, lambda *args, **kwargs: None)(*args, **kwargs)
+    _log_lock.release()
+    return rv
 
 """5 log levels
 1. debug:   debug info
