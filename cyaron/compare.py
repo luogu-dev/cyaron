@@ -4,6 +4,7 @@ from cyaron.utils import *
 from cyaron.consts import *
 from cyaron.graders import CYaRonGraders
 import subprocess
+import multiprocessing
 import sys
 from io import open
 import os
@@ -29,6 +30,14 @@ class Compare:
             with open(file, "r", newline='\n') as f:
                 return file, f.read()
 
+    @staticmethod
+    def __normal_max_workers(workers):
+        if workers is None:
+            if sys.version_info < (3, 5):
+                cpu = multiprocessing.cpu_count()
+                return cpu * 5 if cpu is not None else 1
+        return workers
+
     @classmethod
     def output(cls, *files, **kwargs):
         kwargs = unpack_kwargs('output', kwargs, ('std', ('grader', DEFAULT_GRADER), ('max_workers', -1), ('job_pool', None)))
@@ -37,6 +46,7 @@ class Compare:
         max_workers = kwargs['max_workers']
         job_pool = kwargs['job_pool']
         if (max_workers is None or max_workers >= 0) and job_pool is None:
+            max_workers = cls.__normal_max_workers(max_workers)
             try:
                 from concurrent.futures import ThreadPoolExecutor
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
@@ -70,6 +80,7 @@ class Compare:
         max_workers = kwargs['max_workers']
         job_pool = kwargs['job_pool']
         if (max_workers is None or max_workers >= 0) and job_pool is None:
+            max_workers = cls.__normal_max_workers(max_workers)
             try:
                 from concurrent.futures import ThreadPoolExecutor
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
