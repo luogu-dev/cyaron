@@ -13,6 +13,16 @@ def list_like(data):
     return isinstance(data, tuple) or isinstance(data, list)
 
 
+def int_like(data):
+    isint = False
+    try:
+        isint = isint or isinstance(date, long)
+    except NameError:
+        pass
+    isint = isint or isinstance(data, int)
+    return isint
+
+
 def strtolines(str):
     lines = str.split('\n')
     for i in range(len(lines)):

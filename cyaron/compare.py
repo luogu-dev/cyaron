@@ -10,6 +10,13 @@ from io import open
 import os
 
 
+class CompareMismatch(ValueError):
+    def __init__(self, name, mismatch):
+        super(CompareMismatch, self).__init__(name, mismatch)
+        self.name = name
+        self.mismatch = mismatch
+
+
 class Compare:
     @staticmethod
     def __compare_two(name, content, std, grader):
@@ -18,7 +25,7 @@ class Compare:
         info = info if info is not None else ""
         log.debug("{}: {} {}".format(name, status, info))
         if not result:
-            raise info
+            raise CompareMismatch(name, info)
 
     @staticmethod
     def __process_file(file):
@@ -111,8 +118,14 @@ class Compare:
             raise TypeError('program() missing 1 required non-None keyword-only argument: \'std\' or \'std_program\'')
 
         def do(program_name):
+            timeout = None
+            if list_like(program_name) and len(program_name) == 2 and int_like(program_name[-1]):
+                program_name, timeout = program_name
             with open(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
-                content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True))
+                if timeout is None:
+                    content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True))
+                else:
+                    content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True, timeout=timeout))
             cls.__compare_two(program_name, content, std, grader)
 
         if job_pool is not None:

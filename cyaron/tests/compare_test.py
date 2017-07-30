@@ -3,9 +3,11 @@ import os
 import sys
 import shutil
 import tempfile
+import subprocess
 from cyaron import IO, Compare, log
 from cyaron.output_capture import captured_output
 from cyaron.graders.mismatch import *
+from cyaron.compare import CompareMismatch
 
 log.set_verbose()
 
@@ -48,7 +50,9 @@ class TestCompare(unittest.TestCase):
         try:
             with captured_output() as (out, err):
                 Compare.output("test_another_incorrect.out", std=io)
-        except TextMismatch as e:
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'test_another_incorrect.out')
+            e = e.mismatch
             self.assertEqual(e.content, 'test123\r\ntest124 ')
             self.assertEqual(e.std, 'test123 \ntest123\n\n')
             self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')
@@ -74,7 +78,9 @@ class TestCompare(unittest.TestCase):
         try:
             with captured_output() as (out, err):
                 Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
-        except HashMismatch as e:
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'python incorrect.py')
+            e = e.mismatch
             self.assertEqual(e.content, '2\n')
             self.assertEqual(e.std, '1\n')
             self.assertEqual(e.content_hash, '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3')
@@ -106,3 +112,13 @@ class TestCompare(unittest.TestCase):
         finally:
             for io in ios:
                 io.close()
+
+    def test_timeout(self):
+        if sys.version_info >= (3, 3):
+            with IO() as test:
+                try:
+                    Compare.program(((sys.executable, '-c', '__import__(\'time\').sleep(10)'), 1), std=test, input=test)
+                except subprocess.TimeoutExpired:
+                    pass
+                else:
+                    self.assertTrue(False)
