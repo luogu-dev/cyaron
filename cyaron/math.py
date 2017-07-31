@@ -4,6 +4,7 @@ forked from https://blog.dreamshire.com/common-functions-routines-project-euler/
 '''
 from __future__ import absolute_import
 from math import sqrt, ceil
+from fractions import gcd
 from functools import reduce
 import random
 import itertools
@@ -174,25 +175,6 @@ def factor(n):
                     n //= f
                     e += 1
                 factors.append((f, e))
-
-
-#--- greatest common divisor----------------------------------------------------------------------
-def gcd(a, b):
-    """
-    Compute the greatest common divisor of a and b. Examples:
-    
-    >>> gcd(14, 15)    #co-prime
-    1
-    >>> gcd(5*5, 3*5)
-    5
-    """
-    if a < 0:  a = -a
-    if b < 0:  b = -b
-    if a == 0: return b
-    while (b): a, b = b, a%b
-    return a
-
-
 
 
 #--- generate permutations-----------------------------------------------------------------------

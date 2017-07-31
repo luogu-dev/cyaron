@@ -5,5 +5,5 @@ python:
   - "3.6"
   - "pypy"
   - "pypy3"
-script: python unit_test.py
-
+install: pip install tox-travis
+script: tox

@@ -1,9 +1,15 @@
 import unittest
 import os
+import sys
 import shutil
 import tempfile
-from cyaron import IO, Compare
+import subprocess
+from cyaron import IO, Compare, log
 from cyaron.output_capture import captured_output
+from cyaron.graders.mismatch import *
+from cyaron.compare import CompareMismatch
+
+log.set_verbose()
 
 class TestCompare(unittest.TestCase):
 
@@ -41,8 +47,17 @@ class TestCompare(unittest.TestCase):
         with open("test_another_incorrect.out", "w") as f:
             f.write("test123\r\ntest124 ")
 
-        with captured_output() as (out, err):
-            Compare.output("test_another_incorrect.out", std=io)
+        try:
+            with captured_output() as (out, err):
+                Compare.output("test_another_incorrect.out", std=io)
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'test_another_incorrect.out')
+            e = e.mismatch
+            self.assertEqual(e.content, 'test123\r\ntest124 ')
+            self.assertEqual(e.std, 'test123 \ntest123\n\n')
+            self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')
+        else:
+            self.assertTrue(False)
 
         result = out.getvalue().strip()
         self.assertEqual(result, "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3.")
@@ -60,10 +75,50 @@ class TestCompare(unittest.TestCase):
 
         io.output_writeln("1")
 
-        with captured_output() as (out, err):
-            Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
+        try:
+            with captured_output() as (out, err):
+                Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'python incorrect.py')
+            e = e.mismatch
+            self.assertEqual(e.content, '2\n')
+            self.assertEqual(e.std, '1\n')
+            self.assertEqual(e.content_hash, '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3')
+            self.assertEqual(e.std_hash, '4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865')
+        else:
+            self.assertTrue(False)
 
         result = out.getvalue().strip()
-        correct_text = 'python correct.py: Correct \npython incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
-        self.assertEqual(result, correct_text)
+        correct_out = 'python correct.py: Correct \npython incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
+        self.assertEqual(result, correct_out)
 
+    def test_concurrent(self):
+        programs = ['test{}.py'.format(i) for i in range(16)]
+        for fn in programs:
+            with open(fn, 'w') as f:
+                f.write('print({})'.format(16))
+        with open('std.py', 'w') as f:
+            f.write('print({})'.format(16))
+        with IO() as test:
+            Compare.program(*[(sys.executable, program) for program in programs], std_program=(sys.executable, 'std.py'), max_workers=None, input=test)
+
+        ios = [IO() for i in range(16)]
+        try:
+            for f in ios:
+                f.output_write('16')
+            with IO() as std:
+                std.output_write('16')
+                Compare.output(*ios, std=std, max_workers=None)
+        finally:
+            for io in ios:
+                io.close()
+
+    def test_timeout(self):
+        if sys.version_info >= (3, 3):
+            with IO() as test:
+                try:
+                    Compare.program(((sys.executable, '-c', '__import__(\'time\').sleep(10)'), 1), std=test, input=test)
+                except subprocess.TimeoutExpired:
+                    pass
+                else:
+                    self.assertTrue(False)
