@@ -1,0 +1,95 @@
+#include<cstdio>
+#include<iostream>
+#include<algorithm>
+#include<queue>
+using namespace std;
+typedef long long ll;
+typedef pair<ll,ll> pil;
+
+struct Node{
+    int t,num;
+    bool a;
+}node[100010];
+priority_queue<pil,vector<pil>,greater<pil> > w;
+
+int n=0,q=0,b=0;
+ll ans=0,per=0;
+
+ll _read(){
+    ll x=0,f=1;
+    char c=getchar();
+    while(c>'9'||c<'0')c=getchar();
+    while(c<='9'&&c>='0') x=x*10+c-'0',c=getchar();
+    return x*f;
+}
+void solve(){
+    n=_read();q=_read();
+    char c;
+    int ti=0,ki=0,last=0;
+    pil kk;
+    for(int i=0;i<n;i++){
+        scanf("%c",&c);
+        ti=_read(),ki=_read();
+        node[i].t=ti;
+        node[i].num=ki;
+        if(c=='-'){
+            node[i].a=0;
+            per+=ki;
+        }
+        else{
+            node[i].a=1;
+            per-=ki;
+        }
+    }
+
+    for(int i=0;i<q;i++){
+        
+        b=_read();
+        if(b<per){
+            printf("INFINITY\n");
+            continue;
+        }
+        else{
+            last=b;
+            for(int j=0;j<n;j++){
+                if(!node[j].a){
+                    if(last>=node[j].num){
+                        last-=node[j].num;
+                        continue;
+                    }
+                    else{
+                        w.push(make_pair(node[j].t,node[j].num-last));
+                        last=0;
+                    }
+                }
+                else{
+                    last+=node[j].num;
+                    while(!w.empty()&&last!=0){
+                        kk=w.top();
+                        w.pop();
+                        if(last>=kk.second){
+                            ans+=(node[j].t-kk.first)*kk.second;
+                            last-=kk.second;
+                        }
+                        else{
+                            ans+=(node[j].t-kk.first)*last;
+                            w.push(make_pair(kk.first,kk.second-last));
+                            last=0;
+                        }
+                    }
+                }
+            }
+            printf("%lld\n",ans);
+            ans=0;
+        }
+    }
+}
+int main(){
+    //freopen("moni.in","r",stdin);
+    //freopen("moni.out","w",stdout);
+    solve();
+    //fclose(stdin);
+    //fclose(stdout);
+    return 0;
+}
+}
