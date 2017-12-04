@@ -106,8 +106,10 @@ class IO(object):
             deleted = True
         except OSError:
             pass
-        self.input_file.close()
-        self.output_file.close()
+        if isinstance(self.input_file, IOBase):
+            self.input_file.close()
+        if isinstance(self.output_file, IOBase):
+            self.output_file.close()
         if not deleted:
             self.__del_files()
         self.__closed = True
