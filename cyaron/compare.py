@@ -47,11 +47,15 @@ class Compare:
 
     @classmethod
     def output(cls, *files, **kwargs):
-        kwargs = unpack_kwargs('output', kwargs, ('std', ('grader', DEFAULT_GRADER), ('max_workers', -1), ('job_pool', None)))
+        kwargs = unpack_kwargs('output', kwargs, ('std', ('grader', DEFAULT_GRADER), ('max_workers', -1),
+                                                  ('job_pool', None), ('stop_on_incorrect', None)))
         std = kwargs['std']
         grader = kwargs['grader']
         max_workers = kwargs['max_workers']
         job_pool = kwargs['job_pool']
+        if kwargs['stop_on_incorrect'] is not None:
+            log.warn("parameter stop_on_incorrect is deprecated and has no effect.")
+
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             max_workers = cls.__normal_max_workers(max_workers)
             try:
@@ -79,13 +83,18 @@ class Compare:
 
     @classmethod
     def program(cls, *programs, **kwargs):
-        kwargs = unpack_kwargs('program', kwargs, ('input', ('std', None), ('std_program', None), ('grader', DEFAULT_GRADER), ('max_workers', -1), ('job_pool', None)))
+        kwargs = unpack_kwargs('program', kwargs, ('input', ('std', None), ('std_program', None),
+                                                   ('grader', DEFAULT_GRADER), ('max_workers', -1),
+                                                   ('job_pool', None), ('stop_on_incorrect', None)))
         input = kwargs['input']
         std = kwargs['std']
         std_program = kwargs['std_program']
         grader = kwargs['grader']
         max_workers = kwargs['max_workers']
         job_pool = kwargs['job_pool']
+        if kwargs['stop_on_incorrect'] is not None:
+            log.warn("parameter stop_on_incorrect is deprecated and has no effect.")
+
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             max_workers = cls.__normal_max_workers(max_workers)
             try:
