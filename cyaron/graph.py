@@ -23,7 +23,7 @@ class Edge:
 
     @staticmethod
     def unweighted_edge(edge):
-        """unweighted_edge(e) -> str
+        """unweighted_edge(edge) -> str
             Return a string to output the edge without weight. The string contains the start vertex, end vertex(u,v) and splits with space.
         """
         return '%d %d'%(edge.start,edge.end)
