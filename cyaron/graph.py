@@ -21,6 +21,12 @@ class Edge:
         """
         return "%d %d %d" % (self.start, self.end, self.weight)
 
+    @staticmethod
+    def unweighted_edge(edge):
+        """unweighted_edge(e) -> str
+            Return a string to output the edge without weight. The string contains the start vertex, end vertex(u,v) and splits with space.
+        """
+        return '%d %d'%(edge.start,edge.end)
 
 class Graph:
     """Class Graph: A class of the graph
