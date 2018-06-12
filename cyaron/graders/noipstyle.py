@@ -19,12 +19,16 @@ def noipstyle(content, std):
                                 content, std,
                                 'On line {} column {}, read {}, expected {}.'.
                                 format(i + 1, j + 1, content_lines[i][j:j + 5],
-                                       std_lines[i][j:j + 5])))
+                                       std_lines[i][j:j + 5]), i + 1, j + 1,
+                                content_lines[i][j:j + 5],
+                                std_lines[i][j:j + 5]))
             if len(std_lines[i]) > len(content_lines[i]):
-                return False, TextMismatch(content, std,
-                                           'Too short on line {}.'.format(i))
+                return False, TextMismatch(
+                    content, std, 'Too short on line {}.'.format(i), i + 1,
+                    j + 1, content_lines[i][j:j + 5], std_lines[i][j:j + 5])
             if len(std_lines[i]) < len(content_lines[i]):
-                return False, TextMismatch(content, std,
-                                           'Too long on line {}.'.format(i))
+                return False, TextMismatch(
+                    content, std, 'Too long on line {}.'.format(i), i + 1,
+                    j + 1, content_lines[i][j:j + 5], std_lines[i][j:j + 5])
 
     return True, None
