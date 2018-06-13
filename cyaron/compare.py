@@ -15,6 +15,9 @@ class CompareMismatch(ValueError):
         super(CompareMismatch, self).__init__(name, mismatch)
         self.name = name
         self.mismatch = mismatch
+    
+    def __str__(self):
+        return self.mismatch.__str__()
 
 
 class Compare:
