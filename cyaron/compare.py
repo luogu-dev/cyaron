@@ -15,9 +15,9 @@ class CompareMismatch(ValueError):
         super(CompareMismatch, self).__init__(name, mismatch)
         self.name = name
         self.mismatch = mismatch
-    
+
     def __str__(self):
-        return self.mismatch.__str__()
+        return 'In program: \'{}\'. {}'.format(self.name,self.mismatch)
 
 
 class Compare:
@@ -114,7 +114,10 @@ class Compare:
 
         if std_program is not None:
             def get_std():
-                return make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
+                with open(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
+                    content =  make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
+                    input_file.seek(0)
+                return content
             if job_pool is not None:
                 std = job_pool.submit(get_std).result()
             else:
@@ -138,6 +141,7 @@ class Compare:
                     content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True))
                 else:
                     content = make_unicode(subprocess.check_output(program_name, shell=(not list_like(program_name)), stdin=input_file, universal_newlines=True, timeout=timeout))
+                input_file.seek(0)
             cls.__compare_two(program_name, content, std, grader)
 
         if job_pool is not None:
