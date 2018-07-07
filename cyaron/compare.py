@@ -115,7 +115,7 @@ class Compare:
         if std_program is not None:
             def get_std():
                 with open(os.dup(input.input_file.fileno()), 'r', newline='\n') as input_file:
-                    content =  make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
+                    content = make_unicode(subprocess.check_output(std_program, shell=(not list_like(std_program)), stdin=input.input_file, universal_newlines=True))
                     input_file.seek(0)
                 return content
             if job_pool is not None:

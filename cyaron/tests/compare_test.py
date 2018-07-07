@@ -92,6 +92,26 @@ class TestCompare(unittest.TestCase):
         correct_out = 'python correct.py: Correct \npython incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
         self.assertEqual(result, correct_out)
 
+    def test_file_input(self):
+        with open("correct.py", "w") as f:
+            f.write("print(input())")
+
+        with open("std.py", "w") as f:
+            f.write("print(input())")
+
+        io = None
+        with captured_output() as (out, err):
+            io = IO()
+
+        io.input_writeln("233")
+
+        with captured_output() as (out, err):
+            Compare.program("python correct.py", std_program="python std.py", input=io, grader="NOIPStyle")
+
+        result = out.getvalue().strip()
+        correct_out = 'python correct.py: Correct'
+        self.assertEqual(result, correct_out)
+
     def test_concurrent(self):
         programs = ['test{}.py'.format(i) for i in range(16)]
         for fn in programs:
