@@ -30,6 +30,12 @@ class TestIO(unittest.TestCase):
         self.assertTrue(os.path.exists("test_prefix233.inp"))
         self.assertTrue(os.path.exists("test_prefix233.ans"))
 
+    def test_create_files_without_prefix_id(self):
+        with captured_output() as (out, err):
+            IO(file_prefix="test_prefix")
+        self.assertTrue(os.path.exists("test_prefix.in"))
+        self.assertTrue(os.path.exists("test_prefix.out"))
+
     def test_write_stuff(self):
         with captured_output() as (out, err):
             with IO("test_write.in", "test_write.out") as test:
