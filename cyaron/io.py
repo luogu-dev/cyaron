@@ -72,7 +72,7 @@ class IO(object):
                 self.__output_temp = True
         else:
             # consider ``f`` as filename template
-            filename = f.format(data_id)
+            filename = f.format(data_id or '')
             if file_type == 'i':
                 self.input_filename = filename
                 log.debug("Processing %s" % self.input_filename)
