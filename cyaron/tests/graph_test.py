@@ -31,15 +31,15 @@ def tarjan(graph, n):
     dfn = new_array(n, 0)
     stap = new_array(n)
     belong = new_array(n)
-    cnt = bc = stop = 0
+    var = [0, 0, 0] # cnt, bc, stop
+    # cnt = bc = stop = 0
 
     def dfs(cur):
-        nonlocal cnt, bc, stop
-        cnt += 1
-        dfn[cur] = low[cur] = cnt
+        var[0] += 1
+        dfn[cur] = low[cur] = var[0]
         instack[cur] = True
-        stap[stop] = cur
-        stop += 1
+        stap[var[2]] = cur
+        var[2] += 1
 
         for v in graph.edges[cur]:
             if dfn[v.end] == 0:
@@ -50,12 +50,12 @@ def tarjan(graph, n):
 
         if dfn[cur] == low[cur]:
             v = cur + 1 # set v != cur
-            bc += 1
+            var[1] += 1
             while v != cur:
-                stop -= 1
-                v = stap[stop]
+                var[2] -= 1
+                v = stap[var[2]]
                 instack[v] = False
-                belong[v] = bc
+                belong[v] = var[1]
 
     for i in range(n):
         if dfn[i+1] == 0:
