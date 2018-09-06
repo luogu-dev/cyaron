@@ -275,6 +275,122 @@ class Graph:
         return graph
 
     @staticmethod
+    def DAG(point_count, edge_count, **kwargs):
+        """DAG(point_count, edge_count, **kwargs) -> Graph
+               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               int point_count -> the count of vertexes
+               int edge_count -> the count of edges
+               **kwargs(Keyword args):
+                   bool self_loop = False -> whether to allow self loops or not
+                   bool repeated_edges = True -> whether to allow repeated edges or not
+                   bool loop = False -> whether to allow loops or not
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+                   int/float weight_gen() 
+                   = lambda: random.randint(weight_limit[0], weight_limit[1]) 
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
+        """
+        if edge_count < point_count - 1:
+            raise Exception("the number of edges of connected graph must more than the number of nodes - 1")
+
+        self_loop = kwargs.get("self_loop", False) # DAG default has no loop
+        repeated_edges = kwargs.get("repeated_edges", True)
+        loop = kwargs.get("loop", False)
+        weight_limit = kwargs.get("weight_limit", (1, 1))
+        if not list_like(weight_limit):
+            weight_limit = (1, weight_limit)
+        weight_gen = kwargs.get(
+            "weight_gen", lambda: random.randint(
+                weight_limit[0], weight_limit[1]))
+        
+        used_edges = set()
+        edge_buf = list(Graph.tree(point_count, weight_limit=weight_gen()).iterate_edges())
+        graph = Graph(point_count, directed=True)
+
+        for edge in edge_buf:
+            if loop and random.randint(1, 2) == 1:
+                edge.start, edge.end = edge.end, edge.start
+            graph.add_edge(edge.start, edge.end, weight=edge.weight)
+                
+            if not repeated_edges:
+                used_edges.add((edge.start, edge.end))
+        
+        i = point_count - 1
+        while i < edge_count:
+            u = random.randint(1, point_count)
+            v = random.randint(1, point_count)
+
+            if not loop and u > v:
+                u, v = v, u
+
+            if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
+                # Then we generate a new pair of nodes
+                continue
+
+            graph.add_edge(u, v, weight=weight_gen())
+
+            if not repeated_edges:
+                used_edges.add((u, v))
+
+            i += 1
+
+        return graph
+
+    @staticmethod
+    def UDAG(point_count, edge_count, **kwargs):
+        """UDAG(point_count, edge_count, **kwargs) -> Graph
+               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               int point_count -> the count of vertexes
+               int edge_count -> the count of edges
+               **kwargs(Keyword args):
+                   bool self_loop = True -> whether to allow self loops or not
+                   bool repeated_edges = True -> whether to allow repeated edges or not
+                   (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
+                   int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
+                   int/float weight_gen() 
+                   = lambda: random.randint(weight_limit[0], weight_limit[1]) 
+                   -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
+        """
+        if edge_count < point_count - 1: 
+            raise Exception("the number of edges of connected graph must more than the number of nodes - 1")
+
+        self_loop = kwargs.get("self_loop", True)
+        repeated_edges = kwargs.get("repeated_edges", True)
+        weight_limit = kwargs.get("weight_limit", (1, 1))
+        if not list_like(weight_limit):
+            weight_limit = (1, weight_limit)
+        weight_gen = kwargs.get(
+            "weight_gen", lambda: random.randint(
+                weight_limit[0], weight_limit[1]))
+        
+        used_edges = set()
+        graph = Graph.tree(point_count, weight_limit=weight_gen(), directed=False)
+
+        for edge in graph.iterate_edges():
+            if not repeated_edges:
+                used_edges.add((edge.start, edge.end))
+                used_edges.add((edge.end, edge.start))
+        
+        i = point_count - 1
+        while i < edge_count:
+            u = random.randint(1, point_count)
+            v = random.randint(1, point_count)
+
+            if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
+                # Then we generate a new pair of nodes
+                continue
+
+            graph.add_edge(u, v, weight=weight_gen())
+
+            if not repeated_edges:
+                used_edges.add((u, v))
+                used_edges.add((v, u))
+
+            i += 1
+
+        return graph
+
+    @staticmethod
     def hack_spfa(point_count, **kwargs):
         """hack_spfa(point_count, **kwargs) -> None
            Factory method. Return a spfa graph with point_count vertexes
