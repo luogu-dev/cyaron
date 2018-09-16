@@ -304,7 +304,7 @@ class Graph:
                 weight_limit[0], weight_limit[1]))
         
         used_edges = set()
-        edge_buf = list(Graph.tree(point_count, weight_limit=weight_gen()).iterate_edges())
+        edge_buf = list(Graph.tree(point_count, weight_limit=weight_limit).iterate_edges())
         graph = Graph(point_count, directed=True)
 
         for edge in edge_buf:
@@ -364,7 +364,7 @@ class Graph:
                 weight_limit[0], weight_limit[1]))
         
         used_edges = set()
-        graph = Graph.tree(point_count, weight_limit=weight_gen(), directed=False)
+        graph = Graph.tree(point_count, weight_limit=weight_limit, directed=False)
 
         for edge in graph.iterate_edges():
             if not repeated_edges:
