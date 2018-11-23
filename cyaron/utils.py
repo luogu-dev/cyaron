@@ -16,7 +16,7 @@ def list_like(data):
 def int_like(data):
     isint = False
     try:
-        isint = isint or isinstance(date, long)
+        isint = isint or isinstance(data, long)
     except NameError:
         pass
     isint = isint or isinstance(data, int)
