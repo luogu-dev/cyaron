@@ -22,10 +22,7 @@ class Sequence:
     def __get_one(self, i):
         if i in self.values:
             return self.values[i]
-        if isalambda (self.formula):
             self.values[i] = self.formula(i, self.__get_one)
-        else :
-            self.values[i] = self.formula(i)
         return self.values[i]
 
     def get(self, left_range, right_range=None):
