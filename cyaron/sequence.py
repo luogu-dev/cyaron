@@ -19,7 +19,6 @@ class Sequence:
         else:
             raise Exception("Initial_values must be either a list/tuple or a dict.")
 
-
     def __get_one(self, i):
         if i in self.values:
             return self.values[i]
