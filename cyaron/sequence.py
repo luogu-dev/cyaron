@@ -9,8 +9,8 @@ class Sequence:
             Create a sequence object.
             int formula(int, function) -> the formula function ...
         """
-        if not callable (formula) :
-            raise Exception ("formula must be a function")
+        if not callable(formula):
+            raise Exception("formula must be a function")
         self.formula = formula
         if list_like(initial_values):
             self.values = dict(enumerate(initial_values))
@@ -22,7 +22,8 @@ class Sequence:
     def __get_one(self, i):
         if i in self.values:
             return self.values[i]
-            self.values[i] = self.formula(i, self.__get_one)
+        
+        self.values[i] = self.formula(i, self.__get_one)
         return self.values[i]
 
     def get(self, left_range, right_range=None):
