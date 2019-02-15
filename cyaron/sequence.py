@@ -22,7 +22,7 @@ class Sequence:
     def __get_one(self, i):
         if i in self.values:
             return self.values[i]
-        
+
         self.values[i] = self.formula(i, self.__get_one)
         return self.values[i]
 
