@@ -62,3 +62,6 @@ def unpack_kwargs(funcname, kwargs, arg_pattern):
     if kwargs:
         raise TypeError('{}() got an unexpected keyword argument \'{}\''.format(funcname, next(iter(kwargs.items()))[0]))
     return rv
+def isalambda(v):
+	  LAMBDA = lambda:0
+	  return isinstance(v, type(LAMBDA)) and v.__name__ == LAMBDA.__name__
