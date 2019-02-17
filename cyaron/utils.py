@@ -62,3 +62,8 @@ def unpack_kwargs(funcname, kwargs, arg_pattern):
     if kwargs:
         raise TypeError('{}() got an unexpected keyword argument \'{}\''.format(funcname, next(iter(kwargs.items()))[0]))
     return rv
+
+def ll_to_lt (l):
+    if not isinstance (l，list):
+        raise TypeError("L mast be a list")
+    return [tuple (i) for i in l]
