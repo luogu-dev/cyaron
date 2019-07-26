@@ -1,7 +1,8 @@
-from .consts import ALPHABET_SMALL, SENTENCE_SEPARATORS, SENTENCE_TERMINATORS
+from .consts import ALPHABET_SMALL, SENTENCE_SEPARATORS, SENTENCE_TERMINATORS, NUMBERS
 from .utils import *
 from functools import reduce
 import random
+import xeger
 
 
 class String:
@@ -97,3 +98,13 @@ class String:
         paragraph = reduce(lambda x, y: x + random.choice(sentence_joiners) + y, sentences)
         return paragraph
 
+    @staticmethod
+    def random_regular(*args, **kwargs):
+        pattern = args
+        limit_len = kwargs.get("limit", NUMBERS)
+        if limit_len is None or limit_len == 0:
+            limit_len = 10
+        if(list_like(args)):
+            pattern = random.choice(args)
+        _x = xeger.Xeger(limit=limit_len)
+        return _x.xeger(pattern)
