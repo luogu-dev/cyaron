@@ -5,5 +5,7 @@ python:
   - "3.6"
   - "pypy"
   - "pypy3"
-install: pip install tox-travis
+install:
+  - pip install tox-travis
+  - pip install xeger
 script: tox

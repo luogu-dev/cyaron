@@ -101,7 +101,7 @@ class String:
     @staticmethod
     def random_regular(*args, **kwargs):
         pattern = args
-        limit_len = int(kwargs.get("limit", default="10"))
+        limit_len = int(kwargs.get("limit", "10"))
         if (limit_len <= 1): limit_len = 10
         if (list_like(args)):
             pattern = random.choice(args)
