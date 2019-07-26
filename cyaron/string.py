@@ -101,10 +101,9 @@ class String:
     @staticmethod
     def random_regular(*args, **kwargs):
         pattern = args
-        limit_len = kwargs.get("limit", NUMBERS)
-        if limit_len is None or limit_len == 0:
-            limit_len = 10
-        if(list_like(args)):
+        limit_len = int(kwargs.get("limit", default="10"))
+        if (limit_len <= 1): limit_len = 10
+        if (list_like(args)):
             pattern = random.choice(args)
         _x = xeger.Xeger(limit=limit_len)
         return _x.xeger(pattern)
