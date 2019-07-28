@@ -11,6 +11,7 @@ from cyaron.compare import CompareMismatch
 
 log.set_verbose()
 
+
 class TestCompare(unittest.TestCase):
 
     def setUp(self):
@@ -53,14 +54,17 @@ class TestCompare(unittest.TestCase):
         except CompareMismatch as e:
             self.assertEqual(e.name, 'test_another_incorrect.out')
             e = e.mismatch
-            try:
-                self.assertEqual(e.content, 'test123\r\ntest124 ')
-                self.assertEqual(e.std, 'test123 \ntest123\n\n')
-                self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')
-            except AssertionError:
-                pass
-                # TODO...
-                # When this file run in python3.7, the function will throw AssertionError
+            self.assertEqual(e.content, 'test123\r\ntest124 ')  # AssertionError
+            self.assertEqual(e.std, 'test123 \ntest123\n\n')  # AssertionError
+            self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')  # AssertionError
+            # try:
+            #     self.assertEqual(e.content, 'test123\r\ntest124 ')
+            #     self.assertEqual(e.std, 'test123 \ntest123\n\n')
+            #     self.assertEqual(str(e), 'On line 2 column 7, read 4, expected 3.')
+            # except AssertionError:
+            #     pass
+            #     # TODO...
+            #     # When this file run in python3.7, the function will throw AssertionError
         else:
             self.assertTrue(False)
 
@@ -125,7 +129,8 @@ class TestCompare(unittest.TestCase):
         with open('std.py', 'w') as f:
             f.write('print({})'.format(16))
         with IO() as test:
-            Compare.program(*[(sys.executable, program) for program in programs], std_program=(sys.executable, 'std.py'), max_workers=None, input=test)
+            Compare.program(*[(sys.executable, program) for program in programs],
+                            std_program=(sys.executable, 'std.py'), max_workers=None, input=test)
 
         ios = [IO() for i in range(16)]
         try:
