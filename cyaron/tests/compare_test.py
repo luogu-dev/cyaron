@@ -44,8 +44,8 @@ class TestCompare(unittest.TestCase):
             io = IO("test_compare_incorrect.in", "test_compare_incorrect.out")
 
         io.output_writeln("test123 \ntest123\n")
-        with open("test_another_incorrect.out", "w") as f:
-            f.write("test123\r\ntest124 ")
+        with open("test_another_incorrect.out", "wb") as f:
+            f.write(b"test123\r\ntest124 ")
 
         try:
             with captured_output() as (out, err):
