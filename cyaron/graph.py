@@ -188,7 +188,7 @@ class Graph:
                float right = 0 -> random arg. should be in [0,1]
                NOTICE:left+right mustn't be greater than 1
                **kwargs(Keyword args):
-                   bool directed = False -> whether the chain is directed(true:directed,false:not directed)
+                   bool directed = False -> whether the binary tree is directed(true:directed,false:not directed)
                    (int,int) weight_limit = (1,1) -> the limit of weight. index 0 is the min limit, and index 1 is the max limit(both included)
                    int weight_limit -> If you use a int for this arg, it means the max limit of the weight(included)
                    int/float weight_gen() 
@@ -207,24 +207,33 @@ class Graph:
             raise Exception("left and right must be between 0 and 1")
         if left + right > 1:
             raise Exception("left plus right must be smaller than 1")
-
-        can_left = set([1])
-        can_right = set([1])
+        
+        can_left=[1]
+        can_right=[1]
         graph = Graph(point_count, directed)
         for i in range(2, point_count + 1):
             edge_pos = random.random()
             node = 0
             # Left
             if edge_pos < left or left + right < edge_pos <= (1.0 - left - right) / 2:
-                node = random.choice(tuple(can_left))
-                can_left.remove(node)
+                point_index = random.randint(0,len(can_left)-1)
+                node = can_left[point_index]
+                del_last_node = can_left.pop() # Save a copy of the last element
+                if point_index < len(can_left):
+                    # If the chosen element isn't the last one,
+                    # Copy the last one to the position of the chosen one
+                    can_left[point_index] = del_last_node
             # Right
-            elif left <= edge_pos <= left + right or (1.0 - left - right) / 2 < edge_pos < 1:
-                node = random.choice(tuple(can_right))
-                can_right.remove(node)
+            else:
+            # elif left <= edge_pos <= left + right or (1.0 - left - right) / 2 < edge_pos < 1:
+                point_index = random.randint(0,len(can_right)-1)
+                node = can_right[point_index]
+                del_last_node = can_right.pop()
+                if point_index < len(can_right):
+                    can_right[point_index] = del_last_node
             graph.add_edge(node, i, weight=weight_gen())
-            can_left.add(i)
-            can_right.add(i)
+            can_left.append(i)
+            can_right.append(i)
 
         return graph
 
