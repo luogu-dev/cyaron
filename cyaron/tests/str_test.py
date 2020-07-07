@@ -1,5 +1,6 @@
 import unittest
 from cyaron import String
+import re
 
 
 class TestString(unittest.TestCase):
@@ -18,3 +19,12 @@ class TestString(unittest.TestCase):
         self.assertTrue(sentence[0].isupper())
         self.assertTrue(sentence[-1] == ".")
         self.assertTrue(sentence.count(" ") == 9)
+
+    def test_random_paragraph(self):
+        # Only test for Errors
+        String.random_paragraph(10)
+
+    def test_random_regular(self):
+        pattern = r'[0-9]+\w_.{0,9}'
+        sentence = String.random_regular(pattern, limit=5)
+        self.assertTrue(re.match(pattern, sentence).group() == sentence)

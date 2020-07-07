@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from .utils import *
 from .consts import *
 import random
@@ -43,6 +44,7 @@ class Polygon:
         # fx, fy are functions which map [0,1] to int or float
         fx = kwargs.get("fx", lambda x: x)
         fy = kwargs.get("fy", lambda x: x)
+        strict = kwargs.get("strict", False)
         sz = n * 2
         result = []
         while len(result) < n:
@@ -73,8 +75,9 @@ class Polygon:
                     a = st[len(st) - 1]
                     b = points[i]
                     o = st[len(st) - 2]
-                    if (a[0] - o[0]) * (b[1] - o[1]) - \
-                            (a[1] - o[1]) * (b[0] - o[0]) >= 0:
+                    tmp = (a[0] - o[0]) * (b[1] - o[1]) - \
+                            (a[1] - o[1]) * (b[0] - o[0])
+                    if tmp > 0 or (tmp == 0 and not strict):
                         break
                     st.pop()
                 st.append(points[i])
@@ -84,8 +87,9 @@ class Polygon:
                     a = st[len(st) - 1]
                     b = points[i]
                     o = st[len(st) - 2]
-                    if (a[0] - o[0]) * (b[1] - o[1]) - \
-                            (a[1] - o[1]) * (b[0] - o[0]) >= 0:
+                    tmp = (a[0] - o[0]) * (b[1] - o[1]) - \
+                            (a[1] - o[1]) * (b[0] - o[0])
+                    if tmp > 0 or (tmp == 0 and not strict):
                         break
                     st.pop()
                 st.append(points[i])
@@ -146,7 +150,7 @@ class Polygon:
             raise Exception("source point is not a list")
         random.shuffle(points)
         if len(points) <= 3:
-            return points
+            return Polygon(points)
         # divide by points[0], points[1]
         divide_line = [points[1][1] - points[0][1],
                        points[0][0] - points[1][0],

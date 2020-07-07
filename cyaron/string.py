@@ -1,7 +1,8 @@
-from .consts import ALPHABET_SMALL, SENTENCE_SEPARATORS, SENTENCE_TERMINATORS
+from .consts import ALPHABET_SMALL, SENTENCE_SEPARATORS, SENTENCE_TERMINATORS, NUMBERS
 from .utils import *
 from functools import reduce
 import random
+import xeger
 
 
 class String:
@@ -54,6 +55,8 @@ class String:
         if list_like(sentence_count_range):
             sentence_count = random.randint(sentence_count_range[0], sentence_count_range[1])
 
+        word_count_range = kwargs.get("word_count_range", (6, 10))
+
         first_letter_uppercase = kwargs.get("first_letter_uppercase", True)
         kwargs["first_letter_uppercase"] = False
 
@@ -77,7 +80,7 @@ class String:
         sentences = []
         capitalize_next_sentence = True
         for i in range(sentence_count):
-            string = String.random_sentence(**kwargs)
+            string = String.random_sentence(word_count_range, **kwargs)
             sep_or_term = random.random()
 
             if capitalize_next_sentence and first_letter_uppercase:
@@ -95,3 +98,12 @@ class String:
         paragraph = reduce(lambda x, y: x + random.choice(sentence_joiners) + y, sentences)
         return paragraph
 
+    @staticmethod
+    def random_regular(*args, **kwargs):
+        pattern = args
+        limit_len = int(kwargs.get("limit", "10"))
+        if (limit_len <= 1): limit_len = 10
+        if (list_like(args)):
+            pattern = random.choice(args)
+        _x = xeger.Xeger(limit=limit_len)
+        return _x.xeger(pattern)

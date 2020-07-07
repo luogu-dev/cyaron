@@ -9,6 +9,8 @@ class Sequence:
             Create a sequence object.
             int formula(int, function) -> the formula function ...
         """
+        if not callable(formula):
+            raise Exception("formula must be a function")
         self.formula = formula
         if list_like(initial_values):
             self.values = dict(enumerate(initial_values))
