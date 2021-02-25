@@ -3,8 +3,7 @@
 forked from https://blog.dreamshire.com/common-functions-routines-project-euler/
 '''
 from __future__ import absolute_import
-from math import sqrt, ceil
-from fractions import gcd
+from math import sqrt, ceil, gcd
 from functools import reduce
 import random
 import itertools
