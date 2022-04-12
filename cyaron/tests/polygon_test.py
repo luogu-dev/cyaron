@@ -1,8 +1,10 @@
 import unittest
-from cyaron import Polygon,Vector
+from cyaron import Polygon, Vector
+
+
 class TestPolygon(unittest.TestCase):
     def test_convex_hull(self):
-        hull = Polygon.convex_hull(300, fx=lambda x:int(x*100000), fy=lambda x:int(x*100000))
+        hull = Polygon.convex_hull(300, fx=lambda x: int(x * 100000), fy=lambda x: int(x * 100000))
         points = hull.points
         points = sorted(points)
         # unique
@@ -35,24 +37,26 @@ class TestPolygon(unittest.TestCase):
             st.append(points[i])
         st.pop()
         self.assertEqual(len(st), len(hull.points))
+
     def test_perimeter_area(self):
-        poly = Polygon([[0,0],[0,1],[1,1],[1,0]])
-        self.assertEqual(poly.perimeter(),4)
-        self.assertEqual(poly.area(),1)
+        poly = Polygon([[0, 0], [0, 1], [1, 1], [1, 0]])
+        self.assertEqual(poly.perimeter(), 4)
+        self.assertEqual(poly.area(), 1)
+
     def test_simple_polygon(self):
         poly = Polygon.simple_polygon(Vector.random(300, [1000, 1000], 2))
         points = poly.points
-        for i in range(0,len(points)):
-            for j in range(i+2,len(points)):
-                if j==len(points)-1 and i==0:
+        for i in range(0, len(points)):
+            for j in range(i + 2, len(points)):
+                if j == len(points) - 1 and i == 0:
                     continue
-                a=points[i]
-                b=points[(i+1)%len(points)]
-                c=points[j]
-                d=points[(j+1)%len(points)]
-                prod=lambda x,y: x[0]*y[1]-x[1]*y[0]
-                t1=prod([c[0]-a[0],c[1]-a[1]],[d[0]-a[0],d[1]-a[1]])\
-                  *prod([c[0]-b[0],c[1]-b[1]],[d[0]-b[0],d[1]-b[1]])
-                t2=prod([a[0]-c[0],a[1]-c[1]],[b[0]-c[0],b[1]-c[1]])\
-                  *prod([a[0]-d[0],a[1]-d[1]],[b[0]-d[0],b[1]-d[1]])
-                self.assertFalse(t1<=1e-9 and t2<=1e-9)
+                a = points[i]
+                b = points[(i + 1) % len(points)]
+                c = points[j]
+                d = points[(j + 1) % len(points)]
+                prod = lambda x, y: x[0] * y[1] - x[1] * y[0]
+                t1 = prod([c[0] - a[0], c[1] - a[1]], [d[0] - a[0], d[1] - a[1]]) \
+                     * prod([c[0] - b[0], c[1] - b[1]], [d[0] - b[0], d[1] - b[1]])
+                t2 = prod([a[0] - c[0], a[1] - c[1]], [b[0] - c[0], b[1] - c[1]]) \
+                     * prod([a[0] - d[0], a[1] - d[1]], [b[0] - d[0], b[1] - d[1]])
+                self.assertFalse(t1 <= 1e-9 and t2 <= 1e-9)
