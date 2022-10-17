@@ -37,7 +37,63 @@ CYaRon基于Python。若您对Python不熟悉，可看[快速入门教程](https
 
 希望各位大佬一起来协助改进这个项目。希望这个项目可以帮助大家节省时间！
 
-**使用范例**
+**使用范例1**
+```python
+"""
+这道题是一个 A+B Problem 的循环增强版。
+
+输入样例：
+2
+1 2
+3 4
+输出样例：
+3
+7
+"""
+
+from cyaron import *
+
+# 指定题目数据，自己使用，不是必须的
+data_num = {
+    1 : [1, 100],
+    2 : [1, 100],
+    3 : [1, 100],
+    4 : [1, 1000],
+    5 : [1, 1000],
+    6 : [1, 1000],
+    7 : [1, 10000],
+    8 : [1, 10000],
+    9 : [1, 100000],
+    10 : [1, 100000]
+}
+
+data_in = {
+    1 : [1, 10000],
+    2 : [1, 10000],
+    3 : [1, 10000],
+    4 : [1, 100000],
+    5 : [1, 100000],
+    6 : [1, 100000],
+    7 : [1, 100000000],
+    8 : [1, 100000000],
+    9 : [1, 100000000],
+    10 : [1, 100000000]
+}
+
+for i in range(1, 11): # 共有 10 组测试数据
+    data = IO(file_prefix="datas/plus", data_id=i) # 连接到数据文件，每次自动清空（文件夹必须创建，若文件没有创建，CYaRon会自动创建。）
+    times = randint(data_num[i][0], data_num[i][1]) # 生成次数
+    data.input_writeln(times)
+    for j in range(times):
+        a = randint(data_in[i][0], data_in[i][1])
+        b = randint(data_in[i][0], data_in[i][1])
+        sum = a + b # 生成题目内容
+        data.input_writeln(a, b) # 输入题目内容
+        data.output_writeln(sum) # 输出题目结果
+
+```
+
+**使用范例2**
 ```python
 #!/usr/bin/env python
 
