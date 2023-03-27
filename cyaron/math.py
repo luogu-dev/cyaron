@@ -10,6 +10,35 @@ import itertools
 
 
 fact = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
+def help(): #Give help informations
+    help_txt="""
+Welcome to CYaRon/math.py help!
+Functions are:
+|    factorial(n) - The factorial of n
+|    is_perm(a,b) - Check if number a and b share the same digits
+|    is_palindromic(n) - Check if n is palindromic(i.e. The number does not change if you reverse it)
+|    is_pandigital(n,s=9) - Check if number n is made from sequence 1 to s
+|    d(n) - Calculate the sum of proper divisors for n
+|    pal_list(k) - Create a list of all palindromic numbers with k digits
+|    sof_digits(n) - Sum of factorial's digits
+|    fibonacci(n) - Find the nth Fibonacci number
+|    sos_digits(n) - Sum of squares of digits
+|    pow_digits(n,e) - Sum of the digits to a power e
+|    is_prime(n) - Check n for prime
+|    miller_rabin(n) - Miller-Rabin primality test
+|    factor(n) - Factor a number into primes and frequency
+|    perm(n,s) - Find the nth pemutation of string s
+|    binomial(n,k) - Calculate C(n,k)
+|    catalan_number(n) - Calculate the nth Catalan number
+|    prime_sieve(n) - Return a list of prime numbers from 2 to a prime < n
+|    exgcd(a,b) - Bézout coefficients. Returns (u, v, gcd(a,b))
+|    mod_inverse(a,b) - returns u of exgcd(a,b)
+|    phi(x) - The PHI function of x
+|    miu(x) - The MIU function of x
+|    dec2base(n,base) - Number base conversion
+|    n2words(num,join=True) - Number to words
+    """
+    print(help_txt)
 
 def factorial(n): return reduce(lambda x,y:x*y,range(1,n+1),1)
 
