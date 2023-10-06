@@ -2,10 +2,10 @@
 
 from .utils import *
 import random
-from enum import Enum
+from enum import IntEnum
 
 
-class VectorRandomMode(Enum):
+class VectorRandomMode(IntEnum):
     unique = 0
     repeatable = 1
     float = 2
