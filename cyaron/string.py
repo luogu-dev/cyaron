@@ -53,7 +53,9 @@ class String:
     def random_paragraph(sentence_count_range, **kwargs):
         sentence_count = sentence_count_range
         if list_like(sentence_count_range):
-            sentence_count = random.randint(sentence_count_range[0], sentence_count_range[1])
+            sentence_count = random.randint(
+                sentence_count_range[0], sentence_count_range[1]
+            )
 
         word_count_range = kwargs.get("word_count_range", (6, 10))
 
@@ -95,15 +97,18 @@ class String:
 
             sentences.append(string)
 
-        paragraph = reduce(lambda x, y: x + random.choice(sentence_joiners) + y, sentences)
+        paragraph = reduce(
+            lambda x, y: x + random.choice(sentence_joiners) + y, sentences
+        )
         return paragraph
 
     @staticmethod
     def random_regular(*args, **kwargs):
         pattern = args
         limit_len = int(kwargs.get("limit", "10"))
-        if (limit_len <= 1): limit_len = 10
-        if (list_like(args)):
+        if limit_len <= 1:
+            limit_len = 10
+        if list_like(args):
             pattern = random.choice(args)
         _x = xeger.Xeger(limit=limit_len)
         return _x.xeger(pattern)

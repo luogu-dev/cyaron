@@ -1,13 +1,13 @@
 from .utils import *
 
+
 class Sequence:
-    """Class Sequence: the tool class for sequences.
-    """
+    """Class Sequence: the tool class for sequences."""
 
     def __init__(self, formula, initial_values=()):
         """__init__(self, formula, initial_values=() -> None
-            Create a sequence object.
-            int formula(int, function) -> the formula function ...
+        Create a sequence object.
+        int formula(int, function) -> the formula function ...
         """
         if not callable(formula):
             raise Exception("formula must be a function")
@@ -30,4 +30,4 @@ class Sequence:
         if right_range is None:
             return self.__get_one(left_range)
 
-        return [self.__get_one(i) for i in range(left_range, right_range+1)]
+        return [self.__get_one(i) for i in range(left_range, right_range + 1)]

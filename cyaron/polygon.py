@@ -6,7 +6,7 @@ import math
 
 
 class Polygon:
-    def __init__(self,points=[]):
+    def __init__(self, points=[]):
         if not list_like(points):
             raise Exception("polygon must be constructed by a list of points")
         self.points = points
@@ -15,15 +15,16 @@ class Polygon:
         buf = []
         for point in self.points:
             buf.append(str(point[0]) + " " + str(point[1]))
-        return '\n'.join(buf)
+        return "\n".join(buf)
 
     def perimeter(self):
         ans = 0
         for i in range(0, len(self.points)):
             a = self.points[i]
             b = self.points[(i + 1) % len(self.points)]
-            ans = ans + math.sqrt((a[0] - b[0]) * (a[0] - b[0]) +
-                                  (a[1] - b[1]) * (a[1] - b[1]))
+            ans = ans + math.sqrt(
+                (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+            )
         return ans
 
     def area(self):
@@ -37,8 +38,8 @@ class Polygon:
         ans = ans / 2.0
         return ans
 
-    #generate a convex hull with n points
-    #it's possible to have even edges
+    # generate a convex hull with n points
+    # it's possible to have even edges
     @staticmethod
     def convex_hull(n, **kwargs):
         # fx, fy are functions which map [0,1] to int or float
@@ -75,8 +76,7 @@ class Polygon:
                     a = st[len(st) - 1]
                     b = points[i]
                     o = st[len(st) - 2]
-                    tmp = (a[0] - o[0]) * (b[1] - o[1]) - \
-                            (a[1] - o[1]) * (b[0] - o[0])
+                    tmp = (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
                     if tmp > 0 or (tmp == 0 and not strict):
                         break
                     st.pop()
@@ -87,8 +87,7 @@ class Polygon:
                     a = st[len(st) - 1]
                     b = points[i]
                     o = st[len(st) - 2]
-                    tmp = (a[0] - o[0]) * (b[1] - o[1]) - \
-                            (a[1] - o[1]) * (b[0] - o[0])
+                    tmp = (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
                     if tmp > 0 or (tmp == 0 and not strict):
                         break
                     st.pop()
@@ -110,21 +109,34 @@ class Polygon:
         if len(points) <= 2:
             return points
         if len(points) == 3:
-            (points[1],points[2])=(points[2],points[1])
+            (points[1], points[2]) = (points[2], points[1])
             return points
         divide_id = random.randint(2, len(points) - 1)
         divide_point1 = points[divide_id]
         divide_k = random.uniform(0.01, 0.99)
-        divide_point2 = [divide_k * (points[1][0] - points[0][0]) + points[0][0],
-                         divide_k * (points[1][1] - points[0][1]) + points[0][1]]
+        divide_point2 = [
+            divide_k * (points[1][0] - points[0][0]) + points[0][0],
+            divide_k * (points[1][1] - points[0][1]) + points[0][1],
+        ]
         # path: points[0]->points[divide]->points[1]
         # dividing line in the form Ax+By+C=0
-        divide_line = [divide_point2[1] - divide_point1[1],
-                       divide_point1[0] - divide_point2[0],
-                       -divide_point1[0] * divide_point2[1]
-                       + divide_point1[1] * divide_point2[0]]
-        p0 = (divide_line[0] * points[0][0] + divide_line[1] * points[0][1] + divide_line[2] >= 0)
-        p1 = (divide_line[0] * points[1][0] + divide_line[1] * points[1][1] + divide_line[2] >= 0)
+        divide_line = [
+            divide_point2[1] - divide_point1[1],
+            divide_point1[0] - divide_point2[0],
+            -divide_point1[0] * divide_point2[1] + divide_point1[1] * divide_point2[0],
+        ]
+        p0 = (
+            divide_line[0] * points[0][0]
+            + divide_line[1] * points[0][1]
+            + divide_line[2]
+            >= 0
+        )
+        p1 = (
+            divide_line[0] * points[1][0]
+            + divide_line[1] * points[1][1]
+            + divide_line[2]
+            >= 0
+        )
         if p0 == p1:  # the divide point isn't good enough...
             return Polygon.__conquer(points)
         s = [[], []]
@@ -135,7 +147,12 @@ class Polygon:
         for i in range(2, len(points)):
             if i == divide_id:
                 continue
-            pt = (divide_line[0] * points[i][0] + divide_line[1] * points[i][1] + divide_line[2] >= 0)
+            pt = (
+                divide_line[0] * points[i][0]
+                + divide_line[1] * points[i][1]
+                + divide_line[2]
+                >= 0
+            )
             s[pt].append(points[i])
         pa = Polygon.__conquer(s[p0])
         pb = Polygon.__conquer(s[not p0])
@@ -152,17 +169,23 @@ class Polygon:
         if len(points) <= 3:
             return Polygon(points)
         # divide by points[0], points[1]
-        divide_line = [points[1][1] - points[0][1],
-                       points[0][0] - points[1][0],
-                       -points[0][0] * points[1][1]
-                       + points[0][1] * points[1][0]]
+        divide_line = [
+            points[1][1] - points[0][1],
+            points[0][0] - points[1][0],
+            -points[0][0] * points[1][1] + points[0][1] * points[1][0],
+        ]
         s = [[], []]
         s[0].append(points[0])
         s[0].append(points[1])
         s[1].append(points[1])
         s[1].append(points[0])
         for i in range(2, len(points)):
-            pt = (divide_line[0] * points[i][0] + divide_line[1] * points[i][1] + divide_line[2] >= 0)
+            pt = (
+                divide_line[0] * points[i][0]
+                + divide_line[1] * points[i][1]
+                + divide_line[2]
+                >= 0
+            )
             s[pt].append(points[i])
         pa = Polygon.__conquer(s[0])
         pb = Polygon.__conquer(s[1])
