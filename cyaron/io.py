@@ -174,21 +174,32 @@ class IO(object):
         args.append("\n")
         self.input_write(*args, **kwargs)
 
-    def output_gen(self, shell_cmd):
-        """output_gen(self, shell_cmd) -> None
+    def output_gen(self, shell_cmd, time_limit=None):
+        """output_gen(self, shell_cmd, time_limit) -> None
         Run the command shell_cmd(usually the std programme) and send it the input file as stdin. Write its output to the output file.
-        str shell_cmd -> the command to run, usually the std programme
+        str shell_cmd -> the command to run, usually the std program.
+        int | None time_limit -> time limit (seconds) of the command to run.
         """
         self.flush_buffer()
         origin_pos = self.input_file.tell()
         self.input_file.seek(0)
-        subprocess.check_call(
-            shell_cmd,
-            shell=True,
-            stdin=self.input_file,
-            stdout=self.output_file,
-            universal_newlines=True,
-        )
+        if time_limit is not None:
+            subprocess.check_call(
+                shell_cmd,
+                shell=True,
+                timeout=time_limit,
+                stdin=self.input_file,
+                stdout=self.output_file,
+                universal_newlines=True,
+            )
+        else:
+            subprocess.check_call(
+                shell_cmd,
+                shell=True,
+                stdin=self.input_file,
+                stdout=self.output_file,
+                universal_newlines=True,
+            )
         self.input_file.seek(origin_pos)
 
         log.debug(self.output_filename, " done")

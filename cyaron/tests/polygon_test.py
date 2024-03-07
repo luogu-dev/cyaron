@@ -4,9 +4,7 @@ from cyaron import Polygon, Vector
 
 class TestPolygon(unittest.TestCase):
     def test_convex_hull(self):
-        hull = Polygon.convex_hull(
-            300, fx=lambda x: int(x * 100000), fy=lambda x: int(x * 100000)
-        )
+        hull = Polygon.convex_hull(300, fx=lambda x: int(x * 100000), fy=lambda x: int(x * 100000))
         points = hull.points
         points = sorted(points)
         # unique
@@ -21,7 +19,8 @@ class TestPolygon(unittest.TestCase):
                 a = st[len(st) - 1]
                 b = points[i]
                 o = st[len(st) - 2]
-                if (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]) >= 0:
+                if (a[0] - o[0]) * (b[1] - o[1]) - \
+                        (a[1] - o[1]) * (b[0] - o[0]) >= 0:
                     break
                 st.pop()
             st.append(points[i])
@@ -31,7 +30,8 @@ class TestPolygon(unittest.TestCase):
                 a = st[len(st) - 1]
                 b = points[i]
                 o = st[len(st) - 2]
-                if (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]) >= 0:
+                if (a[0] - o[0]) * (b[1] - o[1]) - \
+                        (a[1] - o[1]) * (b[0] - o[0]) >= 0:
                     break
                 st.pop()
             st.append(points[i])
@@ -55,10 +55,8 @@ class TestPolygon(unittest.TestCase):
                 c = points[j]
                 d = points[(j + 1) % len(points)]
                 prod = lambda x, y: x[0] * y[1] - x[1] * y[0]
-                t1 = prod(
-                    [c[0] - a[0], c[1] - a[1]], [d[0] - a[0], d[1] - a[1]]
-                ) * prod([c[0] - b[0], c[1] - b[1]], [d[0] - b[0], d[1] - b[1]])
-                t2 = prod(
-                    [a[0] - c[0], a[1] - c[1]], [b[0] - c[0], b[1] - c[1]]
-                ) * prod([a[0] - d[0], a[1] - d[1]], [b[0] - d[0], b[1] - d[1]])
+                t1 = prod([c[0] - a[0], c[1] - a[1]], [d[0] - a[0], d[1] - a[1]]) \
+                     * prod([c[0] - b[0], c[1] - b[1]], [d[0] - b[0], d[1] - b[1]])
+                t2 = prod([a[0] - c[0], a[1] - c[1]], [b[0] - c[0], b[1] - c[1]]) \
+                     * prod([a[0] - d[0], a[1] - d[1]], [b[0] - d[0], b[1] - d[1]])
                 self.assertFalse(t1 <= 1e-9 and t2 <= 1e-9)

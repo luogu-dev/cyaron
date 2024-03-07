@@ -2,6 +2,7 @@ import unittest
 import os
 import shutil
 import tempfile
+import subprocess
 from cyaron import IO
 from cyaron.output_capture import captured_output
 
@@ -69,8 +70,34 @@ class TestIO(unittest.TestCase):
             output = f.read()
         self.assertEqual(output.strip("\n"), "233")
 
-    def test_output_gen_limits(self):
-        
+    def test_output_gen_time_limit_exceeded(self):
+        time_limit_exceeded = False
+        with captured_output() as (out, err):
+            with open("long_time.py", "w") as f:
+                f.write("import time\ntime.sleep(10)\nprint(1)")
+
+            try:
+                with IO("test_gen.in", "test_gen.out") as test:
+                    test.output_gen("python long_time.py", time_limit=1)
+            except subprocess.TimeoutExpired:
+                time_limit_exceeded = True
+        self.assertEqual(time_limit_exceeded, True)
+
+    def test_output_gen_time_limit_not_exceeded(self):
+        time_limit_exceeded = False
+        with captured_output() as (out, err):
+            with open("short_time.py", "w") as f:
+                f.write("import time\ntime.sleep(0.2)\nprint(1)")
+
+            try:
+                with IO("test_gen.in", "test_gen.out") as test:
+                    test.output_gen("python short_time.py", time_limit=1)
+            except subprocess.TimeoutExpired:
+                time_limit_exceeded = True
+        with open("test_gen.out") as f:
+            output = f.read()
+        self.assertEqual(output.strip("\n"), "1")
+        self.assertEqual(time_limit_exceeded, False)
 
     def test_init_overload(self):
         with IO(file_prefix="data{", data_id=5) as test:

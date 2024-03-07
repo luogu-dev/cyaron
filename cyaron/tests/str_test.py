@@ -25,6 +25,6 @@ class TestString(unittest.TestCase):
         String.random_paragraph(10)
 
     def test_random_regular(self):
-        pattern = r"[0-9]+\w_.{0,9}"
+        pattern = r'[0-9]+\w_.{0,9}'
         sentence = String.random_regular(pattern, limit=5)
         self.assertTrue(re.match(pattern, sentence).group() == sentence)

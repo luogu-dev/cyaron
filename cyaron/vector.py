@@ -14,9 +14,7 @@ class VectorRandomMode(Enum):
 class Vector:
 
     @staticmethod
-    def random(
-        num: int = 5, position_range: list = None, mode: VectorRandomMode = 0, **kwargs
-    ):
+    def random(num: int = 5, position_range: list = None, mode: VectorRandomMode = 0, **kwargs):
         """
         brief : generating n random vectors in limited space
         param :
@@ -49,24 +47,16 @@ class Vector:
             else:
                 offset.append(0)
                 length.append(position_range[i])
-            vector_space *= length[i] + 1
+            vector_space *= (length[i] + 1)
 
         if mode == VectorRandomMode.unique and num > vector_space:
-            raise Exception(
-                "1st param is so large that CYaRon can not generate unique vectors"
-            )
+            raise Exception("1st param is so large that CYaRon can not generate unique vectors")
 
         result = []
         if mode == VectorRandomMode.repeatable:
-            result = [
-                [random.randint(x, y) for x, y in zip(offset, length)]
-                for _ in range(num)
-            ]
+            result = [[random.randint(x, y) for x, y in zip(offset, length)] for _ in range(num)]
         elif mode == VectorRandomMode.float:
-            result = [
-                [random.uniform(x, y) for x, y in zip(offset, length)]
-                for _ in range(num)
-            ]
+            result = [[random.uniform(x, y) for x, y in zip(offset, length)] for _ in range(num)]
         elif mode == VectorRandomMode.unique and vector_space > 5 * num:
             # O(NlogN)
             num_set = set()
@@ -97,5 +87,5 @@ class Vector:
         tmp = []
         for i in range(0, dimension):
             tmp.append(hashcode % (position_range[i] + 1))
-            hashcode //= position_range[i] + 1
+            hashcode //= (position_range[i] + 1)
         return tmp
