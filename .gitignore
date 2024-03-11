@@ -132,3 +132,5 @@ target/
 
 # Pycharm
 venv
+
+*.DS_Store
