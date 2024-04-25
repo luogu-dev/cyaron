@@ -1,0 +1,24 @@
+[project]
+name = "cyaron"
+version = "0.5.0"
+authors = [
+    { name = "Luogu Development Team", email = "k@luogu.org" },
+    { name = "xk2013", email = "hzk201312@163.com" },
+]
+dependencies = []
+description = "CYaRon: Yet Another Random Olympic-iNformatics test data generator, A library for automatically generating test data for Online Judge, Olympic Informatics or automatic application testing"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+"Homepage" = "https://github.com/luogu-dev/cyaron"
+"Bug Tracker" = "https://github.com/luogu-dev/cyaron/issues"
