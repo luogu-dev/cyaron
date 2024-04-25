@@ -23,17 +23,17 @@
 
 **快速上手指南**
 
-稳定版本可以从pip获取: `pip install cyaron`，在此之前，需要准备好Python。
+稳定版本可以从 pip 获取: `pip install cyaron`，在此之前，需要准备好 Python。
 
-最新开发版可以克隆GitHub源代码: `git clone https://github.com/luogu-dev/cyaron.git`
+最新开发版可以克隆 GitHub 源代码: `git clone https://github.com/luogu-dev/cyaron.git`
 
-请您查看[CYaRon文档](https://github.com/luogu-dev/cyaron/wiki)和[CYaRon基本入门](https://github.com/luogu-dev/cyaron/wiki/%E5%9F%BA%E6%9C%AC%E5%85%A5%E9%97%A8)来学习如何使用CYaRon。
+请您查看 [CYaRon 文档](https://github.com/luogu-dev/cyaron/wiki)和 [CYaRon 基本入门](https://github.com/luogu-dev/cyaron/wiki/%E5%9F%BA%E6%9C%AC%E5%85%A5%E9%97%A8)来学习如何使用 CYaRon。
 
-若您发现文档中有缺漏，请提出Issue并暂时根据`examples`和源代码进行YY。 
+若您发现文档中有缺漏，请提出 Issue 并暂时根据 `examples` 和源代码进行 YY。 
 
-CYaRon基于Python。若您对Python不熟悉，可看[快速入门教程](https://github.com/luogu-dev/cyaron/wiki/Python-30%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97)。
+CYaRon 基于 Python。若您对 Python 不熟悉，可看[快速入门教程](https://github.com/luogu-dev/cyaron/wiki/Python-30%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97)。
 
-之后计划实现云Generator，即只需提供写好的脚本以及std，上传到服务器，即可下载一个测试数据的压缩包，真正实现5分钟生成一个测试数据！
+之后计划实现云 Generator，即只需提供写好的脚本以及 std，上传到服务器，即可下载一个测试数据的压缩包，真正实现 5 分钟生成一个测试数据！
 
 希望各位大佬一起来协助改进这个项目。希望这个项目可以帮助大家节省时间！
 
@@ -64,8 +64,8 @@ for i in range(1, 4): # 即在[1, 4)范围内循环，也就是从1到3
 
 **贡献**
 
-所有的贡献者请查看[光荣榜](https://github.com/luogu-dev/cyaron/wiki/光荣榜)页面，衷心感谢他们对CYaRon项目的付出。
+所有的贡献者请查看[光荣榜](https://github.com/luogu-dev/cyaron/wiki/光荣榜)页面，衷心感谢他们对 CYaRon 项目的付出。
 
-欢迎您对 CYaRon 做出贡献。若您有希望加入的功能，可以给我们提出 Issue ，或者自己动手实现，然后发起 Pull Request。
+欢迎您对 CYaRon 做出贡献。若您有希望加入的功能，可以给我们提出 Issue，或者自己动手实现，然后发起 Pull Request。
 
 有关于如何做出贡献的更详细内容，请查看[如何做出贡献](https://github.com/luogu-dev/cyaron/wiki/%E5%A6%82%E4%BD%95%E5%81%9A%E5%87%BA%E8%B4%A1%E7%8C%AE)。
