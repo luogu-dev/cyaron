@@ -18,4 +18,5 @@ from .math import *
 from .merger import Merger
 #from .visual import visualize
 from . import log
+from .data import Data
 from random import randint, randrange, uniform, choice, random
