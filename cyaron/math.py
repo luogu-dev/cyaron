@@ -12,11 +12,11 @@ import itertools
 fact = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
 def help(): #Give help informations
     help_txt="""
-Welcome to CYaRon/math.py help!
-Functions are:
+Welcome to CYaRon.math help!
+Currently available functions are:
 |    factorial(n) - The factorial of n
 |    is_perm(a,b) - Check if number a and b share the same digits
-|    is_palindromic(n) - Check if n is palindromic(i.e. The number does not change if you reverse it)
+|    is_palindromic(n) - Check if n is palindromic
 |    is_pandigital(n,s=9) - Check if number n is made from sequence 1 to s
 |    d(n) - Calculate the sum of proper divisors for n
 |    pal_list(k) - Create a list of all palindromic numbers with k digits
@@ -24,9 +24,9 @@ Functions are:
 |    fibonacci(n) - Find the nth Fibonacci number
 |    sos_digits(n) - Sum of squares of digits
 |    pow_digits(n,e) - Sum of the digits to a power e
-|    is_prime(n) - Check n for prime
+|    is_prime(n) - Check if number n is a prime number
 |    miller_rabin(n) - Miller-Rabin primality test
-|    factor(n) - Factor a number into primes and frequency
+|    factor(n) - Represents a number in the form of p1^c1*p2^c2*...*pk^ck (p1,p2,...,pk are different primes). returns ((p1,c1),(p2,c2),...,(pk,ck)).
 |    perm(n,s) - Find the nth pemutation of string s
 |    binomial(n,k) - Calculate C(n,k)
 |    catalan_number(n) - Calculate the nth Catalan number
