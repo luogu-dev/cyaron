@@ -75,6 +75,7 @@ _default_print = _nb_print
 _default_warn = partial(_cl_print_e, colorful.yellow)
 _default_error = partial(_cl_print_e, colorful.red)
 
+
 def set_quiet():
     """set log mode to "quiet" """
     register_logfunc('debug', None)
@@ -98,5 +99,18 @@ def set_verbose():
     register_logfunc('print', _default_print)
     register_logfunc('warn', _default_warn)
     register_logfunc('error', _default_error)
+
+def _mode_check(mode, long, short, name, handler):
+    if short in mode or long in mode:
+        register_logfunc(name, handler)
+    else:
+        register_logfunc(name, None)
+def set_custom(mode):
+    """custom mode, use it like ["print","error"] or "pe" for short. """
+    _mode_check(mode, 'debug', 'd', 'debug', _default_debug)
+    _mode_check(mode, 'info', 'i', 'info', _default_info)
+    _mode_check(mode, 'print', 'p', 'print', _default_print)
+    _mode_check(mode, 'warn', 'w', 'warn', _default_warn)
+    _mode_check(mode, 'error', 'e', 'error', _default_error)
 
 set_normal()
