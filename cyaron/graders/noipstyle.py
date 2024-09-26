@@ -11,6 +11,8 @@ def noipstyle(content, std):
         return False, TextMismatch(content, std, 'Too many or too few lines.')
 
     for i in range(len(content_lines)):
+        std_lines[i] = std_lines[i].strip()
+        content_lines[i] = conetnt_lines[i].strip()
         if std_lines[i] != content_lines[i]:
             for j in range(min(len(std_lines[i]), len(content_lines[i]))):
                 if std_lines[i][j] != content_lines[i][j]:
