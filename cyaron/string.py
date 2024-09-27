@@ -107,3 +107,30 @@ class String:
             pattern = random.choice(args)
         _x = xeger.Xeger(limit=limit_len)
         return _x.xeger(pattern)
+
+    @staticmethod
+    def check_brackets(brackets, charset = {'(': ')'}):
+        stack = []
+        for char in brackets:
+            if char not in charset.keys() and char not in charset.values():
+                raise ValueError("Unrecognized character '%c'. Chars must be one of charset.keys() or charset.values()." % char)
+                return
+            if len(stack) > 0 and char == charset[stack[-1]]:
+                stack = stack[:-1]
+            else:
+                stack.append(char)
+        return len(stack) > 0
+                
+    @staticmethod
+    def random_brackets(length, charset={'(':')'}):
+        if length % 2 == 1:
+            raise ValueError("Invalid bracket length %d: length must be a even number." % length)
+            return
+        if length == 0:
+            return ""
+        if length == 2 or random.randint(1, 2) == 1:
+            bracket = random.choice(list(charset.keys()))
+            return bracket + String.random_brackets(length - 2, charset) + charset[bracket]
+        else:
+            sep = random.randint(1, length // 2 - 1) * 2
+            return String.random_brackets(sep, charset) + String.random_brackets(length - sep, charset)
