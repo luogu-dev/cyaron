@@ -119,7 +119,7 @@ class String:
                 stack = stack[:-1]
             else:
                 stack.append(char)
-        return len(stack) > 0
+        return len(stack) == 0
                 
     @staticmethod
     def random_brackets(length, charset={'(':')'}):
