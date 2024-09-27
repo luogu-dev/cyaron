@@ -75,42 +75,88 @@ _default_print = _nb_print
 _default_warn = partial(_cl_print_e, colorful.yellow)
 _default_error = partial(_cl_print_e, colorful.red)
 
+disp_status="unknown"
+bin_status=0
 
 def set_quiet():
     """set log mode to "quiet" """
+    global disp_status, bin_status
     register_logfunc('debug', None)
     register_logfunc('info', None)
     register_logfunc('print', _default_print)
     register_logfunc('warn', None)
     register_logfunc('error', _default_error)
+    disp_status = "cyaron_preset_quiet"
+    bin_status = 0b10100
 
 def set_normal():
     """set log mode to "normal" """
+    global disp_status, bin_status
     register_logfunc('debug', None)
     register_logfunc('info', _default_info)
     register_logfunc('print', _default_print)
     register_logfunc('warn', _default_warn)
     register_logfunc('error', _default_error)
+    disp_status = "cyaron_preset_normal"
+    bin_status = 0b11110
 
 def set_verbose():
     """set log mode to "verbose" """
+    global disp_status, bin_status
     register_logfunc('debug', _default_debug)
     register_logfunc('info', _default_info)
     register_logfunc('print', _default_print)
     register_logfunc('warn', _default_warn)
     register_logfunc('error', _default_error)
+    disp_status = "cyaron_preset_verbose"
+    bin_status = 0b11111
 
-def _mode_check(mode, long, short, name, handler):
+custom_disp_status = "unknown"
+def _mode_check(mode, bit, long, short, name, handler):
+    global custom_disp_status, bin_status
     if short in mode or long in mode:
         register_logfunc(name, handler)
+        custom_disp_status += short
+        bin_status |= bit
     else:
         register_logfunc(name, None)
+        bin_status &= ~bit
 def set_custom(mode):
     """custom mode, use it like ["print","error"] or "pe" for short. """
-    _mode_check(mode, 'debug', 'd', 'debug', _default_debug)
-    _mode_check(mode, 'info', 'i', 'info', _default_info)
-    _mode_check(mode, 'print', 'p', 'print', _default_print)
-    _mode_check(mode, 'warn', 'w', 'warn', _default_warn)
-    _mode_check(mode, 'error', 'e', 'error', _default_error)
+    global disp_status, custom_disp_status
+    custom_disp_status = ""
+    _mode_check(mode, 1, 'debug', 'd', 'debug', _default_debug)
+    _mode_check(mode, 2, 'info', 'i', 'info', _default_info)
+    _mode_check(mode, 4, 'print', 'p', 'print', _default_print)
+    _mode_check(mode, 8, 'warn', 'w', 'warn', _default_warn)
+    _mode_check(mode, 16, 'error', 'e', 'error', _default_error)
+    disp_status = "cyaron_custom_" + custom_disp_status
+
+def _bin_mode_check(mode, bit, short, name, handler):
+    global custom_disp_status
+    if (mode & bit) != 0:
+        register_logfunc(name, handler)
+        custom_disp_status += short
+    else:
+        register_logfunc(name, None)
+def set_bin(mode):
+    """custom binary mode. available bits are: 1 - debug; 2 - info; 4 - print; 8 - warn; 16 - error"""
+    global disp_status, custom_disp_status, bin_status
+    custom_disp_status = ""
+    bin_status = mode
+    _bin_mode_check(mode, 1, 'd', 'debug', _default_debug)
+    _bin_mode_check(mode, 2, 'i', 'info', _default_info)
+    _bin_mode_check(mode, 4, 'p', 'print', _default_print)
+    _bin_mode_check(mode, 8, 'w', 'warn', _default_warn)
+    _bin_mode_check(mode, 16, 'e', 'error', _default_error)
+    disp_status = "cyaron_custom_" + custom_disp_status
+
+def get_disp_mode():
+    global disp_status
+    return disp_status
+
+def get_bin_mode():
+    global bin_status
+    return bin_status
 
 set_normal()
