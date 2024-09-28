@@ -32,4 +32,3 @@ class TestString(unittest.TestCase):
     def test_random_brackets(self):
         brackets = String.random_brackets(1000000) #length = 1e6
         self.assertTrue(String.check_brackets(brackets))
-        self.assertTrue(String.check_brackets(brackets))
