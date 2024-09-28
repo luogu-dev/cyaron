@@ -28,3 +28,8 @@ class TestString(unittest.TestCase):
         pattern = r'[0-9]+\w_.{0,9}'
         sentence = String.random_regular(pattern, limit=5)
         self.assertTrue(re.match(pattern, sentence).group() == sentence)
+
+    def test_random_brackets(self):
+        brackets = String.random_brackets(1000000) #length = 1e6
+        self.assertTrue(String.check_brackets(brackets))
+        self.assertTrue(String.check_brackets(brackets))
