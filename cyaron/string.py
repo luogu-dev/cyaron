@@ -115,10 +115,13 @@ class String:
             if char not in charset.keys() and char not in charset.values():
                 raise ValueError("Unrecognized character '%c'. Chars must be one of charset.keys() or charset.values()." % char)
                 return
-            if len(stack) > 0 and char == charset[stack[-1]]:
-                stack = stack[:-1]
-            else:
-                stack.append(char)
+            try:
+                if len(stack) > 0 and char == charset[stack[-1]]:
+                    stack = stack[:-1]
+                else:
+                    stack.append(char)
+            except:
+                return False
         return len(stack) == 0
                 
     @staticmethod
