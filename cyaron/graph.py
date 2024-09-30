@@ -39,6 +39,15 @@ class Graph:
         """
         self.directed = directed
         self.edges = [[] for i in range(point_count + 1)]
+    
+    def edge_count(self):
+        """edge_count(self) -> int
+            Return the count of the edges in the graph.
+        """
+        cnt = sum(len(node) for node in self.edges)
+        if not self.directed:
+            cnt //= 2
+        return cnt
 
     def to_str(self, **kwargs):
         """to_str(self, **kwargs) -> str
