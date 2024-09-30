@@ -290,7 +290,7 @@ class Graph:
     @staticmethod
     def DAG(point_count, edge_count, **kwargs):
         """DAG(point_count, edge_count, **kwargs) -> Graph
-               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               Factory method. Return a directed connected graph with point_count vertexes and edge_count edges.
                int point_count -> the count of vertexes
                int edge_count -> the count of edges
                **kwargs(Keyword args):
@@ -352,7 +352,7 @@ class Graph:
     @staticmethod
     def UDAG(point_count, edge_count, **kwargs):
         """UDAG(point_count, edge_count, **kwargs) -> Graph
-               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               Factory method. Return a undirected connected graph with point_count vertexes and edge_count edges.
                int point_count -> the count of vertexes
                int edge_count -> the count of edges
                **kwargs(Keyword args):
@@ -402,6 +402,18 @@ class Graph:
             i += 1
 
         return graph
+    
+    @staticmethod
+    def connected(point_count, edge_count, directed=False, **kwargs):
+        """connected(point_count, edge_count, **kwargs) -> Graph
+           Factory method. Return a connected graph with point_count vertexes
+           int point_count -> the count of vertexes
+           bool directed -> whether the graph is directed
+        """
+        if directed:
+            return Graph.DAG(point_count, edge_count, **kwargs)
+        else:
+            return Graph.UDAG(point_count, edge_count, **kwargs)
 
     @staticmethod
     def hack_spfa(point_count, **kwargs):
