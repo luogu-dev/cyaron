@@ -48,7 +48,8 @@ class Graph:
                 str output(Edge) = str -> the convert function which converts object Edge to str. the default way is to use str()
                 list[int] node_shuffler(list[int])
                 = lambda table: random.sample(table, k=len(table))
-                -> the random function which shuffles the vertex sequence
+                -> the random function which shuffles the vertex sequence.
+                    Note that this function will actually be passed in a `range`!
                 list[Edge] edge_shuffler(list[int])
                 -> a random function. the default is to shuffle the edge sequence,
                     also, if the graph is undirected, it will swap `u` and `v` randomly.
