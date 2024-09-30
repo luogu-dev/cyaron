@@ -148,7 +148,7 @@ class Graph:
                    -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
                    int father_gen(cur)
                    = lambda cur: random.randrange(1, cur)
-                   -> the generator of the fathers current point.
+                   -> the generator of the fathers of current point.
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
