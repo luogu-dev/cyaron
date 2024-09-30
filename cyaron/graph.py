@@ -146,6 +146,9 @@ class Graph:
                    int/float weight_gen() 
                    = lambda: random.randint(weight_limit[0], weight_limit[1]) 
                    -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
+                   int father_gen(cur)
+                   = lambda cur: random.randrange(1, cur)
+                   -> the generator of the fathers current point.
         """
         directed = kwargs.get("directed", False)
         weight_limit = kwargs.get("weight_limit", (1, 1))
@@ -154,6 +157,7 @@ class Graph:
         weight_gen = kwargs.get(
             "weight_gen", lambda: random.randint(
                 weight_limit[0], weight_limit[1]))
+        father_gen = kwargs.get("father_gen", lambda cur: random.randrange(1, cur))
 
         if not 0 <= chain <= 1 or not 0 <= flower <= 1:
             raise Exception("chain and flower must be between 0 and 1")
@@ -174,7 +178,7 @@ class Graph:
         for i in range(chain_count + 2, chain_count + flower_count + 2):
             graph.add_edge(1, i, weight=weight_gen())
         for i in range(point_count - random_count + 1, point_count + 1):
-            u = random.randrange(1, i)
+            u = father_gen(i)
             graph.add_edge(u, i, weight=weight_gen())
 
         return graph
