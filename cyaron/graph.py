@@ -260,6 +260,11 @@ class Graph:
         directed = kwargs.get("directed", False)
         self_loop = kwargs.get("self_loop", True)
         repeated_edges = kwargs.get("repeated_edges", True)
+        if not repeated_edges:
+            max_edge =  Graph._calc_max_edge(point_count, directed, self_loop)
+            if edge_count > max_edge:
+                raise Exception("the number of edges of this kind of graph which has %d vertexes must be less than or equal to %d." % (point_count, max_edge))
+
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -309,6 +314,11 @@ class Graph:
         self_loop = kwargs.get("self_loop", False) # DAG default has no loop
         repeated_edges = kwargs.get("repeated_edges", True)
         loop = kwargs.get("loop", False)
+        if not repeated_edges:
+            max_edge =  Graph._calc_max_edge(point_count, not loop, self_loop)
+            if edge_count > max_edge:
+                raise Exception("the number of edges of this kind of graph which has %d vertexes must be less than or equal to %d." % (point_count, max_edge))
+
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -369,6 +379,11 @@ class Graph:
 
         self_loop = kwargs.get("self_loop", True)
         repeated_edges = kwargs.get("repeated_edges", True)
+        if not repeated_edges:
+            max_edge =  Graph._calc_max_edge(point_count, False, self_loop)
+            if edge_count > max_edge:
+                raise Exception("the number of edges of this kind of graph which has %d vertexes must be less than or equal to %d." % (point_count, max_edge))
+
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -450,3 +465,12 @@ class Graph:
             graph.add_edge(u, v, weight=weight_gen())
 
         return graph
+    
+    @staticmethod
+    def _calc_max_edge(point_count, directed, self_loop):
+        max_edge = point_count * (point_count - 1)
+        if not directed:
+            max_edge //= 2
+        if self_loop:
+            max_edge += point_count
+        return max_edge
