@@ -33,7 +33,7 @@ from __future__ import absolute_import
 from math import sqrt, factorial
 import random
 import itertools
-from typing import Union, Literal
+from typing import Union, Tuple, List
 
 fact = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
 
@@ -169,7 +169,7 @@ def fibonacci(n: int):
     return _fib(n)[0]
 
 
-def _fib(n: int) -> tuple[int, int]:
+def _fib(n: int) -> Tuple[int, int]:
     '''Returns a tuple of fibonacci (F(n), F(n+1)).'''
     if n == 0:
         return (0, 1)
@@ -275,7 +275,7 @@ def _miller_rabin_pass(a: int, s: int, f: int, n: int):
     return a_to_power == n - 1
 
 
-def factor(n: int) -> list[tuple[int, int]]:
+def factor(n: int) -> List[Tuple[int, int]]:
     """
     Find the prime factors of a given number along with their frequencies.
     Args:
@@ -477,9 +477,7 @@ def miu(x: int):
 
 #source:
 # http://interactivepython.org/runestone/static/pythonds/Recursion/pythondsConvertinganIntegertoaStringinAnyBase.html
-def dec2base(
-        n: int, base: Literal[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                              16]) -> str:
+def dec2base(n: int, base: int) -> str:
     """
     Convert a decimal number to a specified base.
     Args:
@@ -520,7 +518,7 @@ def n2words(num: int, join: bool = True):
                  'Tredecillion','Quattuordecillion','Sexdecillion', \
                  'Septendecillion','Octodecillion','Novemdecillion', \
                  'Vigintillion']
-    words: list[str] = []
+    words: List[str] = []
     if num == 0:
         words.append('zero')
     else:

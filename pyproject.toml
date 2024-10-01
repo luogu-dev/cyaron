@@ -7,7 +7,7 @@ license = "LGPL-3.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.5"
+python = ">=3.6"
 xeger = "^0.4.0"
 colorful = "^0.5.6"
 
