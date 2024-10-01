@@ -230,11 +230,12 @@ def is_prime(n: int):
     return True
 
 
-def miller_rabin(n: int):
+def miller_rabin(n: int, repeat_time: int = 20):
     """
     Check if a number is prime using the Miller-Rabin primality test.
     Args:
         n: The number to be tested for primality.
+        repeat_time: The number of iterations to perform. Default is 20.
     Returns:
         True if n is a probable prime, False if n is composite.
     Example:
@@ -247,15 +248,17 @@ def miller_rabin(n: int):
         Algorithm & Python source:
         http://en.literateprograms.org/Miller-Rabin_primality_test_(Python)
     """
+    if (n & 1) == 0 or n < 3:
+        return n == 2
+    if (n % 3) == 0:
+        return n == 3
     f = n - 1
     s = 0
-    while f % 2 == 0:
+    while (f & 1) == 0:
         f >>= 1
         s += 1
-    for _ in range(20):
-        a = 0
-        while a == 0:
-            a = random.randrange(n)
+    for _ in range(repeat_time):
+        a = random.randint(2, n - 1)
         if not _miller_rabin_pass(a, s, f, n):
             return False
     return True
