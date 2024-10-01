@@ -45,17 +45,17 @@ class Graph:
             Convert the graph to adjacency matrix.
             **kwargs(Keyword args):
                 int default = -1 -> the default value when the edge does not exist.
-                Any output(Edge)
-                = lambda edge: edge.weight
-                -> the mapping from edges to values in matrix.
+                Any merge(Any, Edge)
+                = lambda val, edge: edge.weight
+                -> the mapping from the old values in matrix and the edges to the new values in matrix.
             Note that the index start from 0 and the values in the Column 0 or the Row 0 are always the default.
         """
         default = kwargs.get("default", -1)
-        output = kwargs.get("output", lambda edge: edge.weight)
+        merge = kwargs.get("merge", lambda val, edge: edge.weight)
         n = len(self.edges)
         matrix = [[default for _ in range(n)] for _ in range(n)]
         for edge in self.iterate_edges():
-            matrix[edge.start][edge.end] = output(edge)
+            matrix[edge.start][edge.end] = merge(matrix[edge.start][edge.end], edge)
         return matrix
 
     def to_str(self, **kwargs):
