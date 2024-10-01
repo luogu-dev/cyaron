@@ -160,7 +160,7 @@ def miller_rabin(n, repeat_time=20):
         d >>= 1
         s += 1
     for _ in range(repeat_time):
-        a = random.randint(2, n)
+        a = random.randint(2, n - 1)
         if not miller_rabin_pass(a, s, d, n):
             return False
     return True
