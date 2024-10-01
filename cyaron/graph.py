@@ -40,6 +40,24 @@ class Graph:
         self.directed = directed
         self.edges = [[] for i in range(point_count + 1)]
 
+    def to_matrix(self, **kwargs):
+        """to_matrix(self, **kwargs) -> list[list[Any]]
+            Convert the graph to adjacency matrix.
+            **kwargs(Keyword args):
+                int default = -1 -> the default value when the edge does not exist.
+                Any output(Edge)
+                = lambda edge: edge.weight
+                -> the mapping from edges to values in matrix.
+            Note that the index start from 0 and the values in the Column 0 or the Row 0 are always the default.
+        """
+        default = kwargs.get("default", -1)
+        output = kwargs.get("output", lambda edge: edge.weight)
+        n = len(self.edges)
+        matrix = [[default for _ in range(n)] for _ in range(n)]
+        for edge in self.iterate_edges():
+            matrix[edge.start][edge.end] = output(edge)
+        return matrix
+
     def to_str(self, **kwargs):
         """to_str(self, **kwargs) -> str
             Convert the graph to string with format. Splits with "\n"
