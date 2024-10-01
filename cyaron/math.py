@@ -140,7 +140,7 @@ def is_prime(n):
 
 
 #--- Miller-Rabin primality test----------------------------------------------------------------
-def miller_rabin(n):
+def miller_rabin(n, repeat_time=20):
     """
     Check n for primalty:  Example:
 
@@ -150,15 +150,19 @@ def miller_rabin(n):
     Algorithm & Python source:
     http://en.literateprograms.org/Miller-Rabin_primality_test_(Python)
     """
+    if (n & 1) == 0 or n < 3:
+        return n == 2
+    if (n % 3) == 0:
+        return n == 3
     d = n - 1
     s = 0
-    while d % 2 == 0:
+    while (d & 1) == 0:
         d >>= 1
         s += 1
-    for repeat in range(20):
+    for _ in range(repeat_time):
         a = 0
         while a == 0:
-            a = random.randrange(n)
+            a = random.randint(2, n)
         if not miller_rabin_pass(a, s, d, n):
             return False
     return True
@@ -167,7 +171,7 @@ def miller_rabin_pass(a, s, d, n):
     a_to_power = pow(a, d, n)
     if a_to_power == 1:
         return True
-    for i in range(s-1):
+    for _ in range(s-1):
         if a_to_power == n - 1:
             return True
         a_to_power = (a_to_power * a_to_power) % n
