@@ -84,9 +84,9 @@ class IO:
                 self.__escape_format(output_suffix))
         self.input_filename, self.output_filename = None, None
         self.__input_temp, self.__output_temp = False, False
-        self.__init_file(input_file, data_id, 'i')
+        self.__init_file(input_file, data_id, "i")
         if not disable_output:
-            self.__init_file(output_file, data_id, 'o')
+            self.__init_file(output_file, data_id, "o")
         else:
             self.output_file = None
         self.__closed = False
@@ -96,7 +96,7 @@ class IO:
                     data_id: Union[int, None], file_type: str):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
-            if file_type == 'i':
+            if file_type == "i":
                 self.input_file = f
             else:
                 self.output_file = f
@@ -108,14 +108,14 @@ class IO:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
             self.__init_file(fd, data_id, file_type)
-            if file_type == 'i':
+            if file_type == "i":
                 self.__input_temp = True
             else:
                 self.__output_temp = True
         else:
             # consider ``f`` as filename template
-            filename = f.format(data_id or '')
-            if file_type == 'i':
+            filename = f.format(data_id or "")
+            if file_type == "i":
                 self.input_filename = filename
             else:
                 self.output_filename = filename
@@ -125,7 +125,7 @@ class IO:
 
     def __escape_format(self, st: str):
         """replace "{}" to "{{}}" """
-        return re.sub(r'\{', '{{', re.sub(r'\}', '}}', st))
+        return re.sub(r"\{", "{{", re.sub(r"\}", "}}", st))
 
     def __del_files(self):
         """delete files"""
@@ -207,21 +207,35 @@ class IO:
         args.append("\n")
         self.input_write(*args, **kwargs)
 
-    def output_gen(self, shell_cmd):
+    def output_gen(self, shell_cmd, time_limit=None):
         """
         Run the command `shell_cmd` (usually the std program) and send it the input file as stdin.
         Write its output to the output file.
         Args:
             shell_cmd: the command to run, usually the std program.
+            time_limit: the time limit (seconds) of the command to run.
+                None means infinity. Defaults to None.
         """
         self.flush_buffer()
         origin_pos = self.input_file.tell()
         self.input_file.seek(0)
-        subprocess.check_call(shell_cmd,
-                              shell=True,
-                              stdin=self.input_file,
-                              stdout=self.output_file,
-                              universal_newlines=True)
+        if time_limit is not None:
+            subprocess.check_call(
+                shell_cmd,
+                shell=True,
+                timeout=time_limit,
+                stdin=self.input_file,
+                stdout=self.output_file,
+                universal_newlines=True,
+            )
+        else:
+            subprocess.check_call(
+                shell_cmd,
+                shell=True,
+                stdin=self.input_file,
+                stdout=self.output_file,
+                universal_newlines=True,
+            )
         self.input_file.seek(origin_pos)
 
         log.debug(self.output_filename, " done")
