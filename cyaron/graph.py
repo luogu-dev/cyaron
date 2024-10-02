@@ -43,6 +43,15 @@ class Graph:
         """
         self.directed = directed
         self.edges = [[] for i in range(point_count + 1)]
+    
+    def edge_count(self):
+        """edge_count(self) -> int
+            Return the count of the edges in the graph.
+        """
+        cnt = sum(len(node) for node in self.edges)
+        if not self.directed:
+            cnt //= 2
+        return cnt
 
     def to_matrix(self, **kwargs):
         """to_matrix(self, **kwargs) -> list[list[Any]]
@@ -280,6 +289,11 @@ class Graph:
         directed = kwargs.get("directed", False)
         self_loop = kwargs.get("self_loop", True)
         repeated_edges = kwargs.get("repeated_edges", True)
+        if not repeated_edges:
+            max_edge =  Graph._calc_max_edge(point_count, directed, self_loop)
+            if edge_count > max_edge:
+                raise Exception("the number of edges of this kind of graph which has %d vertexes must be less than or equal to %d." % (point_count, max_edge))
+
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -311,7 +325,7 @@ class Graph:
     @staticmethod
     def DAG(point_count, edge_count, **kwargs):
         """DAG(point_count, edge_count, **kwargs) -> Graph
-               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               Factory method. Return a directed connected graph with point_count vertexes and edge_count edges.
                int point_count -> the count of vertexes
                int edge_count -> the count of edges
                **kwargs(Keyword args):
@@ -332,6 +346,11 @@ class Graph:
         self_loop = kwargs.get("self_loop", False)  # DAG default has no loop
         repeated_edges = kwargs.get("repeated_edges", True)
         loop = kwargs.get("loop", False)
+        if not repeated_edges:
+            max_edge =  Graph._calc_max_edge(point_count, not loop, self_loop)
+            if edge_count > max_edge:
+                raise Exception("the number of edges of this kind of graph which has %d vertexes must be less than or equal to %d." % (point_count, max_edge))
+
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -377,7 +396,7 @@ class Graph:
     @staticmethod
     def UDAG(point_count, edge_count, **kwargs):
         """UDAG(point_count, edge_count, **kwargs) -> Graph
-               Factory method. Return a graph with point_count vertexes and edge_count edges.
+               Factory method. Return a undirected connected graph with point_count vertexes and edge_count edges.
                int point_count -> the count of vertexes
                int edge_count -> the count of edges
                **kwargs(Keyword args):
@@ -396,6 +415,11 @@ class Graph:
 
         self_loop = kwargs.get("self_loop", True)
         repeated_edges = kwargs.get("repeated_edges", True)
+        if not repeated_edges:
+            max_edge =  Graph._calc_max_edge(point_count, False, self_loop)
+            if edge_count > max_edge:
+                raise Exception("the number of edges of this kind of graph which has %d vertexes must be less than or equal to %d." % (point_count, max_edge))
+
         weight_limit = kwargs.get("weight_limit", (1, 1))
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
@@ -430,6 +454,18 @@ class Graph:
             i += 1
 
         return graph
+    
+    @staticmethod
+    def connected(point_count, edge_count, directed=False, **kwargs):
+        """connected(point_count, edge_count, **kwargs) -> Graph
+           Factory method. Return a connected graph with point_count vertexes
+           int point_count -> the count of vertexes
+           bool directed -> whether the graph is directed
+        """
+        if directed:
+            return Graph.DAG(point_count, edge_count, **kwargs)
+        else:
+            return Graph.UDAG(point_count, edge_count, **kwargs)
 
     @staticmethod
     def hack_spfa(point_count, **kwargs):
@@ -481,6 +517,15 @@ class Graph:
             graph.add_edge(u, v, weight=weight_gen())
 
         return graph
+    
+    @staticmethod
+    def _calc_max_edge(point_count, directed, self_loop):
+        max_edge = point_count * (point_count - 1)
+        if not directed:
+            max_edge //= 2
+        if self_loop:
+            max_edge += point_count
+        return max_edge
 
 
 T = TypeVar('T')

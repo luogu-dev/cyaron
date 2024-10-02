@@ -1,6 +1,7 @@
 config.py
 *.in
 *.out
+*.exe
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
@@ -133,5 +134,7 @@ target/
 # Pycharm
 venv/
 
+*.DS_Store
+
 # VS Code
-.vscode/
+.vscode
