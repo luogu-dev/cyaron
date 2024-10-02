@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
-from cyaron import IO, log
+from .io import IO
+from . import log
 from cyaron.utils import *
 from cyaron.consts import *
 from cyaron.graders import CYaRonGraders

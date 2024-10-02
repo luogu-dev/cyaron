@@ -34,10 +34,7 @@ def strtolines(str):
 
 
 def make_unicode(data):
-    try:
-        return unicode(data)
-    except NameError:
-        return str(data)
+    return str(data)
 
 def unpack_kwargs(funcname, kwargs, arg_pattern):
     rv = {}
