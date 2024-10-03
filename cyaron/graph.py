@@ -1,6 +1,9 @@
 from .utils import *
 import random
-from typing import TypeVar, Callable, List
+from typing import TypeVar, Callable
+
+
+__all__ = ["Edge", "Graph"]
 
 
 class Edge:
@@ -528,7 +531,11 @@ class Graph:
 
 
 class GraphMatrix:
-    """Class GraphMatrix: A class of the graph represented by adjacency matrix"""
+    """
+    Class GraphMatrix: A class of the graph represented by adjacency matrix.
+
+    *Deprecation warning: This class may be removed after a generic matrix class is implemented in the project.*
+    """
 
     T = TypeVar('T')
 
