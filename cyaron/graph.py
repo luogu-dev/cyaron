@@ -110,6 +110,33 @@ class Graph:
         if not self.directed and x != y:
             self.__add_edge(y, x, weight)
 
+    def to_tree(self, root = 1, *, container = list):
+        """to_tree(self, root, *, container) -> list[tuple[int, int]]
+           Return a spanning tree of the graph.
+           By default, return the DFS spanning tree generated from node 1 as the root.
+           int root = 1 -> starting from `root` to generate.
+           container = list -> use list to simulate a stack by default.
+                               You can pass in a container class that implements `pop` and `append` methods.
+                               Additionally, it needs the method `__bool__` to indicate whether the container is non-empty.
+                               For example, pass in a heap to implement a minimum spanning tree.
+        """
+        tree = []
+        vis = set()
+        q = container()
+        q.append((0, root, 0))
+        while q:
+            _, u, fa = q.pop()
+            if u in vis:
+                continue
+            vis.add(u)
+            tree.append((fa, u))
+            for edge in self.edges[u]:
+                v, w = edge.end, edge.weight
+                if v in vis:
+                    continue
+                q.append((w, v, u))
+        return tree
+
     @staticmethod
     def chain(point_count, **kwargs):
         """chain(point_count, **kwargs) -> Graph
