@@ -1,6 +1,6 @@
 from .utils import *
 import random
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, List
 
 
 class Edge:
@@ -54,16 +54,15 @@ class Graph:
         return cnt
 
     def to_matrix(self, **kwargs):
-        """to_matrix(self, **kwargs) -> list[list[Any]]
+        """to_matrix(self, **kwargs) -> GraphMatrix
             Convert the graph to adjacency matrix.
             **kwargs(Keyword args):
                 int default = -1 -> the default value when the edge does not exist.
                 Any merge(Any, Edge)
                 = lambda val, edge: edge.weight
                 -> the mapping from the old values in matrix and the edges to the new values in matrix.
-            Note that the index start from 0 and the values in the Column 0 or the Row 0 are always the default.
         """
-        return GraphMatrix(self)
+        return GraphMatrix(self, **kwargs)
 
     def to_str(self, **kwargs):
         """to_str(self, **kwargs) -> str
@@ -551,4 +550,10 @@ class GraphMatrix:
                 self.matrix[edge.start][edge.end], edge)
 
     def __str__(self):
-        return '\n'.join([' '.join(map(str, row)) for row in self.matrix])
+        return '\n'.join([' '.join(map(str, row[1:])) for row in self.matrix[1:]])
+
+    def __call__(self, u: int, v: int):
+        return self.matrix[u][v]
+
+    def __iter__(self):
+        return self.matrix.__iter__()
