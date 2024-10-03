@@ -528,11 +528,10 @@ class Graph:
         return max_edge
 
 
-T = TypeVar('T')
-
-
 class GraphMatrix:
     """Class GraphMatrix: A class of the graph represented by adjacency matrix"""
+
+    T = TypeVar('T')
 
     def __init__(self,
                  graph: Graph,
