@@ -151,3 +151,24 @@ class TestGraph(unittest.TestCase):
         with self.assertRaises(Exception, msg="the number of edges of connected graph must more than the number of nodes - 1"):
             Graph.DAG(8, 6)
         Graph.DAG(8, 7)
+
+    def test_GraphMatrix(self):
+        g = Graph(3, True)
+        edge_set = [(2, 3, 3), (3, 3, 1), (2, 3, 7), (2, 3, 4), (3, 2, 1), (1, 3, 3)]
+        for u, v, w in edge_set:
+            g.add_edge(u, v, weight=w)
+        self.assertEqual(str(g.to_matrix()), "-1 -1 3\n-1 -1 4\n-1 1 1")
+        self.assertEqual(str(g.to_matrix(default=0)), "0 0 3\n0 0 4\n0 1 1")
+        # lambda val, edge: edge.weight
+        gcd = lambda a, b: (gcd(b, a % b) if b else a)
+        lcm = lambda a, b: a * b // gcd(a, b)
+        merge1 = lambda v, e: v if v != -1 else e.weight
+        merge2 = lambda val, edge: max(edge.weight, val)
+        merge3 = lambda val, edge: min(edge.weight, val)
+        merge4 = lambda val, edge: gcd(val, edge.weight)
+        merge5 = lambda val, edge: lcm(val, edge.weight) if val else edge.weight
+        self.assertEqual(str(g.to_matrix(merge=merge1)), "-1 -1 3\n-1 -1 3\n-1 1 1")
+        self.assertEqual(str(g.to_matrix(merge=merge2)), "-1 -1 3\n-1 -1 7\n-1 1 1")
+        self.assertEqual(str(g.to_matrix(default=9, merge=merge3)), "9 9 3\n9 9 3\n9 1 1")
+        self.assertEqual(str(g.to_matrix(default=0, merge=merge4)), "0 0 3\n0 0 1\n0 1 1")
+        self.assertEqual(str(g.to_matrix(default=0, merge=merge5)), "0 0 3\n0 0 84\n0 1 1")

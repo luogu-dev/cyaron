@@ -132,7 +132,7 @@ docs/_build/
 target/
 
 # Pycharm
-venv
+venv/
 
 *.DS_Store
 
