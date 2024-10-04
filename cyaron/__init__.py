@@ -13,7 +13,7 @@ from . import log
 from .compare import Compare
 from .consts import *
 from .graph import Edge, Graph
-from .io import IO
+from .io import IO, File
 from .math import *
 from .merger import Merger
 from .polygon import Polygon
