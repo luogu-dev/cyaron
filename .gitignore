@@ -138,3 +138,5 @@ venv/
 
 # VS Code
 .vscode
+
+.python-version
