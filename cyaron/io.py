@@ -230,7 +230,7 @@ class IO:
         else:
             raise ValueError("file type is not in File.INPUT or File.OUTPUT")
 
-        self.__write(self.input_file, *args, **kwargs)
+        self.__write(file, *args, **kwargs)
 
     def writeln(self, file: File = File.INPUT, *args, **kwargs):
         """
