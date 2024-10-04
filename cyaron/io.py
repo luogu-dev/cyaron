@@ -29,7 +29,7 @@ class IO:
                  output_file: Union[IOBase, str, int, None] = None,
                  data_id: Union[str, None] = None,
                  disable_output: bool = False,
-                 make_dirs: bool = True):
+                 make_dirs: bool = False):
         ...
 
     @overload
@@ -39,7 +39,7 @@ class IO:
                  input_suffix: Union[str, None] = '.in',
                  output_suffix: Union[str, None] = '.out',
                  disable_output: bool = False,
-                 make_dirs: bool = True):
+                 make_dirs: bool = False):
         ...
 
     def __init__(self,
@@ -50,7 +50,7 @@ class IO:
                  input_suffix: Union[str, None] = '.in',
                  output_suffix: Union[str, None] = '.out',
                  disable_output: bool = False,
-                 make_dirs: bool = True):
+                 make_dirs: bool = False):
         """
         Args:
             input_file (optional): input file object or filename or file descriptor.
