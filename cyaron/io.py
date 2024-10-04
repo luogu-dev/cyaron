@@ -207,6 +207,15 @@ class IO:
             pos: Where file will truncate.
         """
         file.truncate(pos)
+        if pos == 0: # 重置self.is_first_char
+            self.is_first_char[file] = True
+        else:
+            file.seek(pos - 1)
+            if file.read(1) != " ": # 若不是空格 重置self.is_first_char
+                self.is_first_char[file] = False
+            else:
+                self.is_first_char[file] = True
+                
         file.seek(pos)
 
     def input_write(self, *args, **kwargs):
