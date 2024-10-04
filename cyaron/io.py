@@ -96,16 +96,16 @@ class IO:
                 self.__escape_format(output_suffix))
         self.input_filename, self.output_filename = None, None
         self.__input_temp, self.__output_temp = False, False
-        self.__init_file(input_file, data_id, File.INPUT)
+        self.__init_file(input_file, data_id, File.INPUT, make_dirs)
         if not disable_output:
-            self.__init_file(output_file, data_id, File.OUTPUT)
+            self.__init_file(output_file, data_id, File.OUTPUT, make_dirs)
         else:
             self.output_file = None
         self.__closed = False
         self.is_first_char = {}
 
     def __init_file(self, f: Union[IOBase, str, int, None],
-                    data_id: Union[int, None], file_type: File):
+                    data_id: Union[int, None], file_type: File, make_dirs: bool):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
             if file_type == File.INPUT:
@@ -128,7 +128,8 @@ class IO:
             # consider ``f`` as filename template
             filename = f.format(data_id or "")
             # be sure dir is existed
-            self.__make_dirs(filename)
+            if make_dirs:
+                self.__make_dirs(filename)
             if file_type == File.INPUT:
                 self.input_filename = filename
             else:
