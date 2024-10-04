@@ -8,12 +8,11 @@ import os
 import re
 import subprocess
 import tempfile
-from enum import IntEnum
-from pathlib import Path
 from typing import Union, overload
 from io import IOBase
 from . import log
 from .utils import list_like, make_unicode
+
 
 class IO:
     """Class IO: IO tool class. It will process the input and output files."""
@@ -59,7 +58,7 @@ class IO:
             input_suffix (optional): the suffix of the input file. Defaults to '.in'.
             output_suffix (optional): the suffix of the output file. Defaults to '.out'.
             disable_output (optional): set to True to disable output file. Defaults to False.
-            make_dirs (optional): set to True to create dir if path is not found. Defaults to True.
+            make_dirs (optional): set to True to create dir if path is not found. Defaults to False.
         Examples:
             >>> IO("a","b")
             # create input file "a" and output file "b"
@@ -79,9 +78,12 @@ class IO:
             # create input file "data2.in" and output file "data2.out"
             >>> IO(open('data.in', 'w+'), open('data.out', 'w+'))
             # input file "data.in" and output file "data.out"
-            >>> IO("./io/data.in", "./io/data.out")
-            # input file "./io/data.in" and output file "./io/data.out" if the dir "./io" not found it will be created
+            >>> IO("./io/data.in", "./io/data.out", disable_output = True)
+            # input file "./io/data.in" and output file "./io/data.out"
+            # if the dir "./io" not found it will be created
         """
+        self.__closed = False
+        self.input_file, self.output_file = None, None
         if file_prefix is not None:
             # legacy mode
             input_file = '{}{{}}{}'.format(self.__escape_format(file_prefix),
@@ -96,11 +98,11 @@ class IO:
             self.__init_file(output_file, data_id, "o", make_dirs)
         else:
             self.output_file = None
-        self.__closed = False
         self.is_first_char = {}
 
-    def __init_file(self, f: Union[IOBase, str, int, None],
-                    data_id: Union[int, None], file_type: str, make_dirs: bool):
+    def __init_file(self, f: Union[IOBase, str, int,
+                                   None], data_id: Union[int, None],
+                    file_type: str, make_dirs: bool):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
             if file_type == "i":
@@ -115,7 +117,7 @@ class IO:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
             self.__init_file(fd, data_id, file_type, make_dirs)
-            if file_type == File.INPUT:
+            if file_type == "i":
                 self.__input_temp = True
             else:
                 self.__output_temp = True
@@ -137,9 +139,8 @@ class IO:
         """replace "{}" to "{{}}" """
         return re.sub(r"\{", "{{", re.sub(r"\}", "}}", st))
 
-    def __make_dirs(self, pth: Union[IOBase, str, int, None]):
-        if isinstance(pth, str):
-            os.makedirs(os.path.dirname(pth), exist_ok=True)
+    def __make_dirs(self, pth: str):
+        os.makedirs(os.path.dirname(pth), exist_ok=True)
 
     def __del_files(self):
         """delete files"""
@@ -198,16 +199,14 @@ class IO:
                 if arg == "\n":
                     self.is_first_char[file] = True
 
-    def __clear(self, file: IOBase, *args, **kwargs):
+    def __clear(self, file: IOBase, pos: int = 0):
         """
         Clear the content use truncate()
         Args:
-            file: Which file (File.INPUT/File.OUTPUT) to clear
+            file: Which file to clear
             pos: Where file will truncate.
         """
-        pos = kwargs.get("pos", 0)
         file.truncate(pos)
-
 
     def input_write(self, *args, **kwargs):
         """
@@ -232,14 +231,14 @@ class IO:
         args.append("\n")
         self.input_write(*args, **kwargs)
 
-    def input_clear_content(self, *args, **kwargs):
+    def input_clear_content(self, pos: int = 0):
         """
         Clear the content of input
         Args:
             pos: Where file will truncate.
         """
 
-        self.__clear(self.input_file, *args, **kwargs)
+        self.__clear(self.input_file, pos)
 
     def output_gen(self, shell_cmd, time_limit=None):
         """
@@ -297,14 +296,13 @@ class IO:
         args.append("\n")
         self.output_write(*args, **kwargs)
 
-
-    def output_clear_content(self, *args, **kwargs):
+    def output_clear_content(self, pos: int = 0):
         """
         Clear the content of output
         Args:
             pos: Where file will truncate
         """
-        self.__clear(self.output_file, *args, **kwargs)
+        self.__clear(self.output_file, pos)
 
     def flush_buffer(self):
         """Flush the input file"""

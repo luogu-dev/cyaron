@@ -56,8 +56,10 @@ class TestIO(unittest.TestCase):
             input = f.read()
         with open("test_write.out") as f:
             output = f.read()
-        self.assertEqual(input.split(), ["1", "2", "3", "4", "5", "6", "7", "8", "9"])
-        self.assertEqual(output.split(), ["9", "8", "7", "6", "5", "4", "3", "2", "1"])
+        self.assertEqual(input.split(),
+                         ["1", "2", "3", "4", "5", "6", "7", "8", "9"])
+        self.assertEqual(output.split(),
+                         ["9", "8", "7", "6", "5", "4", "3", "2", "1"])
         self.assertEqual(input.count("\n"), 2)
         self.assertEqual(output.count("\n"), 2)
 
@@ -111,3 +113,53 @@ class TestIO(unittest.TestCase):
                 with IO(fin, fout) as test:
                     self.assertEqual(test.input_file, fin)
                     self.assertEqual(test.output_file, fout)
+
+    def test_make_dirs(self):
+        mkdir_true = False
+        with IO("./automkdir_true/data.in",
+                "./automkdir_true/data.out",
+                make_dirs=True):
+            mkdir_true = os.path.exists("./automkdir_true")
+        self.assertEqual(mkdir_true, True)
+
+        mkdir_false = False
+        try:
+            with IO(
+                    "./automkdir_false/data.in",
+                    "./automkdir_false/data.out",
+            ):
+                pass
+        except FileNotFoundError:
+            mkdir_false = True
+        mkdir_false &= not os.path.exists("./automkdir_false")
+        self.assertEqual(mkdir_false, True)
+
+    def test_output_clear_content(self):
+        with IO("test_clear.in", "test_clear.out") as test:
+            test.input_write("This is a test.")
+            test.input_clear_content()
+            test.input_write("Cleared content.")
+            test.output_write("This is a test.")
+            test.output_clear_content()
+            test.output_write("Cleared content.")
+        with open("test_clear.in", encoding="utf-8") as f:
+            input_text = f.read()
+        with open("test_clear.out", encoding="utf-8") as f:
+            output_text = f.read()
+        self.assertEqual(input_text, "Cleared content.")
+        self.assertEqual(output_text, "Cleared content.")
+
+    def test_output_clear_content_with_position(self):
+        with IO("test_clear_pos.in", "test_clear_pos.out") as test:
+            test.input_write("This is a test.")
+            test.input_clear_content(5)
+            test.input_write("Cleared content.")
+            test.output_write("This is a test.")
+            test.output_clear_content(5)
+            test.output_write("Cleared content.")
+        with open("test_clear_pos.in", encoding="utf-8") as f:
+            input_text = f.read()
+        with open("test_clear_pos.out", encoding="utf-8") as f:
+            output_text = f.read()
+        self.assertEqual(input_text, "This Cleared content.")
+        self.assertEqual(output_text, "This Cleared content.")
