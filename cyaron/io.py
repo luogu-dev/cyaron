@@ -9,6 +9,7 @@ import re
 import subprocess
 import tempfile
 from enum import IntEnum
+from pathlib import Path
 from typing import Union, overload
 from io import IOBase
 from . import log
@@ -27,7 +28,8 @@ class IO:
                  input_file: Union[IOBase, str, int, None] = None,
                  output_file: Union[IOBase, str, int, None] = None,
                  data_id: Union[str, None] = None,
-                 disable_output: bool = False):
+                 disable_output: bool = False,
+                 make_dirs: bool = True):
         ...
 
     @overload
@@ -36,7 +38,8 @@ class IO:
                  file_prefix: Union[str, None] = None,
                  input_suffix: Union[str, None] = '.in',
                  output_suffix: Union[str, None] = '.out',
-                 disable_output: bool = False):
+                 disable_output: bool = False,
+                 make_dirs: bool = True):
         ...
 
     def __init__(self,
@@ -46,20 +49,22 @@ class IO:
                  file_prefix: Union[str, None] = None,
                  input_suffix: Union[str, None] = '.in',
                  output_suffix: Union[str, None] = '.out',
-                 disable_output: bool = False):
+                 disable_output: bool = False,
+                 make_dirs: bool = True):
         """
         Args:
-            input_file (optional): input file object or filename or file descriptor. 
+            input_file (optional): input file object or filename or file descriptor.
                 If it's None, make a temp file. Defaults to None.
-            output_file (optional): input file object or filename or file descriptor. 
+            output_file (optional): input file object or filename or file descriptor.
                 If it's None, make a temp file. Defaults to None.
-            data_id (optional): the id of the data. It will be add after 
+            data_id (optional): the id of the data. It will be add after
                 `input_file` and `output_file` when they are str.
                 If it's None, the file names will not contain the id. Defaults to None.
             file_prefix (optional): the prefix for the input and output files. Defaults to None.
             input_suffix (optional): the suffix of the input file. Defaults to '.in'.
             output_suffix (optional): the suffix of the output file. Defaults to '.out'.
             disable_output (optional): set to True to disable output file. Defaults to False.
+            make_dirs (optional): set to True to create dir if path is not found. Defaults to True.
         Examples:
             >>> IO("a","b")
             # create input file "a" and output file "b"
@@ -79,6 +84,8 @@ class IO:
             # create input file "data2.in" and output file "data2.out"
             >>> IO(open('data.in', 'w+'), open('data.out', 'w+'))
             # input file "data.in" and output file "data.out"
+            >>> IO("./io/data.in", "./io/data.out")
+            # input file "./io/data.in" and output file "./io/data.out" if the dir "./io" not found it will be created
         """
         if file_prefix is not None:
             # legacy mode
@@ -120,7 +127,9 @@ class IO:
         else:
             # consider ``f`` as filename template
             filename = f.format(data_id or "")
-            if file_type == "i":
+            # be sure dir is existed
+            self.__make_dirs(filename)
+            if file_type == File.INPUT:
                 self.input_filename = filename
             else:
                 self.output_filename = filename
@@ -131,6 +140,10 @@ class IO:
     def __escape_format(self, st: str):
         """replace "{}" to "{{}}" """
         return re.sub(r"\{", "{{", re.sub(r"\}", "}}", st))
+
+    def __make_dirs(self, pth: Union[IOBase, str, int, None]):
+        if isinstance(pth, str):
+            os.makedirs(os.path.dirname(pth), exist_ok=True)
 
     def __del_files(self):
         """delete files"""
@@ -174,7 +187,7 @@ class IO:
 
     def __write(self, file: IOBase, *args, **kwargs):
         """
-        Write every element in *args into file. If the element isn't "\n", insert `separator`. 
+        Write every element in *args into file. If the element isn't "\n", insert `separator`.
         It will convert every element into str.
         """
         separator = kwargs.get("separator", " ")
@@ -198,7 +211,7 @@ class IO:
         """
         pos = kwargs.get("pos", 0)
         file.truncate(pos)
-        
+
 
     def write(self, file: File = File.INPUT, *args, **kwargs):
         """
@@ -231,7 +244,7 @@ class IO:
         args = list(args)
         args.append("\n")
         self.write(file, *args, **kwargs)
-        
+
 
     def clear_content(self, file: File = File.INPUT, *args, **kwargs):
         """
