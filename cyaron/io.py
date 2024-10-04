@@ -8,10 +8,15 @@ import os
 import re
 import subprocess
 import tempfile
+from enum import IntEnum
 from typing import Union, overload
 from io import IOBase
 from . import log
 from .utils import list_like, make_unicode
+
+class File(IntEnum):
+    INPUT = 0
+    OUTPUT = 1
 
 
 class IO:
@@ -84,19 +89,19 @@ class IO:
                 self.__escape_format(output_suffix))
         self.input_filename, self.output_filename = None, None
         self.__input_temp, self.__output_temp = False, False
-        self.__init_file(input_file, data_id, "i")
+        self.__init_file(input_file, data_id, File.INPUT)
         if not disable_output:
-            self.__init_file(output_file, data_id, "o")
+            self.__init_file(output_file, data_id, File.OUTPUT)
         else:
             self.output_file = None
         self.__closed = False
         self.is_first_char = {}
 
     def __init_file(self, f: Union[IOBase, str, int, None],
-                    data_id: Union[int, None], file_type: str):
+                    data_id: Union[int, None], file_type: File):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
-            if file_type == "i":
+            if file_type == File.INPUT:
                 self.input_file = f
             else:
                 self.output_file = f
@@ -108,7 +113,7 @@ class IO:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
             self.__init_file(fd, data_id, file_type)
-            if file_type == "i":
+            if file_type == File.INPUT:
                 self.__input_temp = True
             else:
                 self.__output_temp = True
@@ -184,28 +189,65 @@ class IO:
                 if arg == "\n":
                     self.is_first_char[file] = True
 
-    def input_write(self, *args, **kwargs):
+    def __clear(self, file: IOBase, *args, **kwargs):
+        """
+        Clear the content use truncate()
+        Args:
+            file: Which file (File.INPUT/File.OUTPUT) to clear
+            pos: Where file will truncate.
+        """
+        pos = kwargs.get("pos", 0)
+        file.truncate(pos)
+        
+
+    def write(self, file: File = File.INPUT, *args, **kwargs):
         """
         Write every element in *args into the input file. Splits with `separator`.
         It will convert every element into str.
         Args:
+            file: Which file (File.INPUT/File.OUTPUT) to write
             *args: the elements to write
             separator: a string used to separate every element. Defaults to " ".
         """
+        if file == File.INPUT:
+            file = self.input_file
+        elif file == File.OUTPUT:
+            file = self.output_file
+        else:
+            raise ValueError("file type is not in File.INPUT or File.OUTPUT")
+
         self.__write(self.input_file, *args, **kwargs)
 
-    def input_writeln(self, *args, **kwargs):
+    def writeln(self, file: File = File.INPUT, *args, **kwargs):
         """
         Write every element in *args into the input file and turn to a new line
         Splits with `separator`.
         It will convert every element into str.
         Args:
+            file: Which file (File.INPUT/File.OUTPUT) to write
             *args: the elements to write
             separator: a string used to separate every element. Defaults to " ".
         """
         args = list(args)
         args.append("\n")
-        self.input_write(*args, **kwargs)
+        self.write(file, *args, **kwargs)
+        
+
+    def clear_content(self, file: File = File.INPUT, *args, **kwargs):
+        """
+        Clear the content of input/output
+        Args:
+            file: Which file (File.INPUT/File.OUTPUT) to clear
+            pos: Where file will truncate.
+        """
+        if file == File.INPUT:
+            file = self.input_file
+        elif file == File.OUTPUT:
+            file = self.output_file
+        else:
+            raise ValueError("file type is not in File.INPUT or File.OUTPUT")
+
+        self.__clear(file, *args, **kwargs)
 
     def output_gen(self, shell_cmd, time_limit=None):
         """
@@ -239,29 +281,6 @@ class IO:
         self.input_file.seek(origin_pos)
 
         log.debug(self.output_filename, " done")
-
-    def output_write(self, *args, **kwargs):
-        """
-        Write every element in *args into the output file. Splits with `separator`.
-        It will convert every element into str.
-        Args:
-            *args: the elements to write
-            separator: a string used to separate every element. Defaults to " ".
-        """
-        self.__write(self.output_file, *args, **kwargs)
-
-    def output_writeln(self, *args, **kwargs):
-        """
-        Write every element in *args into the output file and turn to a new line.
-        Splits with `separator`.
-        It will convert every element into str.
-        Args:
-            *args: the elements to write
-            separator: a string used to separate every element. Defaults to " ".
-        """
-        args = list(args)
-        args.append("\n")
-        self.output_write(*args, **kwargs)
 
     def flush_buffer(self):
         """Flush the input file"""
