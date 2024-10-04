@@ -207,6 +207,7 @@ class IO:
             pos: Where file will truncate.
         """
         file.truncate(pos)
+        file.seek(pos)
 
     def input_write(self, *args, **kwargs):
         """
