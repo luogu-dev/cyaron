@@ -115,11 +115,11 @@ class IO:
         elif isinstance(f, int):
             # consider ``f`` as a file descor
             self.__init_file(open(f, 'w+', encoding="utf-8", newline='\n'),
-                             data_id, file_type)
+                             data_id, file_type, make_dirs)
         elif f is None:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
-            self.__init_file(fd, data_id, file_type)
+            self.__init_file(fd, data_id, file_type, make_dirs)
             if file_type == File.INPUT:
                 self.__input_temp = True
             else:
@@ -136,7 +136,7 @@ class IO:
                 self.output_filename = filename
             self.__init_file(
                 open(filename, 'w+', newline='\n', encoding='utf-8'), data_id,
-                file_type)
+                file_type, make_dirs)
 
     def __escape_format(self, st: str):
         """replace "{}" to "{{}}" """
