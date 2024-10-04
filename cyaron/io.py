@@ -199,6 +199,15 @@ class IO:
                 if arg == "\n":
                     self.is_first_char[file] = True
 
+    def __clear_last_space(self, file: IOBase):
+        """
+        Clear the last space(s) use truncate()
+        Args:
+            file:Which file to clear
+        """
+        while True:
+            
+
     def __clear(self, file: IOBase, pos: int = 0):
         """
         Clear the content use truncate()
@@ -207,15 +216,7 @@ class IO:
             pos: Where file will truncate.
         """
         file.truncate(pos)
-        if pos == 0: # 重置self.is_first_char
-            self.is_first_char[file] = True
-        else:
-            file.seek(pos - 1)
-            if file.read(1) != " ": # 若不是空格 重置self.is_first_char
-                self.is_first_char[file] = False
-            else:
-                self.is_first_char[file] = True
-                
+        self.is_first_char[file] = True
         file.seek(pos)
 
     def input_write(self, *args, **kwargs):
