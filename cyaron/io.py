@@ -15,7 +15,7 @@ from .utils import list_like, make_unicode
 
 
 class IO:
-    """Class IO: IO tool class. It will process the input and output files."""
+    """IO tool class. It will process the input and output files."""
 
     @overload
     def __init__(self,
