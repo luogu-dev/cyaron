@@ -54,9 +54,9 @@ class Vector:
 
         result = []
         if mode == VectorRandomMode.repeatable:
-            result = [[random.randint(x, y) for x, y in zip(offset, length)] for _ in range(num)]
+            result = [[random.randint(x, x + y) for x, y in zip(offset, length)] for _ in range(num)]
         elif mode == VectorRandomMode.float:
-            result = [[random.uniform(x, y) for x, y in zip(offset, length)] for _ in range(num)]
+            result = [[random.uniform(x, x + y) for x, y in zip(offset, length)] for _ in range(num)]
         elif mode == VectorRandomMode.unique and vector_space > 5 * num:
             # O(NlogN)
             num_set = set()
