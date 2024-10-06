@@ -198,14 +198,6 @@ class IO:
                 file.write(make_unicode(arg))
                 if arg == "\n":
                     self.is_first_char[file] = True
-
-    def __clear_last_space(self, file: IOBase):
-        """
-        Clear the last space(s) use truncate()
-        Args:
-            file:Which file to clear
-        """
-        while True:
             
 
     def __clear(self, file: IOBase, pos: int = 0):
