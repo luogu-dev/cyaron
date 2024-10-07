@@ -4,7 +4,8 @@
 
 import random
 from enum import IntEnum
-from typing import Union, Tuple, List, Set
+from typing import Sequence, Union, Tuple, List, Set
+from typing import cast as typecast
 
 from .utils import list_like
 
@@ -48,20 +49,21 @@ class Vector:
 
         dimension = len(position_range)
 
-        offset: List[_Number] = []
-        length: List[_Number] = []
+        offset: Sequence[_Number] = []
+        length: Sequence[_Number] = []
 
         vector_space = 1
         for i in range(0, dimension):
-            if list_like(position_range[i]):
-                if position_range[i][1] < position_range[i][0]:
+            now_position_range = position_range[i]
+            if isinstance(now_position_range, tuple):
+                if now_position_range[1] < now_position_range[0]:
                     raise ValueError(
                         "upper-bound should be larger than lower-bound")
-                offset.append(position_range[i][0])
-                length.append(position_range[i][1] - position_range[i][0])
+                offset.append(now_position_range[0])
+                length.append(now_position_range[1] - now_position_range[0])
             else:
                 offset.append(0)
-                length.append(position_range[i])
+                length.append(now_position_range)
             vector_space *= (length[i] + 1)
 
         if mode == VectorRandomMode.unique and num > vector_space:
@@ -69,7 +71,10 @@ class Vector:
                 "1st param is so large that CYaRon can not generate unique vectors"
             )
 
+        result: Union[List[List[int]], List[List[float]]]
         if mode == VectorRandomMode.repeatable:
+            offset = typecast(Sequence[int], offset)
+            length = typecast(Sequence[int], length)
             result = [[
                 random.randint(x, x + y) for x, y in zip(offset, length)
             ] for _ in range(num)]
@@ -79,8 +84,11 @@ class Vector:
             ] for _ in range(num)]
         elif mode == VectorRandomMode.unique and vector_space > 5 * num:
             # O(NlogN)
+            offset = typecast(Sequence[int], offset)
+            length = typecast(Sequence[int], length)
+            vector_space = typecast(int, vector_space)
             num_set: Set[int] = set()
-            result: List[List[int]] = []
+            result = typecast(List[List[int]], [])
             for i in range(0, num):
                 while True:
                     rand = random.randint(0, vector_space - 1)
@@ -93,6 +101,9 @@ class Vector:
                 result.append(tmp)
         else:
             # generate 0~vector_space and shuffle
+            offset = typecast(Sequence[int], offset)
+            length = typecast(Sequence[int], length)
+            vector_space = typecast(int, vector_space)
             rand_arr = list(range(0, vector_space))
             random.shuffle(rand_arr)
             result = [
@@ -106,13 +117,14 @@ class Vector:
         return result
 
     @staticmethod
-    def get_vector(dimension: int, position_range: list, hashcode: int):
+    def get_vector(dimension: int, position_range: Sequence[int],
+                   hashcode: int):
         """
         Generates a vector based on the given dimension, position range, and hashcode.
         Args:
-            dimension (int): The number of dimensions for the vector.
-            position_range (list): A list of integers specifying the range for each dimension.
-            hashcode (int): A hashcode used to generate the vector.
+            dimension: The number of dimensions for the vector.
+            position_range: A list of integers specifying the range for each dimension.
+            hashcode: A hashcode used to generate the vector.
         Returns:
             list: A list representing the generated vector.
         """

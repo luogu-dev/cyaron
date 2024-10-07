@@ -19,8 +19,8 @@ class Sequence:
 
     def __init__(self,
                  formula: Callable[[int, Callable[[int], T]], T],
-                 initial_values: Optional[Union[List[T], Tuple[T, ...],
-                                                Dict[int, T]]] = ()):
+                 initial_values: Union[List[T], Tuple[T, ...], Dict[int,
+                                                                    T]] = ()):
         """
         Initialize a sequence object.
         Parameters:
