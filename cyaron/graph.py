@@ -46,7 +46,13 @@ class Graph:
         """
         self.directed = directed
         self.edges = [[] for i in range(point_count + 1)]
-    
+
+    def vertex_count(self):
+        """edge_count(self) -> int
+            Return the vertex of the edges in the graph.
+        """
+        return len(self.edges) - 1
+
     def edge_count(self):
         """edge_count(self) -> int
             Return the count of the edges in the graph.
