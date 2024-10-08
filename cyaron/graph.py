@@ -79,10 +79,9 @@ class Graph:
             **kwargs(Keyword args):
                 bool shuffle = False -> whether shuffle the output or not
                 str output(Edge) = str -> the convert function which converts object Edge to str. the default way is to use str()
-                list[int] node_shuffler(list[int])
-                = lambda table: random.sample(table, k=len(table))
+                list[int] node_shuffler(int)
+                = lambda n: random.sample(range(1, n + 1), k=n)
                 -> the random function which shuffles the vertex sequence.
-                    Note that this function will actually be passed in a `range`!
                 list[Edge] edge_shuffler(list[Edge])
                 -> a random function. the default is to shuffle the edge sequence,
                     also, if the graph is undirected, it will swap `u` and `v` randomly.
@@ -96,10 +95,10 @@ class Graph:
 
         shuffle = kwargs.get("shuffle", False)
         output = kwargs.get("output", str)
-        node_shuffler = kwargs.get("node_shuffler", lambda table: random.sample(table, k=len(table)))
+        node_shuffler = kwargs.get("node_shuffler", lambda n: random.sample(range(1, n + 1), k=n))
         edge_shuffler = kwargs.get("edge_shuffler", _edge_shuffler_default)
         if shuffle:
-            new_node_id = [0] + node_shuffler(range(1, len(self.edges)))
+            new_node_id = [0] + node_shuffler(self.vertex_count())
             edge_buf = []
             for edge in self.iterate_edges():
                 edge_buf.append(

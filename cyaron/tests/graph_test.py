@@ -221,9 +221,8 @@ class TestGraph(unittest.TestCase):
         unit_test(8, 20)
         unit_test(8, 20, {"shuffle": True})
         mapping = [0] + random.sample(range(1, 8), k = 7)
-        shuffer = lambda seq: list(map(lambda i: mapping[i], seq))
+        shuffer = lambda n: list(map(lambda i: mapping[i], range(1, n + 1)))
         unit_test(7, 10, {"shuffle": True, "node_shuffler": shuffer})
         unit_test(7, 14, {"shuffle": True, "node_shuffler": shuffer}, {"mapping": mapping})
         shuffer_without_swap = lambda table: random.sample(table, k=len(table))
         unit_test(7, 12, {"shuffle": True, "edge_shuffler": shuffer_without_swap}, {"directed": True})
-
