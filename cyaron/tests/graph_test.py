@@ -91,7 +91,7 @@ class TestGraph(unittest.TestCase):
 
         for _ in range(10):
             graph = Graph.graph(graph_size, int(graph_size*2), repeated_edges=False)
-            edges = list(graph.iterate_edges())
+            edges = [(e.start, e.end) for e in graph.iterate_edges()]
             self.assertEqual(len(edges), len(set(edges)))
 
     def test_tree_connected(self):
