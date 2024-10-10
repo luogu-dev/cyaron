@@ -149,8 +149,9 @@ class Graph:
             if u in vis:
                 continue
             vis.add(u)
-            w = from_weight(_)
-            tree.append((fa, u) if w is None else (fa, u, w))
+            if fa != 0:
+                w = from_weight(_)
+                tree.append((fa, u) if w is None else (fa, u, w))
             for edge in self.edges[u]:
                 v, w = edge.end, edge.weight
                 if v in vis:
