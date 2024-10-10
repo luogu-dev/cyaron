@@ -1,9 +1,14 @@
 from .utils import *
 import random
+from typing import TypeVar, Callable
+
+
+__all__ = ["Edge", "Graph"]
 
 
 class Edge:
     """Class Edge: A class of the edge in the graph"""
+
     def __init__(self, u, v, w):
         """__init__(self, u, v, w) -> None
             Initialize a edge. 
@@ -26,11 +31,13 @@ class Edge:
         """unweighted_edge(edge) -> str
             Return a string to output the edge without weight. The string contains the start vertex, end vertex(u,v) and splits with space.
         """
-        return '%d %d'%(edge.start,edge.end)
+        return '%d %d' % (edge.start, edge.end)
+
 
 class Graph:
     """Class Graph: A class of the graph
     """
+
     def __init__(self, point_count, directed=False):
         """__init__(self, point_count) -> None
             Initialize a graph.
@@ -49,6 +56,17 @@ class Graph:
             cnt //= 2
         return cnt
 
+    def to_matrix(self, **kwargs):
+        """to_matrix(self, **kwargs) -> GraphMatrix
+            Convert the graph to adjacency matrix.
+            **kwargs(Keyword args):
+                int default = -1 -> the default value when the edge does not exist.
+                Any merge(Any, Edge)
+                = lambda val, edge: edge.weight
+                -> the mapping from the old values in matrix and the edges to the new values in matrix.
+        """
+        return GraphMatrix(self, **kwargs)
+
     def to_str(self, **kwargs):
         """to_str(self, **kwargs) -> str
             Convert the graph to string with format. Splits with "\n"
@@ -66,7 +84,8 @@ class Graph:
             edge_buf = []
             for edge in self.iterate_edges():
                 edge_buf.append(
-                    Edge(new_node_id[edge.start], new_node_id[edge.end], edge.weight))
+                    Edge(new_node_id[edge.start], new_node_id[edge.end],
+                         edge.weight))
             random.shuffle(edge_buf)
             for edge in edge_buf:
                 if not self.directed and random.randint(0, 1) == 0:
@@ -191,9 +210,10 @@ class Graph:
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
-            "weight_gen", lambda: random.randint(
-                weight_limit[0], weight_limit[1]))
-        father_gen = kwargs.get("father_gen", lambda cur: random.randrange(1, cur))
+            "weight_gen",
+            lambda: random.randint(weight_limit[0], weight_limit[1]))
+        father_gen = kwargs.get("father_gen",
+                                lambda cur: random.randrange(1, cur))
 
         if not 0 <= chain <= 1 or not 0 <= flower <= 1:
             raise Exception("chain and flower must be between 0 and 1")
@@ -240,33 +260,35 @@ class Graph:
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
-            "weight_gen", lambda: random.randint(
-                weight_limit[0], weight_limit[1]))
+            "weight_gen",
+            lambda: random.randint(weight_limit[0], weight_limit[1]))
 
         if not 0 <= left <= 1 or not 0 <= right <= 1:
             raise Exception("left and right must be between 0 and 1")
         if left + right > 1:
             raise Exception("left plus right must be smaller than 1")
-        
-        can_left=[1]
-        can_right=[1]
+
+        can_left = [1]
+        can_right = [1]
         graph = Graph(point_count, directed)
         for i in range(2, point_count + 1):
             edge_pos = random.random()
             node = 0
             # Left
-            if edge_pos < left or left + right < edge_pos <= (1.0 - left - right) / 2:
-                point_index = random.randint(0,len(can_left)-1)
+            if edge_pos < left or left + right < edge_pos <= (1.0 - left -
+                                                              right) / 2:
+                point_index = random.randint(0, len(can_left) - 1)
                 node = can_left[point_index]
-                del_last_node = can_left.pop() # Save a copy of the last element
+                del_last_node = can_left.pop(
+                )  # Save a copy of the last element
                 if point_index < len(can_left):
                     # If the chosen element isn't the last one,
                     # Copy the last one to the position of the chosen one
                     can_left[point_index] = del_last_node
             # Right
             else:
-            # elif left <= edge_pos <= left + right or (1.0 - left - right) / 2 < edge_pos < 1:
-                point_index = random.randint(0,len(can_right)-1)
+                # elif left <= edge_pos <= left + right or (1.0 - left - right) / 2 < edge_pos < 1:
+                point_index = random.randint(0, len(can_right) - 1)
                 node = can_right[point_index]
                 del_last_node = can_right.pop()
                 if point_index < len(can_right):
@@ -305,8 +327,8 @@ class Graph:
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
-            "weight_gen", lambda: random.randint(
-                weight_limit[0], weight_limit[1]))
+            "weight_gen",
+            lambda: random.randint(weight_limit[0], weight_limit[1]))
         graph = Graph(point_count, directed)
         used_edges = set()
         i = 0
@@ -314,7 +336,8 @@ class Graph:
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
 
-            if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
+            if (not self_loop and u == v) or (not repeated_edges and
+                                              (u, v) in used_edges):
                 # Then we generate a new pair of nodes
                 continue
 
@@ -345,9 +368,11 @@ class Graph:
                    -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
         if edge_count < point_count - 1:
-            raise Exception("the number of edges of connected graph must more than the number of nodes - 1")
+            raise Exception(
+                "the number of edges of connected graph must more than the number of nodes - 1"
+            )
 
-        self_loop = kwargs.get("self_loop", False) # DAG default has no loop
+        self_loop = kwargs.get("self_loop", False)  # DAG default has no loop
         repeated_edges = kwargs.get("repeated_edges", True)
         loop = kwargs.get("loop", False)
         if not repeated_edges:
@@ -359,21 +384,22 @@ class Graph:
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
-            "weight_gen", lambda: random.randint(
-                weight_limit[0], weight_limit[1]))
-        
+            "weight_gen",
+            lambda: random.randint(weight_limit[0], weight_limit[1]))
+
         used_edges = set()
-        edge_buf = list(Graph.tree(point_count, weight_gen=weight_gen).iterate_edges())
+        edge_buf = list(
+            Graph.tree(point_count, weight_gen=weight_gen).iterate_edges())
         graph = Graph(point_count, directed=True)
 
         for edge in edge_buf:
             if loop and random.randint(1, 2) == 1:
                 edge.start, edge.end = edge.end, edge.start
             graph.add_edge(edge.start, edge.end, weight=edge.weight)
-                
+
             if not repeated_edges:
                 used_edges.add((edge.start, edge.end))
-        
+
         i = point_count - 1
         while i < edge_count:
             u = random.randint(1, point_count)
@@ -382,7 +408,8 @@ class Graph:
             if not loop and u > v:
                 u, v = v, u
 
-            if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
+            if (not self_loop and u == v) or (not repeated_edges and
+                                              (u, v) in used_edges):
                 # Then we generate a new pair of nodes
                 continue
 
@@ -410,8 +437,10 @@ class Graph:
                    = lambda: random.randint(weight_limit[0], weight_limit[1]) 
                    -> the generator of the weights. It should return the weight. The default way is to use the random.randint()
         """
-        if edge_count < point_count - 1: 
-            raise Exception("the number of edges of connected graph must more than the number of nodes - 1")
+        if edge_count < point_count - 1:
+            raise Exception(
+                "the number of edges of connected graph must more than the number of nodes - 1"
+            )
 
         self_loop = kwargs.get("self_loop", True)
         repeated_edges = kwargs.get("repeated_edges", True)
@@ -424,9 +453,9 @@ class Graph:
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
-            "weight_gen", lambda: random.randint(
-                weight_limit[0], weight_limit[1]))
-        
+            "weight_gen",
+            lambda: random.randint(weight_limit[0], weight_limit[1]))
+
         used_edges = set()
         graph = Graph.tree(point_count, weight_gen=weight_gen, directed=False)
 
@@ -434,13 +463,14 @@ class Graph:
             if not repeated_edges:
                 used_edges.add((edge.start, edge.end))
                 used_edges.add((edge.end, edge.start))
-        
+
         i = point_count - 1
         while i < edge_count:
             u = random.randint(1, point_count)
             v = random.randint(1, point_count)
 
-            if (not self_loop and u == v) or (not repeated_edges and (u, v) in  used_edges):
+            if (not self_loop and u == v) or (not repeated_edges and
+                                              (u, v) in used_edges):
                 # Then we generate a new pair of nodes
                 continue
 
@@ -486,8 +516,8 @@ class Graph:
         if not list_like(weight_limit):
             weight_limit = (1, weight_limit)
         weight_gen = kwargs.get(
-            "weight_gen", lambda: random.randint(
-                weight_limit[0], weight_limit[1]))
+            "weight_gen",
+            lambda: random.randint(weight_limit[0], weight_limit[1]))
 
         point_to_skip = point_count + 3
         graph = Graph(point_count, directed)
@@ -497,15 +527,18 @@ class Graph:
 
         for i in range(1, half):
             (x, y) = (i, i + 1)
-            graph.add_edge(x + (x >= point_to_skip), y +
-                           (y >= point_to_skip), weight=weight_gen())
+            graph.add_edge(x + (x >= point_to_skip),
+                           y + (y >= point_to_skip),
+                           weight=weight_gen())
             (x, y) = (i + half, i + half + 1)
-            graph.add_edge(x + (x >= point_to_skip), y +
-                           (y >= point_to_skip), weight=weight_gen())
+            graph.add_edge(x + (x >= point_to_skip),
+                           y + (y >= point_to_skip),
+                           weight=weight_gen())
         for i in range(1, half + 1):
             (x, y) = (i, i + half)
-            graph.add_edge(x + (x >= point_to_skip), y +
-                           (y >= point_to_skip), weight=weight_gen())
+            graph.add_edge(x + (x >= point_to_skip),
+                           y + (y >= point_to_skip),
+                           weight=weight_gen())
 
         for i in range(extraedg):
             u = random.randint(1, point_count)
@@ -522,3 +555,39 @@ class Graph:
         if self_loop:
             max_edge += point_count
         return max_edge
+
+
+class GraphMatrix:
+    """
+    Class GraphMatrix: A class of the graph represented by adjacency matrix.
+
+    *Deprecation warning: This class may be removed after a generic matrix class is implemented in the project.*
+    """
+
+    T = TypeVar('T')
+
+    def __init__(self,
+                 graph: Graph,
+                 default: T = -1,
+                 merge: Callable[[T, Edge],
+                                 T] = lambda val, edge: edge.weight):
+        """
+        Args:
+            graph: the graph to convert,
+            default: the default value when the edge does not exist,
+            merge: the mapping from the old values in matrix and the edges to the new values in matrix.
+        """
+        n = len(graph.edges)
+        self.matrix = [[default for _ in range(n)] for _ in range(n)]
+        for edge in graph.iterate_edges():
+            self.matrix[edge.start][edge.end] = merge(
+                self.matrix[edge.start][edge.end], edge)
+
+    def __str__(self):
+        return '\n'.join([' '.join(map(str, row[1:])) for row in self.matrix[1:]])
+
+    def __call__(self, u: int, v: int):
+        return self.matrix[u][v]
+
+    def __iter__(self):
+        return self.matrix.__iter__()

@@ -1,4 +1,4 @@
-'''
+"""
 This is a module that includes some useful math functions.
 
 Functions:
@@ -27,7 +27,7 @@ Functions:
     n2words(num,join=True): Number to words
 
 forked from https://blog.dreamshire.com/common-functions-routines-project-euler/
-'''
+"""
 
 from __future__ import absolute_import
 from math import sqrt, factorial
@@ -170,7 +170,7 @@ def fibonacci(n: int):
 
 
 def _fib(n: int) -> Tuple[int, int]:
-    '''Returns a tuple of fibonacci (F(n), F(n+1)).'''
+    """Returns a tuple of fibonacci (F(n), F(n+1))."""
     if n == 0:
         return (0, 1)
     a, b = _fib(n // 2)

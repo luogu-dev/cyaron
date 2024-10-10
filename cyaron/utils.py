@@ -10,7 +10,7 @@ def list_like(data):
         Judge whether the object data is like a list or a tuple.
         object data -> the data to judge
     """
-    return isinstance(data, tuple) or isinstance(data, list)
+    return isinstance(data, (tuple, list))
 
 
 def int_like(data):
@@ -34,10 +34,8 @@ def strtolines(str):
 
 
 def make_unicode(data):
-    try:
-        return unicode(data)
-    except NameError:
-        return str(data)
+    return str(data)
+
 
 def unpack_kwargs(funcname, kwargs, arg_pattern):
     rv = {}
@@ -58,7 +56,12 @@ def unpack_kwargs(funcname, kwargs, arg_pattern):
             except KeyError as e:
                 error = True
             if error:
-                raise TypeError('{}() missing 1 required keyword-only argument: \'{}\''.format(funcname, tp))
+                raise TypeError(
+                    '{}() missing 1 required keyword-only argument: \'{}\''.
+                    format(funcname, tp))
     if kwargs:
-        raise TypeError('{}() got an unexpected keyword argument \'{}\''.format(funcname, next(iter(kwargs.items()))[0]))
+        raise TypeError(
+            '{}() got an unexpected keyword argument \'{}\''.format(
+                funcname,
+                next(iter(kwargs.items()))[0]))
     return rv
