@@ -129,7 +129,7 @@ class Graph:
         if not self.directed and x != y:
             self.__add_edge(y, x, weight)
 
-    def to_tree(self, root = 1, *, container = list):
+    def to_tree(self, root = 1, *, container = list, from_weight = lambda w: None):
         """to_tree(self, root, *, container) -> list[tuple[int, int]]
            Return a spanning tree of the graph.
            By default, return the DFS spanning tree generated from node 1 as the root.
@@ -138,6 +138,7 @@ class Graph:
                                You can pass in a container class that implements `pop` and `append` methods.
                                Additionally, it needs the method `__bool__` to indicate whether the container is non-empty.
                                For example, pass in a heap to implement a minimum spanning tree.
+           from_weight = lambda w: None -> use to print the weight of edge, if it returns `None`, the function will ignore the weight.
         """
         tree = []
         vis = set()
@@ -148,7 +149,8 @@ class Graph:
             if u in vis:
                 continue
             vis.add(u)
-            tree.append((fa, u))
+            w = from_weight(_)
+            tree.append((fa, u) if w is None else (fa, u, w))
             for edge in self.edges[u]:
                 v, w = edge.end, edge.weight
                 if v in vis:
