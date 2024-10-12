@@ -8,43 +8,44 @@ import os
 import re
 import subprocess
 import tempfile
-from typing import Union, overload
+from typing import Union, overload, Optional
 from io import IOBase
 from . import log
 from .utils import list_like, make_unicode
 
 
 class IO:
-    """Class IO: IO tool class. It will process the input and output files."""
+    """IO tool class. It will process the input and output files."""
 
     @overload
     def __init__(self,
-                 input_file: Union[IOBase, str, int, None] = None,
-                 output_file: Union[IOBase, str, int, None] = None,
-                 data_id: Union[str, None] = None,
+                 input_file: Optional[Union[IOBase, str, int]] = None,
+                 output_file: Optional[Union[IOBase, str, int]] = None,
+                 data_id: Optional[int] = None,
                  disable_output: bool = False,
                  make_dirs: bool = False):
         ...
 
     @overload
     def __init__(self,
-                 data_id: Union[str, None] = None,
-                 file_prefix: Union[str, None] = None,
-                 input_suffix: Union[str, None] = '.in',
-                 output_suffix: Union[str, None] = '.out',
+                 data_id: Optional[int] = None,
+                 file_prefix: Optional[str] = None,
+                 input_suffix: str = '.in',
+                 output_suffix: str = '.out',
                  disable_output: bool = False,
                  make_dirs: bool = False):
         ...
 
-    def __init__(self,
-                 input_file: Union[IOBase, str, int, None] = None,
-                 output_file: Union[IOBase, str, int, None] = None,
-                 data_id: Union[str, None] = None,
-                 file_prefix: Union[str, None] = None,
-                 input_suffix: Union[str, None] = '.in',
-                 output_suffix: Union[str, None] = '.out',
-                 disable_output: bool = False,
-                 make_dirs: bool = False):
+    def __init__(  # type: ignore
+            self,
+            input_file: Optional[Union[IOBase, str, int]] = None,
+            output_file: Optional[Union[IOBase, str, int]] = None,
+            data_id: Optional[int] = None,
+            file_prefix: Optional[str] = None,
+            input_suffix: str = '.in',
+            output_suffix: str = '.out',
+            disable_output: bool = False,
+            make_dirs: bool = False):
         """
         Args:
             input_file (optional): input file object or filename or file descriptor.
@@ -198,7 +199,6 @@ class IO:
                 file.write(make_unicode(arg))
                 if arg == "\n":
                     self.is_first_char[file] = True
-            
 
     def __clear(self, file: IOBase, pos: int = 0):
         """
@@ -252,6 +252,8 @@ class IO:
             time_limit: the time limit (seconds) of the command to run.
                 None means infinity. Defaults to None.
         """
+        if self.output_file is None:
+            raise ValueError("Output file is disabled")
         self.flush_buffer()
         origin_pos = self.input_file.tell()
         self.input_file.seek(0)
@@ -260,16 +262,16 @@ class IO:
                 shell_cmd,
                 shell=True,
                 timeout=time_limit,
-                stdin=self.input_file,
-                stdout=self.output_file,
+                stdin=self.input_file.fileno(),
+                stdout=self.output_file.fileno(),
                 universal_newlines=True,
             )
         else:
             subprocess.check_call(
                 shell_cmd,
                 shell=True,
-                stdin=self.input_file,
-                stdout=self.output_file,
+                stdin=self.input_file.fileno(),
+                stdout=self.output_file.fileno(),
                 universal_newlines=True,
             )
         self.input_file.seek(origin_pos)
@@ -284,6 +286,8 @@ class IO:
             *args: the elements to write
             separator: a string used to separate every element. Defaults to " ".
         """
+        if self.output_file is None:
+            raise ValueError("Output file is disabled")
         self.__write(self.output_file, *args, **kwargs)
 
     def output_writeln(self, *args, **kwargs):
