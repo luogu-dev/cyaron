@@ -22,7 +22,8 @@ class IO:
                  input_file: Optional[Union[IOBase, str, int]] = None,
                  output_file: Optional[Union[IOBase, str, int]] = None,
                  data_id: Optional[int] = None,
-                 disable_output: bool = False):
+                 disable_output: bool = False,
+                 make_dirs: bool = False):
         ...
 
     @overload
@@ -31,7 +32,8 @@ class IO:
                  file_prefix: Optional[str] = None,
                  input_suffix: str = '.in',
                  output_suffix: str = '.out',
-                 disable_output: bool = False):
+                 disable_output: bool = False,
+                 make_dirs: bool = False):
         ...
 
     def __init__(  # type: ignore
@@ -42,20 +44,22 @@ class IO:
             file_prefix: Optional[str] = None,
             input_suffix: str = '.in',
             output_suffix: str = '.out',
-            disable_output: bool = False):
+            disable_output: bool = False,
+            make_dirs: bool = False):
         """
         Args:
-            input_file (optional): input file object or filename or file descriptor. 
+            input_file (optional): input file object or filename or file descriptor.
                 If it's None, make a temp file. Defaults to None.
-            output_file (optional): input file object or filename or file descriptor. 
+            output_file (optional): input file object or filename or file descriptor.
                 If it's None, make a temp file. Defaults to None.
-            data_id (optional): the id of the data. It will be add after 
+            data_id (optional): the id of the data. It will be add after
                 `input_file` and `output_file` when they are str.
                 If it's None, the file names will not contain the id. Defaults to None.
             file_prefix (optional): the prefix for the input and output files. Defaults to None.
             input_suffix (optional): the suffix of the input file. Defaults to '.in'.
             output_suffix (optional): the suffix of the output file. Defaults to '.out'.
             disable_output (optional): set to True to disable output file. Defaults to False.
+            make_dirs (optional): set to True to create dir if path is not found. Defaults to False.
         Examples:
             >>> IO("a","b")
             # create input file "a" and output file "b"
@@ -75,7 +79,12 @@ class IO:
             # create input file "data2.in" and output file "data2.out"
             >>> IO(open('data.in', 'w+'), open('data.out', 'w+'))
             # input file "data.in" and output file "data.out"
+            >>> IO("./io/data.in", "./io/data.out", disable_output = True)
+            # input file "./io/data.in" and output file "./io/data.out"
+            # if the dir "./io" not found it will be created
         """
+        self.__closed = False
+        self.input_file, self.output_file = None, None
         if file_prefix is not None:
             # legacy mode
             input_file = '{}{{}}{}'.format(self.__escape_format(file_prefix),
@@ -85,16 +94,16 @@ class IO:
                 self.__escape_format(output_suffix))
         self.input_filename, self.output_filename = None, None
         self.__input_temp, self.__output_temp = False, False
-        self.__init_file(input_file, data_id, "i")
+        self.__init_file(input_file, data_id, "i", make_dirs)
         if not disable_output:
-            self.__init_file(output_file, data_id, "o")
+            self.__init_file(output_file, data_id, "o", make_dirs)
         else:
             self.output_file = None
-        self.__closed = False
         self.is_first_char = {}
 
-    def __init_file(self, f: Union[IOBase, str, int, None],
-                    data_id: Union[int, None], file_type: str):
+    def __init_file(self, f: Union[IOBase, str, int,
+                                   None], data_id: Union[int, None],
+                    file_type: str, make_dirs: bool):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
             if file_type == "i":
@@ -104,11 +113,11 @@ class IO:
         elif isinstance(f, int):
             # consider ``f`` as a file descor
             self.__init_file(open(f, 'w+', encoding="utf-8", newline='\n'),
-                             data_id, file_type)
+                             data_id, file_type, make_dirs)
         elif f is None:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
-            self.__init_file(fd, data_id, file_type)
+            self.__init_file(fd, data_id, file_type, make_dirs)
             if file_type == "i":
                 self.__input_temp = True
             else:
@@ -116,17 +125,23 @@ class IO:
         else:
             # consider ``f`` as filename template
             filename = f.format(data_id or "")
+            # be sure dir is existed
+            if make_dirs:
+                self.__make_dirs(filename)
             if file_type == "i":
                 self.input_filename = filename
             else:
                 self.output_filename = filename
             self.__init_file(
                 open(filename, 'w+', newline='\n', encoding='utf-8'), data_id,
-                file_type)
+                file_type, make_dirs)
 
     def __escape_format(self, st: str):
         """replace "{}" to "{{}}" """
         return re.sub(r"\{", "{{", re.sub(r"\}", "}}", st))
+
+    def __make_dirs(self, pth: str):
+        os.makedirs(os.path.dirname(pth), exist_ok=True)
 
     def __del_files(self):
         """delete files"""
@@ -170,7 +185,7 @@ class IO:
 
     def __write(self, file: IOBase, *args, **kwargs):
         """
-        Write every element in *args into file. If the element isn't "\n", insert `separator`. 
+        Write every element in *args into file. If the element isn't "\n", insert `separator`.
         It will convert every element into str.
         """
         separator = kwargs.get("separator", " ")
@@ -184,6 +199,17 @@ class IO:
                 file.write(make_unicode(arg))
                 if arg == "\n":
                     self.is_first_char[file] = True
+
+    def __clear(self, file: IOBase, pos: int = 0):
+        """
+        Clear the content use truncate()
+        Args:
+            file: Which file to clear
+            pos: Where file will truncate.
+        """
+        file.truncate(pos)
+        self.is_first_char[file] = True
+        file.seek(pos)
 
     def input_write(self, *args, **kwargs):
         """
@@ -207,6 +233,15 @@ class IO:
         args = list(args)
         args.append("\n")
         self.input_write(*args, **kwargs)
+
+    def input_clear_content(self, pos: int = 0):
+        """
+        Clear the content of input
+        Args:
+            pos: Where file will truncate.
+        """
+
+        self.__clear(self.input_file, pos)
 
     def output_gen(self, shell_cmd, time_limit=None):
         """
@@ -267,6 +302,14 @@ class IO:
         args = list(args)
         args.append("\n")
         self.output_write(*args, **kwargs)
+
+    def output_clear_content(self, pos: int = 0):
+        """
+        Clear the content of output
+        Args:
+            pos: Where file will truncate
+        """
+        self.__clear(self.output_file, pos)
 
     def flush_buffer(self):
         """Flush the input file"""
