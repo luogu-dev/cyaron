@@ -48,7 +48,7 @@ class Graph:
         self.edges = [[] for i in range(point_count + 1)]
 
     def vertex_count(self):
-        """edge_count(self) -> int
+        """vertex_count(self) -> int
             Return the vertex of the edges in the graph.
         """
         return len(self.edges) - 1
