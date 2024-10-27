@@ -4,7 +4,7 @@
 
 import random
 from enum import IntEnum
-from typing import Sequence, Union, Tuple, List, Set
+from typing import Optional, Sequence, TypeVar, Union, Tuple, List, Set
 from typing import cast as typecast
 
 from .utils import list_like
@@ -16,7 +16,8 @@ class VectorRandomMode(IntEnum):
     float = 2
 
 
-_Number = Union[int, float]
+_Number = TypeVar('_Number', int, float)
+_Range = List[Union[_Number, Tuple[_Number, _Number]]]
 
 
 class Vector:
@@ -28,17 +29,16 @@ class Vector:
     @staticmethod
     def random(
         num: int = 5,
-        position_range: Union[List[Union[_Number, Tuple[_Number, _Number]]],
-                              None] = None,
+        position_range: Optional[_Range[Union[int, float]]] = None,
         mode: VectorRandomMode = VectorRandomMode.unique,
     ) -> Union[IntVector, FloatVector]:
         """
         Generate `num` random vectors in limited space
         Args:
-            num: the number of vectors
+            num: the length of vectors
             position_range: a list of limits for each dimension
-                single number x represents range (0, x)
-                list [x, y] or tuple (x, y) represents range (x, y)
+                single number x represents range [0, x]
+                list [x, y] or tuple (x, y) represents range [x, y]
             mode: the mode vectors generate, see Enum Class VectorRandomMode
         """
         if position_range is None:
@@ -49,8 +49,8 @@ class Vector:
 
         dimension = len(position_range)
 
-        offset: Sequence[_Number] = []
-        length: Sequence[_Number] = []
+        offset: Sequence[Union[int, float]] = []
+        length: Sequence[Union[int, float]] = []
 
         vector_space = 1
         for i in range(0, dimension):
@@ -128,9 +128,67 @@ class Vector:
         Returns:
             list: A list representing the generated vector.
         """
-
         tmp: List[int] = []
         for i in range(0, dimension):
             tmp.append(hashcode % (position_range[i] + 1))
             hashcode //= (position_range[i] + 1)
         return tmp
+
+    @staticmethod
+    def random_unique_vector(num: int = 5,
+                             position_range: Union[_Range[int], None] = None):
+        """
+        Generate `num` unique vectors with specified parameters. It is a wrapper for Vector.random.
+
+        Args:
+            num: the length of vectors
+            position_range: a list of limits for each dimension
+                single number x represents range [0, x]
+                list [x, y] or tuple (x, y) represents range [x, y]
+        """
+        return typecast(
+            Vector.IntVector,
+            Vector.random(
+                num,
+                typecast(Optional[_Range[Union[int, float]]], position_range),
+                VectorRandomMode.unique))
+
+    @staticmethod
+    def random_repeatable_vector(
+            num: int = 5,
+            position_range: Optional[List[Union[int, Tuple[int,
+                                                           int]]]] = None):
+        """
+        Generate `num` repeatable vectors with specified parameters.
+        It is a wrapper for Vector.random.
+
+        Args:
+            num: the length of vectors
+            position_range: a list of limits for each dimension
+                single number x represents range [0, x]
+                list [x, y] or tuple (x, y) represents range [x, y]
+        """
+        return typecast(
+            Vector.IntVector,
+            Vector.random(
+                num,
+                typecast(Optional[_Range[Union[int, float]]], position_range),
+                VectorRandomMode.repeatable))
+
+    @staticmethod
+    def random_float_vector(
+            num: int = 5,
+            position_range: Optional[_Range[Union[int, float]]] = None):
+        """
+        Generate `num` float vectors with specified parameters.
+        It is a wrapper for Vector.random.
+
+        Args:
+            num: the length of vectors
+            position_range: a list of limits for each dimension
+                single number x represents range [0, x]
+                list [x, y] or tuple (x, y) represents range [x, y]
+        """
+        return typecast(
+            Vector.FloatVector,
+            Vector.random(num, (position_range), VectorRandomMode.float))
