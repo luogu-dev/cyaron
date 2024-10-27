@@ -46,7 +46,13 @@ class Graph:
         """
         self.directed = directed
         self.edges = [[] for i in range(point_count + 1)]
-    
+
+    def vertex_count(self):
+        """vertex_count(self) -> int
+            Return the vertex of the edges in the graph.
+        """
+        return len(self.edges) - 1
+
     def edge_count(self):
         """edge_count(self) -> int
             Return the count of the edges in the graph.
@@ -73,27 +79,33 @@ class Graph:
             **kwargs(Keyword args):
                 bool shuffle = False -> whether shuffle the output or not
                 str output(Edge) = str -> the convert function which converts object Edge to str. the default way is to use str()
+                list[int] node_shuffler(int)
+                = lambda n: random.sample(range(1, n + 1), k=n)
+                -> the random function which shuffles the vertex sequence.
+                list[Edge] edge_shuffler(list[Edge])
+                -> a random function. the default is to shuffle the edge sequence,
+                    also, if the graph is undirected, it will swap `u` and `v` randomly.
         """
-        shuffle = kwargs.get("shuffle", False)
-        output = kwargs.get("output", str)
-        buf = []
-        if shuffle:
-            new_node_id = [i for i in range(1, len(self.edges))]
-            random.shuffle(new_node_id)
-            new_node_id = [0] + new_node_id
-            edge_buf = []
-            for edge in self.iterate_edges():
-                edge_buf.append(
-                    Edge(new_node_id[edge.start], new_node_id[edge.end],
-                         edge.weight))
-            random.shuffle(edge_buf)
+        def _edge_shuffler_default(table):
+            edge_buf = random.sample(table, k=len(table))
             for edge in edge_buf:
                 if not self.directed and random.randint(0, 1) == 0:
                     (edge.start, edge.end) = (edge.end, edge.start)
-                buf.append(output(edge))
-        else:
+            return edge_buf
+
+        shuffle = kwargs.get("shuffle", False)
+        output = kwargs.get("output", str)
+        node_shuffler = kwargs.get("node_shuffler", lambda n: random.sample(range(1, n + 1), k=n))
+        edge_shuffler = kwargs.get("edge_shuffler", _edge_shuffler_default)
+        if shuffle:
+            new_node_id = [0] + node_shuffler(self.vertex_count())
+            edge_buf = []
             for edge in self.iterate_edges():
-                buf.append(output(edge))
+                edge_buf.append(
+                    Edge(new_node_id[edge.start], new_node_id[edge.end], edge.weight))
+            buf = map(output, edge_shuffler(edge_buf))
+        else:
+            buf = map(output, self.iterate_edges())
         return "\n".join(buf)
 
     def __str__(self):
