@@ -217,6 +217,7 @@ class IO:
         for arg in args:
             if arg != "\n" and not self.is_first_char.get(file, True):
                 file.write(separator)
+                self.is_first_char[file] = True
             if list_like(arg):
                 self.__write_list(file, *arg, separator=separators)
             else:
