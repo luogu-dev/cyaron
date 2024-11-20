@@ -14,14 +14,17 @@ def generate_maze(
 ):
     maze = [[wall for _ in range(width)] for _ in range(height)]
 
-    def carve_passages_from(cx, cy):
+    def carve_passages_from(x, y):
+        stack = [(x, y)]
         d = [(0, -1), (0, 1), (-1, 0), (1, 0)]
-        random.shuffle(d)
-        for dx, dy in d:
-            nx, ny = cx + dx * 2, cy + dy * 2
-            if 0 <= nx < width and 0 <= ny < height and maze[ny][nx] == wall:
-                maze[ny][nx] = maze[cy + dy][cx + dx] = way
-                carve_passages_from(nx, ny)
+        while len(stack) >= 1:
+            cx, cy = stack.pop()
+            random.shuffle(d)
+            for dx, dy in d:
+                nx, ny = cx + dx * 2, cy + dy * 2
+                if 0 <= nx < width and 0 <= ny < height and maze[ny][nx] == wall:
+                    maze[ny][nx] = maze[cy + dy][cx + dx] = way
+                    stack.append((nx, ny))
 
     start_x = random.randrange(0, width)
     start_y = random.randrange(0, height)
