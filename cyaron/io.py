@@ -3,6 +3,7 @@ A module that provides a class IO to process the input and output files.
 Classes:
     IO: IO tool class. It will process the input and output files.
 """
+
 from __future__ import absolute_import
 import os
 import re
@@ -201,6 +202,10 @@ class IO:
                     self.is_first_char[file] = True
 
     def __write_list(self, file: IOBase, *args, **kwargs):
+        """
+        Write every element in *args into file. If the element isn't "\n", insert `separator`.
+        It will convert every element into str.
+        """
         separators = kwargs.get("separator", " ")
         if list_like(separators):
             if len(separators) == 0:
@@ -255,9 +260,26 @@ class IO:
         self.input_write(*args, **kwargs)
 
     def input_write_list(self, *args, **kwargs):
+        """
+        Write hith-dimensional lists in *args into the input file. Splits with `separator`.
+        It will convert every element into str.
+        Args:
+            *args: hith-dimensional lists to write
+            separator: a string or a string list used to separate every element in different
+                       dimension. Defaults to " ".
+        """
         self.__write_list(self.input_file, *args, **kwargs)
 
     def input_write_listln(self, *args, **kwargs):
+        """
+        Write hith-dimensional lists in *args into the input file and turn into a new line
+        Splits with `separator`.
+        It will convert every element into str.
+        Args:
+            *args: hith-dimensional lists to write
+            separator: a string or a string list used to separate every element in different
+                       dimension. Defaults to " ".
+        """
         self.input_write_list(*args, "\n", **kwargs)
 
     def input_clear_content(self, pos: int = 0):
@@ -330,9 +352,26 @@ class IO:
         self.output_write(*args, **kwargs)
 
     def output_write_list(self, *args, **kwargs):
+        """
+        Write hith-dimensional lists in *args into the output file. Splits with `separator`.
+        It will convert every element into str.
+        Args:
+            *args: hith-dimensional lists to write
+            separator: a string or a string list used to separate every element in different
+                       dimension. Defaults to " ".
+        """
         self.__write_list(self.output_file, *args, **kwargs)
 
     def output_write_listln(self, *args, **kwargs):
+        """
+        Write hith-dimensional lists in *args into the output file and turn into a new line
+        Splits with `separator`.
+        It will convert every element into str.
+        Args:
+            *args: hith-dimensional lists to write
+            separator: a string or a string list used to separate every element in different
+                       dimension. Defaults to " ".
+        """
         self.output_write_list(*args, "\n", **kwargs)
 
     def output_clear_content(self, pos: int = 0):
