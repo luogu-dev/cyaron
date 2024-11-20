@@ -200,6 +200,26 @@ class IO:
                 if arg == "\n":
                     self.is_first_char[file] = True
 
+    def __write_list(self, file: IOBase, *args, **kwargs):
+        separators = kwargs.get("separator", " ")
+        if list_like(separators):
+            if len(separators) == 0:
+                raise ValueError()
+            separator = make_unicode(separators[0])
+            separators = separators[1:]
+        else:
+            separator = separators = make_unicode(separators)
+        for arg in args:
+            if arg != "\n" and not self.is_first_char.get(file, True):
+                file.write(separator)
+            if list_like(arg):
+                self.__write_list(file, *arg, separator=separators)
+            else:
+                self.is_first_char[file] = False
+                file.write(make_unicode(arg))
+                if arg == "\n":
+                    self.is_first_char[file] = True
+
     def __clear(self, file: IOBase, pos: int = 0):
         """
         Clear the content use truncate()
@@ -233,6 +253,12 @@ class IO:
         args = list(args)
         args.append("\n")
         self.input_write(*args, **kwargs)
+
+    def input_write_list(self, *args, **kwargs):
+        self.__write_list(self.input_file, *args, **kwargs)
+
+    def input_write_listln(self, *args, **kwargs):
+        self.input_write_list(*args, "\n", **kwargs)
 
     def input_clear_content(self, pos: int = 0):
         """
@@ -302,6 +328,12 @@ class IO:
         args = list(args)
         args.append("\n")
         self.output_write(*args, **kwargs)
+
+    def output_write_list(self, *args, **kwargs):
+        self.__write_list(self.output_file, *args, **kwargs)
+
+    def output_write_listln(self, *args, **kwargs):
+        self.output_write_list(*args, "\n", **kwargs)
 
     def output_clear_content(self, pos: int = 0):
         """
