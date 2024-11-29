@@ -243,7 +243,9 @@ class IO:
 
         self.__clear(self.input_file, pos)
 
-    def output_gen(self, shell_cmd, time_limit=None):
+    def output_gen(
+        self, shell_cmd: str, time_limit: float = None, replace_EOL: bool = True
+    ):
         """
         Run the command `shell_cmd` (usually the std program) and send it the input file as stdin.
         Write its output to the output file.
@@ -251,30 +253,33 @@ class IO:
             shell_cmd: the command to run, usually the std program.
             time_limit: the time limit (seconds) of the command to run.
                 None means infinity. Defaults to None.
+            replace_EOL: Set whether to replace the end-of-line sequence with `'\\n'`.
+                Defaults to True.
         """
         if self.output_file is None:
             raise ValueError("Output file is disabled")
         self.flush_buffer()
         origin_pos = self.input_file.tell()
         self.input_file.seek(0)
-        if time_limit is not None:
-            subprocess.check_call(
-                shell_cmd,
-                shell=True,
-                timeout=time_limit,
-                stdin=self.input_file.fileno(),
-                stdout=self.output_file.fileno(),
-                universal_newlines=True,
-            )
-        else:
-            subprocess.check_call(
-                shell_cmd,
-                shell=True,
-                stdin=self.input_file.fileno(),
-                stdout=self.output_file.fileno(),
-                universal_newlines=True,
-            )
+
+        output_fileno = self.output_file.fileno()
+        if replace_EOL:
+            temp_outfile = tempfile.TemporaryFile("w+")
+            output_fileno = temp_outfile.fileno()
+
+        subprocess.check_call(
+            shell_cmd,
+            shell=True,
+            timeout=time_limit,
+            stdin=self.input_file.fileno(),
+            stdout=output_fileno,
+            universal_newlines=True,
+        )
         self.input_file.seek(origin_pos)
+
+        if replace_EOL:
+            temp_outfile.seek(0)
+            self.output_file.write(temp_outfile.read())
 
         log.debug(self.output_filename, " done")
 
