@@ -244,7 +244,7 @@ class IO:
         self.__clear(self.input_file, pos)
 
     def output_gen(
-        self, shell_cmd: str, time_limit: float = None, replace_EOL: bool = True
+        self, shell_cmd: str, time_limit: float = None, *, replace_EOL: bool = True
     ):
         """
         Run the command `shell_cmd` (usually the std program) and send it the input file as stdin.
@@ -279,7 +279,11 @@ class IO:
 
         if replace_EOL:
             temp_outfile.seek(0)
-            self.output_file.write(temp_outfile.read())
+            buf = temp_outfile.read(65536)
+            while buf != '':
+                self.output_file.write(buf)
+                buf = temp_outfile.read(65536)
+            temp_outfile.close()
 
         log.debug(self.output_filename, " done")
 
