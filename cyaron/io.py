@@ -8,7 +8,7 @@ import os
 import re
 import subprocess
 import tempfile
-from typing import Union, overload, Optional
+from typing import Union, overload, Optional, List
 from io import IOBase
 from . import log
 from .utils import list_like, make_unicode
@@ -244,7 +244,11 @@ class IO:
         self.__clear(self.input_file, pos)
 
     def output_gen(
-        self, shell_cmd: str, time_limit: float = None, *, replace_EOL: bool = True
+        self,
+        shell_cmd: Union[str, List[str]],
+        time_limit: float = None,
+        *,
+        replace_EOL: bool = True
     ):
         """
         Run the command `shell_cmd` (usually the std program) and send it the input file as stdin.
@@ -280,7 +284,7 @@ class IO:
         if replace_EOL:
             temp_outfile.seek(0)
             buf = temp_outfile.read(65536)
-            while buf != '':
+            while buf != "":
                 self.output_file.write(buf)
                 buf = temp_outfile.read(65536)
             temp_outfile.close()
