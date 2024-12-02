@@ -68,9 +68,9 @@ class TestIO(unittest.TestCase):
             with IO("test_gen.in", "test_gen.out") as test:
                 test.output_gen("echo 233")
 
-        with open("test_gen.out") as f:
+        with open("test_gen.out", "rb") as f:
             output = f.read()
-        self.assertEqual(output.strip("\n"), "233")
+        self.assertEqual(output.strip(b"\n"), b"233")
 
     def test_output_gen_time_limit_exceeded(self):
         time_limit_exceeded = False
