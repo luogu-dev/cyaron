@@ -9,6 +9,7 @@ import os
 import re
 import subprocess
 import tempfile
+import psutil
 from typing import Union, overload, Optional, List
 from io import IOBase
 from . import log
@@ -227,6 +228,22 @@ class IO:
         self.is_first_char[file] = True
         file.seek(pos)
 
+    @staticmethod
+    def _kill_process_and_children(pid: int):
+        try:
+            parent = psutil.Process(pid)
+            while True:
+                children = parent.children()
+                if not children:
+                    break
+                for child in children:
+                    IO._kill_process_and_children(child.pid)
+            parent.kill()
+        except psutil.NoSuchProcess:
+            pass
+        except psutil.AccessDenied:
+            pass
+
     def input_write(self, *args, **kwargs):
         """
         Write every element in *args into the input file. Splits with `separator`.
@@ -293,7 +310,8 @@ class IO:
         try:
             output, _ = proc.communicate(timeout=time_limit)
         except subprocess.TimeoutExpired:
-            proc.kill()
+            # proc.kill() # didn't work because `shell=True`.
+            self._kill_process_and_children(proc.pid)
             raise
         else:
             if replace_EOL:
