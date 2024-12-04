@@ -3,6 +3,7 @@ A module that provides a class IO to process the input and output files.
 Classes:
     IO: IO tool class. It will process the input and output files.
 """
+
 from __future__ import absolute_import
 import os
 import re
@@ -18,34 +19,37 @@ class IO:
     """IO tool class. It will process the input and output files."""
 
     @overload
-    def __init__(self,
-                 input_file: Optional[Union[IOBase, str, int]] = None,
-                 output_file: Optional[Union[IOBase, str, int]] = None,
-                 data_id: Optional[int] = None,
-                 disable_output: bool = False,
-                 make_dirs: bool = False):
-        ...
+    def __init__(
+        self,
+        input_file: Optional[Union[IOBase, str, int]] = None,
+        output_file: Optional[Union[IOBase, str, int]] = None,
+        data_id: Optional[int] = None,
+        disable_output: bool = False,
+        make_dirs: bool = False,
+    ): ...
 
     @overload
-    def __init__(self,
-                 data_id: Optional[int] = None,
-                 file_prefix: Optional[str] = None,
-                 input_suffix: str = '.in',
-                 output_suffix: str = '.out',
-                 disable_output: bool = False,
-                 make_dirs: bool = False):
-        ...
+    def __init__(
+        self,
+        data_id: Optional[int] = None,
+        file_prefix: Optional[str] = None,
+        input_suffix: str = ".in",
+        output_suffix: str = ".out",
+        disable_output: bool = False,
+        make_dirs: bool = False,
+    ): ...
 
     def __init__(  # type: ignore
-            self,
-            input_file: Optional[Union[IOBase, str, int]] = None,
-            output_file: Optional[Union[IOBase, str, int]] = None,
-            data_id: Optional[int] = None,
-            file_prefix: Optional[str] = None,
-            input_suffix: str = '.in',
-            output_suffix: str = '.out',
-            disable_output: bool = False,
-            make_dirs: bool = False):
+        self,
+        input_file: Optional[Union[IOBase, str, int]] = None,
+        output_file: Optional[Union[IOBase, str, int]] = None,
+        data_id: Optional[int] = None,
+        file_prefix: Optional[str] = None,
+        input_suffix: str = ".in",
+        output_suffix: str = ".out",
+        disable_output: bool = False,
+        make_dirs: bool = False,
+    ):
         """
         Args:
             input_file (optional): input file object or filename or file descriptor.
@@ -87,11 +91,12 @@ class IO:
         self.input_file, self.output_file = None, None
         if file_prefix is not None:
             # legacy mode
-            input_file = '{}{{}}{}'.format(self.__escape_format(file_prefix),
-                                           self.__escape_format(input_suffix))
-            output_file = '{}{{}}{}'.format(
-                self.__escape_format(file_prefix),
-                self.__escape_format(output_suffix))
+            input_file = "{}{{}}{}".format(
+                self.__escape_format(file_prefix), self.__escape_format(input_suffix)
+            )
+            output_file = "{}{{}}{}".format(
+                self.__escape_format(file_prefix), self.__escape_format(output_suffix)
+            )
         self.input_filename, self.output_filename = None, None
         self.__input_temp, self.__output_temp = False, False
         self.__init_file(input_file, data_id, "i", make_dirs)
@@ -101,9 +106,13 @@ class IO:
             self.output_file = None
         self.is_first_char = {}
 
-    def __init_file(self, f: Union[IOBase, str, int,
-                                   None], data_id: Union[int, None],
-                    file_type: str, make_dirs: bool):
+    def __init_file(
+        self,
+        f: Union[IOBase, str, int, None],
+        data_id: Union[int, None],
+        file_type: str,
+        make_dirs: bool,
+    ):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
             if file_type == "i":
@@ -112,8 +121,12 @@ class IO:
                 self.output_file = f
         elif isinstance(f, int):
             # consider ``f`` as a file descor
-            self.__init_file(open(f, 'w+', encoding="utf-8", newline='\n'),
-                             data_id, file_type, make_dirs)
+            self.__init_file(
+                open(f, "w+", encoding="utf-8", newline="\n"),
+                data_id,
+                file_type,
+                make_dirs,
+            )
         elif f is None:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
@@ -133,8 +146,11 @@ class IO:
             else:
                 self.output_filename = filename
             self.__init_file(
-                open(filename, 'w+', newline='\n', encoding='utf-8'), data_id,
-                file_type, make_dirs)
+                open(filename, "w+", newline="\n", encoding="utf-8"),
+                data_id,
+                file_type,
+                make_dirs,
+            )
 
     def __escape_format(self, st: str):
         """replace "{}" to "{{}}" """
@@ -266,28 +282,26 @@ class IO:
         origin_pos = self.input_file.tell()
         self.input_file.seek(0)
 
-        output_fileno = self.output_file.fileno()
-        if replace_EOL:
-            temp_outfile = tempfile.TemporaryFile("w+")
-            output_fileno = temp_outfile.fileno()
-
-        subprocess.check_call(
+        proc = subprocess.Popen(
             shell_cmd,
             shell=True,
-            timeout=time_limit,
-            stdin=self.input_file.fileno(),
-            stdout=output_fileno,
-            universal_newlines=True,
+            stdin=self.input_file,
+            stdout=subprocess.PIPE,
+            universal_newlines=replace_EOL,
         )
-        self.input_file.seek(origin_pos)
 
-        if replace_EOL:
-            temp_outfile.seek(0)
-            buf = temp_outfile.read(65536)
-            while buf != "":
-                self.output_file.write(buf)
-                buf = temp_outfile.read(65536)
-            temp_outfile.close()
+        try:
+            output, _ = proc.communicate(timeout=time_limit)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            raise
+        else:
+            if replace_EOL:
+                self.output_file.write(output)
+            else:
+                os.write(self.output_file.fileno(), output)
+        finally:
+            self.input_file.seek(origin_pos)
 
         log.debug(self.output_filename, " done")
 
