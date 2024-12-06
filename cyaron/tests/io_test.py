@@ -1,5 +1,7 @@
 import unittest
+import sys
 import os
+import time
 import shutil
 import tempfile
 import subprocess
@@ -73,33 +75,33 @@ class TestIO(unittest.TestCase):
         self.assertEqual(output.strip(b"\n"), b"233")
 
     def test_output_gen_time_limit_exceeded(self):
-        time_limit_exceeded = False
         with captured_output() as (out, err):
             with open("long_time.py", "w") as f:
-                f.write("import time\ntime.sleep(10)\nprint(1)")
+                f.write("import time, os\nfn = input()\ntime.sleep(0.5)\nos.remove(fn)\n")
 
-            try:
-                with IO("test_gen.in", "test_gen.out") as test:
-                    test.output_gen("python long_time.py", time_limit=1)
-            except subprocess.TimeoutExpired:
-                time_limit_exceeded = True
-        self.assertEqual(time_limit_exceeded, True)
+            with IO("test_gen.in", "test_gen.out") as test:
+                fd, input_filename = tempfile.mkstemp()
+                os.close(fd)
+                abs_input_filename: str = os.path.abspath(input_filename)
+                with self.assertRaises(subprocess.TimeoutExpired):
+                    test.input_writeln(abs_input_filename)
+                    test.output_gen(f'"{sys.executable}" long_time.py', time_limit=0.1)
+                time.sleep(0.5)
+                try:
+                    os.remove(input_filename)
+                except FileNotFoundError:
+                    raise RuntimeError("Child processes have not been terminated.") from None
 
     def test_output_gen_time_limit_not_exceeded(self):
-        time_limit_exceeded = False
         with captured_output() as (out, err):
             with open("short_time.py", "w") as f:
-                f.write("import time\ntime.sleep(0.2)\nprint(1)")
+                f.write("import time\ntime.sleep(0.1)\nprint(1)")
 
-            try:
-                with IO("test_gen.in", "test_gen.out") as test:
-                    test.output_gen("python short_time.py", time_limit=1)
-            except subprocess.TimeoutExpired:
-                time_limit_exceeded = True
+            with IO("test_gen.in", "test_gen.out") as test:
+                test.output_gen(f'"{sys.executable}" short_time.py', time_limit=0.5)
         with open("test_gen.out") as f:
             output = f.read()
         self.assertEqual(output.strip("\n"), "1")
-        self.assertEqual(time_limit_exceeded, False)
 
     def test_init_overload(self):
         with IO(file_prefix="data{", data_id=5) as test:
