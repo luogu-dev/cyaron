@@ -76,10 +76,12 @@ class TestIO(unittest.TestCase):
 
     def test_output_gen_time_limit_exceeded(self):
         with captured_output():
+            TIMEOUT = 0.02
+            WAIT_TIME = 0.4  # If the wait time is too short, an error may occur
             with open("long_time.py", "w", encoding="utf-8") as f:
                 f.write("import time, os\n"
                         "fn = input()\n"
-                        "time.sleep(0.1)\n"
+                        f"time.sleep({WAIT_TIME})\n"
                         "os.remove(fn)\n")
 
             with IO("test_gen.in", "test_gen.out") as test:
@@ -89,8 +91,8 @@ class TestIO(unittest.TestCase):
                 with self.assertRaises(subprocess.TimeoutExpired):
                     test.input_writeln(abs_input_filename)
                     test.output_gen(f'"{sys.executable}" long_time.py',
-                                    time_limit=0.05)
-                time.sleep(0.1)
+                                    time_limit=TIMEOUT)
+                time.sleep(WAIT_TIME)
                 try:
                     os.remove(input_filename)
                 except FileNotFoundError:
@@ -133,10 +135,7 @@ class TestIO(unittest.TestCase):
 
         mkdir_false = False
         try:
-            with IO(
-                    "./automkdir_false/data.in",
-                    "./automkdir_false/data.out",
-            ):
+            with IO("./automkdir_false/data.in", "./automkdir_false/data.out"):
                 pass
         except FileNotFoundError:
             mkdir_false = True

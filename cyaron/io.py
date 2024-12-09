@@ -7,10 +7,10 @@ Classes:
 from __future__ import absolute_import
 import os
 import re
+import signal
 import subprocess
 import tempfile
-import psutil
-from typing import Union, overload, Optional, List
+from typing import Union, overload, Optional, List, cast
 from io import IOBase
 from . import log
 from .utils import list_like, make_unicode
@@ -91,6 +91,7 @@ class IO:
             # if the dir "./io" not found it will be created
         """
         self.__closed = False
+        self.input_file = cast(IOBase, None)
         self.output_file = None
         if file_prefix is not None:
             # legacy mode
@@ -230,20 +231,13 @@ class IO:
         file.seek(pos)
 
     @staticmethod
-    def _kill_process_and_children(pid: int):
-        try:
-            parent = psutil.Process(pid)
-            while True:
-                children = parent.children()
-                if not children:
-                    break
-                for child in children:
-                    IO._kill_process_and_children(child.pid)
-            parent.kill()
-        except psutil.NoSuchProcess:
-            pass
-        except psutil.AccessDenied:
-            pass
+    def _kill_process_and_children(proc: subprocess.Popen):
+        if os.name == "posix":
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        elif os.name == "nt":
+            os.system(f"TASKKILL /F /T /PID {proc.pid} > nul")
+        else:
+            proc.kill()  # Not currently supported
 
     def input_write(self, *args, **kwargs):
         """
@@ -304,13 +298,14 @@ class IO:
             stdin=self.input_file.fileno(),
             stdout=subprocess.PIPE,
             universal_newlines=replace_EOL,
+            preexec_fn=os.setsid if os.name == "posix" else None,
         )
 
         try:
             output, _ = proc.communicate(timeout=time_limit)
         except subprocess.TimeoutExpired:
-            # proc.kill() # didn't work because `shell=True`.
-            self._kill_process_and_children(proc.pid)
+            # proc.kill()  # didn't work because `shell=True`.
+            self._kill_process_and_children(proc)
             raise
         else:
             if replace_EOL:
