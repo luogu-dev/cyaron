@@ -72,12 +72,15 @@ class TestIO(unittest.TestCase):
 
         with open("test_gen.out", "rb") as f:
             output = f.read()
-        self.assertEqual(output.strip(b"\n"), b"233")
+        self.assertEqual(output, b"233\n")
 
     def test_output_gen_time_limit_exceeded(self):
-        with captured_output() as (out, err):
-            with open("long_time.py", "w") as f:
-                f.write("import time, os\nfn = input()\ntime.sleep(0.5)\nos.remove(fn)\n")
+        with captured_output():
+            with open("long_time.py", "w", encoding="utf-8") as f:
+                f.write("import time, os\n"
+                        "fn = input()\n"
+                        "time.sleep(0.1)\n"
+                        "os.remove(fn)\n")
 
             with IO("test_gen.in", "test_gen.out") as test:
                 fd, input_filename = tempfile.mkstemp()
@@ -85,23 +88,27 @@ class TestIO(unittest.TestCase):
                 abs_input_filename: str = os.path.abspath(input_filename)
                 with self.assertRaises(subprocess.TimeoutExpired):
                     test.input_writeln(abs_input_filename)
-                    test.output_gen(f'"{sys.executable}" long_time.py', time_limit=0.1)
-                time.sleep(0.5)
+                    test.output_gen(f'"{sys.executable}" long_time.py',
+                                    time_limit=0.05)
+                time.sleep(0.1)
                 try:
                     os.remove(input_filename)
                 except FileNotFoundError:
-                    raise RuntimeError("Child processes have not been terminated.") from None
+                    self.fail("Child processes have not been terminated.")
 
     def test_output_gen_time_limit_not_exceeded(self):
-        with captured_output() as (out, err):
-            with open("short_time.py", "w") as f:
-                f.write("import time\ntime.sleep(0.1)\nprint(1)")
+        with captured_output():
+            with open("short_time.py", "w", encoding="utf-8") as f:
+                f.write("import time\n"
+                        "time.sleep(0.1)\n"
+                        "print(1)")
 
             with IO("test_gen.in", "test_gen.out") as test:
-                test.output_gen(f'"{sys.executable}" short_time.py', time_limit=0.5)
-        with open("test_gen.out") as f:
+                test.output_gen(f'"{sys.executable}" short_time.py',
+                                time_limit=0.5)
+        with open("test_gen.out", encoding="utf-8") as f:
             output = f.read()
-        self.assertEqual(output.strip("\n"), "1")
+        self.assertEqual(output, "1\n")
 
     def test_init_overload(self):
         with IO(file_prefix="data{", data_id=5) as test:

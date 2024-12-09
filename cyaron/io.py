@@ -27,7 +27,8 @@ class IO:
         data_id: Optional[int] = None,
         disable_output: bool = False,
         make_dirs: bool = False,
-    ): ...
+    ):
+        ...
 
     @overload
     def __init__(
@@ -38,7 +39,8 @@ class IO:
         output_suffix: str = ".out",
         disable_output: bool = False,
         make_dirs: bool = False,
-    ): ...
+    ):
+        ...
 
     def __init__(  # type: ignore
         self,
@@ -89,15 +91,14 @@ class IO:
             # if the dir "./io" not found it will be created
         """
         self.__closed = False
-        self.input_file, self.output_file = None, None
+        self.output_file = None
         if file_prefix is not None:
             # legacy mode
-            input_file = "{}{{}}{}".format(
-                self.__escape_format(file_prefix), self.__escape_format(input_suffix)
-            )
+            input_file = "{}{{}}{}".format(self.__escape_format(file_prefix),
+                                           self.__escape_format(input_suffix))
             output_file = "{}{{}}{}".format(
-                self.__escape_format(file_prefix), self.__escape_format(output_suffix)
-            )
+                self.__escape_format(file_prefix),
+                self.__escape_format(output_suffix))
         self.input_filename, self.output_filename = None, None
         self.__input_temp, self.__output_temp = False, False
         self.__init_file(input_file, data_id, "i", make_dirs)
@@ -276,13 +277,11 @@ class IO:
 
         self.__clear(self.input_file, pos)
 
-    def output_gen(
-        self,
-        shell_cmd: Union[str, List[str]],
-        time_limit: float = None,
-        *,
-        replace_EOL: bool = True
-    ):
+    def output_gen(self,
+                   shell_cmd: Union[str, List[str]],
+                   time_limit: Optional[float] = None,
+                   *,
+                   replace_EOL: bool = True):
         """
         Run the command `shell_cmd` (usually the std program) and send it the input file as stdin.
         Write its output to the output file.
@@ -302,7 +301,7 @@ class IO:
         proc = subprocess.Popen(
             shell_cmd,
             shell=True,
-            stdin=self.input_file,
+            stdin=self.input_file.fileno(),
             stdout=subprocess.PIPE,
             universal_newlines=replace_EOL,
         )
@@ -354,6 +353,8 @@ class IO:
         Args:
             pos: Where file will truncate
         """
+        if self.output_file is None:
+            raise ValueError("Output file is disabled")
         self.__clear(self.output_file, pos)
 
     def flush_buffer(self):
