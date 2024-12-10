@@ -1,9 +1,10 @@
 from .utils import *
 from .vector import Vector
 import random
-from typing import TypeVar, Callable
+import itertools
+from typing import Dict, Iterable, List, Tuple, TypeVar, Callable, Union
 
-__all__ = ["Edge", "Graph"]
+__all__ = ["Edge", "Graph", "SwitchGraph"]
 
 
 class Edge:
@@ -32,6 +33,90 @@ class Edge:
             Return a string to output the edge without weight. The string contains the start vertex, end vertex(u,v) and splits with space.
         """
         return '%d %d' % (edge.start, edge.end)
+
+
+class SwitchGraph:
+    """A graph which can switch edges quickly
+    """
+    directed: bool
+    __edges: Dict[Tuple[int, int], int]
+
+    def get_edges(self):
+        ret: List[Tuple[int, int]] = []
+        for k in self.__edges:
+            ret.extend(itertools.repeat(k, self.__edges[k]))
+        return ret
+
+    def __insert(self, u: int, v: int):
+        if (u, v) not in self.__edges:
+            self.__edges[(u, v)] = 0
+        self.__edges[(u, v)] += 1
+
+    def __remove(self, u: int, v: int):
+        self.__edges[(u, v)] -= 1
+        if self.__edges[(u, v)] == 0:
+            self.__edges.pop((u, v))
+
+    def insert(self, u: int, v: int):
+        """Add edge (u, v)
+        """
+        self.__insert(u, v)
+        if not self.directed and u != v:
+            self.__insert(v, u)
+
+    def remove(self, u: int, v: int):
+        """Remove edge (u, v)
+        """
+        self.__remove(u, v)
+        if not self.directed and u != v:
+            self.__remove(v, u)
+
+    def __init__(self,
+                 E: Iterable[Union[Edge, Tuple[int, int]]],
+                 directed: bool = True):
+        self.directed = directed
+        self.__edges = {}
+        for e in E:
+            if isinstance(e, Edge):
+                self.__insert(e.start, e.end)
+            else:
+                self.__insert(e[0], e[1])
+
+    def switch(self, *, self_loop: bool = False, repeated_edges: bool = False):
+        """Mutates the current directed graph by swapping pairs of edges, without impacting the degree sequence.
+
+        A switch is a general term for a small change in the structure of a graph, achieved by swapping small numbers
+        of edges.
+
+        Returns:
+            If a switch was performed, then return True. If the switch was rejected, then return False.
+        """
+        first, second = random.choices(list(self.__edges.keys()),
+                                       list(self.__edges.values()),
+                                       k=2)
+        x1, y1 = first
+        x2, y2 = second
+
+        if self_loop:
+            if x1 == x2 or y1 == y2:
+                return False
+        else:
+            if {x1, y1} & {x2, y2} != set():
+                return False
+
+        if repeated_edges:
+            if (x1, y2) in self.__edges or (x2, y1) in self.__edges:
+                return False
+
+        self.remove(x1, y1)
+        self.insert(x1, y2)
+        self.remove(x2, y2)
+        self.insert(x2, y1)
+
+        return True
+
+    def __iter__(self):
+        return iter(self.__edges)
 
 
 class Graph:
