@@ -2,7 +2,7 @@ from .utils import *
 from .vector import Vector
 import random
 import itertools
-from typing import Dict, Iterable, List, Tuple, TypeVar, Callable, Union
+from typing import Callable, Dict, Iterable, List, Sequence, Tuple, TypeVar, Union, cast
 
 __all__ = ["Edge", "Graph", "SwitchGraph"]
 
@@ -114,6 +114,53 @@ class SwitchGraph:
         self.insert(x2, y1)
 
         return True
+
+    @staticmethod
+    def from_directed_degree_sequence(
+            degree_sequence: Sequence[Tuple[int, int]],
+            start_id: int = 1,
+            *,
+            self_loop: bool = False,
+            repeated_edges: bool = False) -> "SwitchGraph":
+        if any(x < 0 or y < 0 for (x, y) in degree_sequence):
+            raise ValueError("Degree sequence is not graphical.")
+
+        x, y = zip(*degree_sequence)
+        if sum(x) != sum(y):
+            raise ValueError("Degree sequence is not graphical.")
+
+        ret = SwitchGraph((), True)
+
+        if len(degree_sequence) == 0:
+            return ret
+
+        degseq = [[sout, sin, vn]
+                  for vn, (sin, sout) in enumerate(degree_sequence, start_id)]
+        degseq.sort(reverse=True)
+
+        try:
+            while max(s[1] for s in degseq) > 0:
+                kk = [i for i in range(len(degseq)) if degseq[i][1] > 0]
+                _, in_deg, vto = degseq[kk[0]]
+                degseq[kk[0]][1] = 0
+                j = 0
+                while in_deg:
+                    _, _, vfrom = degseq[j]
+                    if vto == vfrom and not self_loop:
+                        j += 1
+                        _, _, vfrom = degseq[j]
+                    while in_deg and degseq[j][0]:
+                        in_deg -= 1
+                        degseq[j][0] -= 1
+                        ret.insert(vfrom, vto)
+                        if not repeated_edges:
+                            break
+                    j += 1
+                degseq.sort(reverse=True)
+        except IndexError:
+            raise ValueError("Degree sequence is not graphical.")
+
+        return ret
 
     def __iter__(self):
         return iter(self.__edges)
