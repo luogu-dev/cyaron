@@ -44,8 +44,9 @@ class SwitchGraph:
     def get_edges(self):
         ret: List[Tuple[int, int]] = []
         for k in self.__edges:
-            ret.extend(itertools.repeat(k, self.__edges[k]))
-        return ret
+            if self.directed or k[0] <= k[1]:
+                ret.extend(itertools.repeat(k, self.__edges[k]))
+        return sorted(ret)
 
     def __insert(self, u: int, v: int):
         if (u, v) not in self.__edges:
@@ -78,9 +79,9 @@ class SwitchGraph:
         self.__edges = {}
         for e in E:
             if isinstance(e, Edge):
-                self.__insert(e.start, e.end)
+                self.insert(e.start, e.end)
             else:
-                self.__insert(e[0], e[1])
+                self.insert(e[0], e[1])
 
     def switch(self, *, self_loop: bool = False, repeated_edges: bool = False):
         """Mutates the current directed graph by swapping pairs of edges, without impacting the degree sequence.
@@ -94,8 +95,8 @@ class SwitchGraph:
         first, second = random.choices(list(self.__edges.keys()),
                                        list(self.__edges.values()),
                                        k=2)
-        x1, y1 = first
-        x2, y2 = second
+        x1, y1 = first if self.directed else sorted(first)
+        x2, y2 = second if self.directed else sorted(second)
 
         if self_loop:
             if x1 == x2 or y1 == y2:
@@ -161,6 +162,51 @@ class SwitchGraph:
             raise ValueError("Degree sequence is not graphical.")
 
         return ret
+
+    @staticmethod
+    def from_undirected_degree_sequence(
+            degree_sequence: Sequence[int],
+            start_id: int = 1,
+            *,
+            self_loop: bool = False,
+            repeated_edges: bool = False) -> "SwitchGraph":
+        if any(x < 0 for x in degree_sequence):
+            raise ValueError("Degree sequence is not graphical.")
+
+        if sum(degree_sequence) % 2 != 0:
+            raise ValueError("Degree sequence is not graphical.")
+
+        if len(degree_sequence) == 0:
+            return SwitchGraph((), False)
+
+        degseq = [[deg, i] for i, deg in enumerate(degree_sequence, start_id)]
+        degseq.sort(reverse=True)
+
+        edges: List[Tuple[int, int]] = []
+        try:
+            while len(edges) * 2 < sum(degree_sequence):
+                deg, x = degseq[0]
+                degseq[0][0] = 0
+                if self_loop:
+                    while deg > 1:
+                        deg -= 2
+                        edges.append((x, x))
+                        if not repeated_edges:
+                            break
+                y = 1
+                while deg:
+                    while deg and degseq[y][0]:
+                        deg -= 1
+                        degseq[y][0] -= 1
+                        edges.append((x, degseq[y][1]))
+                        if not repeated_edges:
+                            break
+                    y += 1
+                degseq.sort(reverse=True)
+        except IndexError:
+            raise ValueError("Degree sequence is not graphical.")
+
+        return SwitchGraph(edges, False)
 
     def __iter__(self):
         return iter(self.__edges)
