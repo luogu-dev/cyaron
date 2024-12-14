@@ -5,3 +5,4 @@ from .polygon_test import TestPolygon
 from .compare_test import TestCompare
 from .graph_test import TestGraph
 from .vector_test import TestVector
+from .range_query_test import TestRangeQuery
