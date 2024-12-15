@@ -27,7 +27,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_allow_equal_v1(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [1000])  # n1, n2 ...
+        limits = Vector.random(dimension, [(1, 1000)])  # n1, n2 ...
         Q = RangeQuery.random(10**5, limits)
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
@@ -37,7 +37,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_allow_equal_v2_throw(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [1000, 1000])  # n1, n2 ...
+        limits = Vector.random(dimension, [(1, 1000), (1, 1000)])  # n1, n2 ...
         conflict = False
         for i in range(dimension):
             conflict = conflict or limits[i][0] > limits[i][1]
@@ -56,7 +56,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_allow_equal_v2_no_throw(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [1000, 1000])  # n1, n2 ...
+        limits = Vector.random(dimension, [(1, 1000), (1, 1000)])  # n1, n2 ...
         for i in range(dimension):
             if limits[i][0] > limits[i][1]:
                 limits[i][0], limits[i][1] = limits[i][1], limits[i][0]
@@ -69,7 +69,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_less_v1(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [1000])  # n1, n2 ...
+        limits = Vector.random(dimension, [(1, 1000)])  # n1, n2 ...
         Q = RangeQuery.random(10**5, limits, RangeQueryRandomMode.less)
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
@@ -79,7 +79,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_less_v2_throw(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [1000, 1000])  # n1, n2 ...
+        limits = Vector.random(dimension, [(1, 1000), (1, 1000)])  # n1, n2 ...
         conflict = False
         for i in range(dimension):
             conflict = conflict or limits[i][0] >= limits[i][1]
@@ -98,7 +98,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_less_v2_no_throw(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [1000, 1000])  # n1, n2 ...
+        limits = Vector.random(dimension, [(1, 1000), (1, 1000)])  # n1, n2 ...
         for i in range(dimension):
             while limits[i][0] == limits[i][1]:
                 limits[i][0] = random.randint(1, 1000)
