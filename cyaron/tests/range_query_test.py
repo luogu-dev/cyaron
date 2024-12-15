@@ -24,6 +24,7 @@ def valid_query(l, r, mode: RangeQueryRandomMode, limits) -> bool:
 
 
 class TestRangeQuery(unittest.TestCase):
+
     def test_allow_equal_v1(self):
         dimension = random.randint(1, 10)
         limits = Vector.random(dimension, [1000])  # n1, n2 ...
@@ -31,8 +32,8 @@ class TestRangeQuery(unittest.TestCase):
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
             self.assertTrue(
-                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal, limits)
-            )
+                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal,
+                            limits))
 
     def test_allow_equal_v2_throw(self):
         dimension = random.randint(1, 10)
@@ -46,10 +47,8 @@ class TestRangeQuery(unittest.TestCase):
             self.assertEqual(len(Q), 10**5)
             for i in range(10**5):
                 self.assertTrue(
-                    valid_query(
-                        Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal, limits
-                    )
-                )
+                    valid_query(Q[i][0], Q[i][1],
+                                RangeQueryRandomMode.allow_equal, limits))
         except:
             throw = True
 
@@ -65,8 +64,8 @@ class TestRangeQuery(unittest.TestCase):
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
             self.assertTrue(
-                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal, limits)
-            )
+                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal,
+                            limits))
 
     def test_less_v1(self):
         dimension = random.randint(1, 10)
@@ -75,8 +74,8 @@ class TestRangeQuery(unittest.TestCase):
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
             self.assertTrue(
-                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less, limits)
-            )
+                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
+                            limits))
 
     def test_less_v2_throw(self):
         dimension = random.randint(1, 10)
@@ -90,8 +89,8 @@ class TestRangeQuery(unittest.TestCase):
             self.assertEqual(len(Q), 10**5)
             for i in range(10**5):
                 self.assertTrue(
-                    valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less, limits)
-                )
+                    valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
+                                limits))
         except:
             throw = True
 
@@ -110,5 +109,5 @@ class TestRangeQuery(unittest.TestCase):
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
             self.assertTrue(
-                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less, limits)
-            )
+                valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
+                            limits))

@@ -70,8 +70,10 @@ class RangeQuery:
                 cur_range = position_range[i]
 
             if cur_range[0] > cur_range[1]:
-                raise ValueError("upper-bound should be larger than lower-bound")
-            if mode == RangeQueryRandomMode.less and cur_range[0] == cur_range[1]:
+                raise ValueError(
+                    "upper-bound should be larger than lower-bound")
+            if mode == RangeQueryRandomMode.less and cur_range[0] == cur_range[
+                    1]:
                 raise ValueError(
                     "mode is set to less but upper-bound is equal to lower-bound"
                 )
