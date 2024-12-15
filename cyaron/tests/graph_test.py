@@ -225,3 +225,18 @@ class TestGraph(unittest.TestCase):
                 if dsu.get_father(i) == i:
                     count += 1
             self.assertEqual(count, part_count)
+
+    def test_from_undirected_degree_sequence(self):
+        get_deg_seq = lambda g: tuple(map(len, g.edges[1:]))
+        g1 = Graph.from_degree_sequence((2, 2, 1, 1, 1, 1))
+        self.assertEqual(get_deg_seq(g1), (2, 2, 1, 1, 1, 1))
+        for _ in range(8):
+            g0 = Graph.graph(
+                100, 400, directed=False, self_loop=False, repeated_edges=False
+            )
+            dsq = get_deg_seq(g0)
+            g1 = Graph.from_degree_sequence(dsq)
+        with self.assertRaises(ValueError):
+            Graph.from_degree_sequence((6, 6, 6))
+        with self.assertRaises(ValueError):
+            Graph.from_degree_sequence((1, 1, 1))
