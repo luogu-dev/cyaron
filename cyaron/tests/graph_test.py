@@ -236,7 +236,31 @@ class TestGraph(unittest.TestCase):
             )
             dsq = get_deg_seq(g0)
             g1 = Graph.from_degree_sequence(dsq)
+            self.assertEqual(get_deg_seq(g1), dsq)
         with self.assertRaises(ValueError):
             Graph.from_degree_sequence((6, 6, 6))
         with self.assertRaises(ValueError):
             Graph.from_degree_sequence((1, 1, 1))
+
+    def test_from_directed_degree_sequence(self):
+        def get_deg_seq(g: Graph):
+            cnt = len(g.edges) - 1
+            indeg, outdeg = [0] * cnt, [0] * cnt
+            for edge in g.iterate_edges():
+                indeg[edge.end - 1] += 1
+                outdeg[edge.start - 1] += 1
+            return tuple(zip(indeg, outdeg))
+
+        g1 = Graph.from_degree_sequence(((1, 2), (1, 1), (1, 0)))
+        self.assertEqual(get_deg_seq(g1), ((1, 2), (1, 1), (1, 0)))
+
+        for _ in range(8):
+            g0 = Graph.graph(
+                100, 400, directed=True, self_loop=False, repeated_edges=False
+            )
+            dsq = get_deg_seq(g0)
+            g1 = Graph.from_degree_sequence(dsq)
+            self.assertEqual(get_deg_seq(g1), dsq)
+
+        with self.assertRaises(ValueError):
+            Graph.from_degree_sequence(((2, 1), (0, 1)))
