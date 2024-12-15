@@ -49,7 +49,7 @@ class RangeQuery:
             l_to_str = [str(x) for x in l]
             r_to_str = [str(x) for x in r]
             res += ' '.join(l_to_str) + ' ' + ' '.join(r_to_str) + '\n'
-        return res
+        return res[:-1]  # remove the last '\n'
 
     @staticmethod
     def random(
