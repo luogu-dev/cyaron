@@ -240,10 +240,7 @@ class Graph:
         """edge_count(self) -> int
             Return the count of the edges in the graph.
         """
-        cnt = sum(len(node) for node in self.edges)
-        if not self.directed:
-            cnt //= 2
-        return cnt
+        return len(list(self.iterate_edges()))
 
     def to_matrix(self, **kwargs):
         """to_matrix(self, **kwargs) -> GraphMatrix
