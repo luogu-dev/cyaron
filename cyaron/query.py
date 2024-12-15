@@ -25,32 +25,58 @@ class RangeQueryRandomMode(IntEnum):
 
 class RangeQuery:
     """A class for generating random queries."""
+    result: List[Tuple[List[int], List[int]]]
+
+    def __init__(self):
+        self.result = []
+
+    def __len__(self):
+        return len(self.result)
+
+    def __getitem__(self, item):
+        return self.result[item]
+
+    def __str__(self):
+        """__str__(self) -> str
+            Return a string to output the queries. 
+            The string contains all the queries with l and r in a row, splits with "\\n".
+        """
+        return self.to_str()
+
+    def to_str(self):
+        res = ''
+        for l, r, in self.result:
+            l_to_str = [str(x) for x in l]
+            r_to_str = [str(x) for x in r]
+            res += ' '.join(l_to_str) + ' ' + ' '.join(r_to_str) + '\n'
+        return res
 
     @staticmethod
     def random(
         num: int = 1,
         position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
         mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
-    ) -> List[Tuple[List[int], List[int]]]:
-        """
-        Generate `num` random queries with dimension limit.
-        Args:
-            num: the number of queries
-            position_range: a list of limits for each dimension
-                single number x represents range [1, x]
-                list [x, y] or tuple (x, y) represents range [x, y]
-            mode: the mode queries generate, see Enum Class RangeQueryRandomMode
+    ):
+        """random(num, position_range, mode) -> RangeQuery
+            Generate `num` random queries with dimension limit.
+            Args:
+                num: the number of queries
+                position_range: a list of limits for each dimension
+                    single number x represents range [1, x]
+                    list [x, y] or tuple (x, y) represents range [x, y]
+                mode: the mode queries generate, see Enum Class RangeQueryRandomMode
         """
         if position_range is None:
             position_range = [10]
 
+        ret = RangeQuery()
+
         if not list_like(position_range):
             raise TypeError("the 2nd param must be a list or tuple")
 
-        result: List[Tuple[List[int], List[int]]] = []
         for _ in range(num):
-            result.append(RangeQuery.get_one_query(position_range, mode))
-        return result
+            ret.result.append(RangeQuery.get_one_query(position_range, mode))
+        return ret
 
     @staticmethod
     def get_one_query(
