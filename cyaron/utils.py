@@ -9,6 +9,8 @@ __all__ = [
     "strtolines",
     "make_unicode",
     "unpack_kwargs",
+    "get_seed_from_argv",
+    "set_seed_from_argv"
 ]
 
 
