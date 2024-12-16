@@ -1,67 +1,71 @@
-def ati(array):
-    """ati(array) -> list
-        Convert all the elements in the array and return them in a list.
-    """
+from typing import cast, Any, Dict, Iterable, Tuple, Union
+
+__all__ = [
+    "ati",
+    "list_like",
+    "int_like",
+    "strtolines",
+    "make_unicode",
+    "unpack_kwargs",
+]
+
+
+def ati(array: Iterable[Any]):
+    """Convert all the elements in the array and return them in a list."""
     return [int(i) for i in array]
 
 
-def list_like(data):
-    """list_like(data) -> bool
-        Judge whether the object data is like a list or a tuple.
-        object data -> the data to judge
-    """
+def list_like(data: Any):
+    """Judge whether the object data is like a list or a tuple."""
     return isinstance(data, (tuple, list))
 
 
-def int_like(data):
-    isint = False
-    try:
-        isint = isint or isinstance(data, long)
-    except NameError:
-        pass
-    isint = isint or isinstance(data, int)
-    return isint
+def int_like(data: Any):
+    """Judge whether the object data is like a int."""
+    return isinstance(data, int)
 
 
-def strtolines(str):
-    lines = str.split('\n')
+def strtolines(string: str):
+    """
+    Split the string by the newline character, remove trailing spaces from each line,
+    and remove any blank lines at the end of the the string.
+    """
+    lines = string.split("\n")
     for i in range(len(lines)):
         lines[i] = lines[i].rstrip()
 
-    while len(lines) > 0 and len(lines[len(lines) - 1]) == 0:
-        del lines[len(lines) - 1]
+    while len(lines) > 0 and len(lines[-1]) == 0:
+        lines.pop()
     return lines
 
 
-def make_unicode(data):
+def make_unicode(data: Any):
+    """Convert the data to a string."""
     return str(data)
 
 
-def unpack_kwargs(funcname, kwargs, arg_pattern):
+def unpack_kwargs(
+    funcname: str,
+    kwargs: Dict[str, Any],
+    arg_pattern: Iterable[Union[str, Tuple[str, Any]]],
+):
+    """Parse the keyword arguments."""
     rv = {}
     kwargs = kwargs.copy()
     for tp in arg_pattern:
         if list_like(tp):
-            k, v = tp
-            rv[k] = kwargs.get(k, v)
-            try:
-                del kwargs[k]
-            except KeyError:
-                pass
+            k, v = cast(Tuple[str, Any], tp)
+            rv[k] = kwargs.pop(k, v)
         else:
-            error = False
+            tp = cast(str, tp)
             try:
-                rv[tp] = kwargs[tp]
-                del kwargs[tp]
-            except KeyError as e:
-                error = True
-            if error:
+                rv[tp] = kwargs.pop(tp)
+            except KeyError:
                 raise TypeError(
-                    '{}() missing 1 required keyword-only argument: \'{}\''.
-                    format(funcname, tp))
+                    f"{funcname}() missing 1 required keyword-only argument: '{tp}'"
+                )
     if kwargs:
         raise TypeError(
-            '{}() got an unexpected keyword argument \'{}\''.format(
-                funcname,
-                next(iter(kwargs.items()))[0]))
+            f"{funcname}() got an unexpected keyword argument '{next(iter(kwargs.items()))[0]}'"
+        )
     return rv
