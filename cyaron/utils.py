@@ -3,14 +3,8 @@ import random
 from typing import List, Optional, cast, Any, Dict, Iterable, Tuple, Union
 
 __all__ = [
-    "ati",
-    "list_like",
-    "int_like",
-    "strtolines",
-    "make_unicode",
-    "unpack_kwargs",
-    "get_seed_from_argv",
-    "set_seed_from_argv"
+    "ati", "list_like", "int_like", "strtolines", "make_unicode",
+    "unpack_kwargs", "get_seed_from_argv", "set_seed_from_argv"
 ]
 
 
@@ -35,7 +29,7 @@ def strtolines(string: str):
     and remove any blank lines at the end of the the string.
     """
     lines = string.split("\n")
-    for i in range(len(lines)):
+    for i, _ in enumerate(lines):
         lines[i] = lines[i].rstrip()
 
     while len(lines) > 0 and len(lines[-1]) == 0:
@@ -67,7 +61,7 @@ def unpack_kwargs(
             except KeyError:
                 raise TypeError(
                     f"{funcname}() missing 1 required keyword-only argument: '{tp}'"
-                )
+                ) from None
     if kwargs:
         raise TypeError(
             f"{funcname}() got an unexpected keyword argument '{next(iter(kwargs.items()))[0]}'"
