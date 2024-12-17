@@ -44,6 +44,10 @@ class RangeQuery:
         return self.to_str()
 
     def to_str(self):
+        """
+        Return a string to output the queries. 
+        The string contains all the queries with l and r in a row, splits with "\\n".
+        """
         res = ''
         for l, r, in self.result:
             l_to_str = [str(x) for x in l]
@@ -57,14 +61,14 @@ class RangeQuery:
         position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
         mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
     ):
-        """random(num, position_range, mode) -> RangeQuery
-            Generate `num` random queries with dimension limit.
-            Args:
-                num: the number of queries
-                position_range: a list of limits for each dimension
-                    single number x represents range [1, x]
-                    list [x, y] or tuple (x, y) represents range [x, y]
-                mode: the mode queries generate, see Enum Class RangeQueryRandomMode
+        """
+        Generate `num` random queries with dimension limit.
+        Args:
+            num: the number of queries
+            position_range: a list of limits for each dimension
+                single number x represents range [1, x]
+                list [x, y] or tuple (x, y) represents range [x, y]
+            mode: the mode queries generate, see Enum Class RangeQueryRandomMode
         """
         if position_range is None:
             position_range = [10]
@@ -83,6 +87,23 @@ class RangeQuery:
         position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
         mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
     ) -> Tuple[List[int], List[int]]:
+        """
+        Generate a pair of query lists (query_l, query_r) based on the given position ranges and mode.
+        Args:
+            position_range (Optional[List[Union[int, Tuple[int, int]]]]): A list of position ranges. Each element can be:
+                - An integer, which will be treated as a range from 1 to that integer.
+                - A tuple of two integers, representing the lower and upper bounds of the range.
+            mode (RangeQueryRandomMode): The mode for generating the queries. It can be:
+                - RangeQueryRandomMode.allow_equal: Allow the generated l and r to be equal.
+                - RangeQueryRandomMode.less: Ensure that l and r are not equal.
+        Returns:
+            Tuple[List[int], List[int]]: A tuple containing two lists:
+                - query_l: A list of starting positions.
+                - query_r: A list of ending positions.
+        Raises:
+            ValueError: If the upper-bound is smaller than the lower-bound.
+            ValueError: If the mode is set to less but the upper-bound is equal to the lower-bound.
+        """
         dimension = len(position_range)
         query_l: List[int] = []
         query_r: List[int] = []
