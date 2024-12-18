@@ -12,10 +12,12 @@ from cyaron.output_capture import captured_output
 class TestIO(unittest.TestCase):
 
     def setUp(self):
+        self.original_directory = os.getcwd()
         self.temp_directory = tempfile.mkdtemp()
         os.chdir(self.temp_directory)
 
     def tearDown(self):
+        os.chdir(self.original_directory)
         try:
             shutil.rmtree(self.temp_directory)
         except:
