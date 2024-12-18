@@ -1,10 +1,11 @@
+"""Some utility functions."""
 import sys
 import random
-from typing import List, Optional, cast, Any, Dict, Iterable, Tuple, Union
+from typing import cast, Any, Dict, Iterable, Tuple, Union
 
 __all__ = [
     "ati", "list_like", "int_like", "strtolines", "make_unicode",
-    "unpack_kwargs", "get_seed_from_argv", "set_seed_from_argv"
+    "unpack_kwargs", "process_args"
 ]
 
 
@@ -69,22 +70,12 @@ def unpack_kwargs(
     return rv
 
 
-def get_seed_from_argv(argv: Optional[List[str]] = None):
+def process_args():
     """
-    Calculate a random seed from the command-line arguments,
-    referencing the implementation of `testlib.h`, but with differing behavior.
-
-    https://github.com/MikeMirzayanov/testlib/blob/9ecb11126c16caeda2ba375e0084b3ddd03d4ace/testlib.h#L800
+    Process the command line arguments.
+    Now we support:
+        - randseed: set the random seed
     """
-    seed = 3905348978240129619
-    for s in sys.argv[1:] if argv is None else argv:
-        for c in s:
-            seed = seed * 0x5DEECE66D + ord(c) + 0xB
-            seed &= 0xFFFFFFFFFFFF
-        seed += 0x88A12C38
-    return seed & 0xFFFFFFFFFFFF
-
-
-def set_seed_from_argv(argv: Optional[List[str]] = None, version: int = 2):
-    """Set the random seed from the command-line arguments."""
-    random.seed(get_seed_from_argv(argv), version)
+    for s in sys.argv:
+        if s.startswith("--randseed="):
+            random.seed(s.split("=")[1])
