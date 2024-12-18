@@ -11,6 +11,7 @@ from cyaron.compare import CompareMismatch
 
 log.set_verbose()
 
+
 class TestCompare(unittest.TestCase):
 
     def setUp(self):

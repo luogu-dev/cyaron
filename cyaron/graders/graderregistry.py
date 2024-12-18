@@ -2,6 +2,7 @@ class GraderRegistry:
     _registry = dict()
 
     def grader(self, name):
+
         def wrapper(func):
             self._registry[name] = func
             return func

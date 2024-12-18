@@ -6,7 +6,8 @@ import math
 
 
 class Polygon:
-    def __init__(self,points=[]):
+
+    def __init__(self, points=[]):
         if not list_like(points):
             raise Exception("polygon must be constructed by a list of points")
         self.points = points
@@ -110,21 +111,27 @@ class Polygon:
         if len(points) <= 2:
             return points
         if len(points) == 3:
-            (points[1],points[2])=(points[2],points[1])
+            (points[1], points[2]) = (points[2], points[1])
             return points
         divide_id = random.randint(2, len(points) - 1)
         divide_point1 = points[divide_id]
         divide_k = random.uniform(0.01, 0.99)
-        divide_point2 = [divide_k * (points[1][0] - points[0][0]) + points[0][0],
-                         divide_k * (points[1][1] - points[0][1]) + points[0][1]]
+        divide_point2 = [
+            divide_k * (points[1][0] - points[0][0]) + points[0][0],
+            divide_k * (points[1][1] - points[0][1]) + points[0][1]
+        ]
         # path: points[0]->points[divide]->points[1]
         # dividing line in the form Ax+By+C=0
-        divide_line = [divide_point2[1] - divide_point1[1],
-                       divide_point1[0] - divide_point2[0],
-                       -divide_point1[0] * divide_point2[1]
-                       + divide_point1[1] * divide_point2[0]]
-        p0 = (divide_line[0] * points[0][0] + divide_line[1] * points[0][1] + divide_line[2] >= 0)
-        p1 = (divide_line[0] * points[1][0] + divide_line[1] * points[1][1] + divide_line[2] >= 0)
+        divide_line = [
+            divide_point2[1] - divide_point1[1],
+            divide_point1[0] - divide_point2[0],
+            -divide_point1[0] * divide_point2[1] +
+            divide_point1[1] * divide_point2[0]
+        ]
+        p0 = (divide_line[0] * points[0][0] + divide_line[1] * points[0][1] +
+              divide_line[2] >= 0)
+        p1 = (divide_line[0] * points[1][0] + divide_line[1] * points[1][1] +
+              divide_line[2] >= 0)
         if p0 == p1:  # the divide point isn't good enough...
             return Polygon.__conquer(points)
         s = [[], []]
@@ -135,7 +142,8 @@ class Polygon:
         for i in range(2, len(points)):
             if i == divide_id:
                 continue
-            pt = (divide_line[0] * points[i][0] + divide_line[1] * points[i][1] + divide_line[2] >= 0)
+            pt = (divide_line[0] * points[i][0] +
+                  divide_line[1] * points[i][1] + divide_line[2] >= 0)
             s[pt].append(points[i])
         pa = Polygon.__conquer(s[p0])
         pb = Polygon.__conquer(s[not p0])
@@ -152,17 +160,18 @@ class Polygon:
         if len(points) <= 3:
             return Polygon(points)
         # divide by points[0], points[1]
-        divide_line = [points[1][1] - points[0][1],
-                       points[0][0] - points[1][0],
-                       -points[0][0] * points[1][1]
-                       + points[0][1] * points[1][0]]
+        divide_line = [
+            points[1][1] - points[0][1], points[0][0] - points[1][0],
+            -points[0][0] * points[1][1] + points[0][1] * points[1][0]
+        ]
         s = [[], []]
         s[0].append(points[0])
         s[0].append(points[1])
         s[1].append(points[1])
         s[1].append(points[0])
         for i in range(2, len(points)):
-            pt = (divide_line[0] * points[i][0] + divide_line[1] * points[i][1] + divide_line[2] >= 0)
+            pt = (divide_line[0] * points[i][0] +
+                  divide_line[1] * points[i][1] + divide_line[2] >= 0)
             s[pt].append(points[i])
         pa = Polygon.__conquer(s[0])
         pb = Polygon.__conquer(s[1])
