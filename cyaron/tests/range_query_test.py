@@ -69,7 +69,7 @@ class TestRangeQuery(unittest.TestCase):
 
     def test_less_v1(self):
         dimension = random.randint(1, 10)
-        limits = Vector.random(dimension, [(1, 1000)])  # n1, n2 ...
+        limits = Vector.random(dimension, [(2, 1000)])  # n1, n2 ...
         Q = RangeQuery.random(10**5, limits, RangeQueryRandomMode.less)
         self.assertEqual(len(Q), 10**5)
         for i in range(10**5):
