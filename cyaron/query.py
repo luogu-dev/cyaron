@@ -130,7 +130,7 @@ class RangeQuery:
 
             l = random.randint(cur_range[0], cur_range[1])
             r = random.randint(cur_range[0], cur_range[1])
-            # Expected complexity is O(log(1 / V))
+            # Expected complexity is O(1)
             while mode == RangeQueryRandomMode.less and l == r:
                 l = random.randint(cur_range[0], cur_range[1])
                 r = random.randint(cur_range[0], cur_range[1])
