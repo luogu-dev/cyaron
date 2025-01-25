@@ -104,6 +104,9 @@ class RangeQuery:
             ValueError: If the upper-bound is smaller than the lower-bound.
             ValueError: If the mode is set to less but the upper-bound is equal to the lower-bound.
         """
+        if position_range is None:
+            position_range = [10]
+
         dimension = len(position_range)
         query_l: List[int] = []
         query_r: List[int] = []
