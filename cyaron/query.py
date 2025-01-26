@@ -128,9 +128,10 @@ class RangeQuery:
                     "mode is set to less but upper-bound is equal to lower-bound"
                 )
 
-            if mode == RangeQueryRandomMode.less:
-                l, r = random.sample(range(cur_range[0], cur_range[1] + 1), 2)
-            else:  # mode == RangeQueryRandomMode.allow_equal
+            l = random.randint(cur_range[0], cur_range[1])
+            r = random.randint(cur_range[0], cur_range[1])
+            # Expected complexity is O(1)
+            while mode == RangeQueryRandomMode.less and l == r:
                 l = random.randint(cur_range[0], cur_range[1])
                 r = random.randint(cur_range[0], cur_range[1])
             if l > r:
