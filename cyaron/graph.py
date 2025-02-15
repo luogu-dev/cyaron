@@ -1,9 +1,10 @@
-from .utils import *
-from .vector import Vector
+import itertools
 import math
 import random
-import itertools
-from typing import * # type: ignore
+from typing import (Callable, Counter, Iterable, List, Optional, Sequence,
+                    Tuple, TypeVar, Union, cast)
+
+from .utils import *
 
 __all__ = ["Edge", "Graph", "SwitchGraph"]
 
@@ -40,25 +41,29 @@ class SwitchGraph:
     """A graph which can switch edges quickly"""
 
     directed: bool
-    __edges: Dict[Tuple[int, int], int]
+    __edges: Counter[Tuple[int, int]]
 
     def get_edges(self):
+        """
+        Return a list of edges in the graph.
+        """
         ret: List[Tuple[int, int]] = []
-        for k in self.__edges:
+        for k, c in self.__edges.items():
             if self.directed or k[0] <= k[1]:
-                ret.extend(itertools.repeat(k, self.__edges[k]))
+                ret.extend(itertools.repeat(k, c))
         return sorted(ret)
 
     def edge_count(self):
+        """
+        Return the count of edges in the graph.
+        """
         val = 0
-        for k in self.__edges:
+        for k, c in self.__edges.items():
             if k[0] <= k[1]:
-                val += self.__edges[k]
+                val += c
         return val
 
     def __insert(self, u: int, v: int):
-        if (u, v) not in self.__edges:
-            self.__edges[(u, v)] = 0
         self.__edges[(u, v)] += 1
 
     def __remove(self, u: int, v: int):
@@ -67,40 +72,47 @@ class SwitchGraph:
             self.__edges.pop((u, v))
 
     def insert(self, u: int, v: int):
-        """Add edge (u, v)"""
+        """
+        Add edge (u, v) to the graph.
+        """
         self.__insert(u, v)
         if not self.directed and u != v:
-            self.__insert(v, u)
+            self.__insert(v, u)  # pylint: disable=W1114
 
     def remove(self, u: int, v: int):
-        """Remove edge (u, v)"""
+        """
+        Remove edge (u, v) from the graph.
+        """
         self.__remove(u, v)
         if not self.directed and u != v:
-            self.__remove(v, u)
+            self.__remove(v, u)  # pylint: disable=W1114
 
-    def __init__(
-        self, E: Iterable[Union[Edge, Tuple[int, int]]], directed: bool = True
-    ):
+    def __init__(self,
+                 edges: Iterable[Union[Edge, Tuple[int, int]]],
+                 directed: bool = True):
         self.directed = directed
-        self.__edges = {}
-        for e in E:
+        self.__edges = Counter()
+        for e in edges:
             if isinstance(e, Edge):
                 self.insert(e.start, e.end)
             else:
                 self.insert(e[0], e[1])
 
     def switch(self, *, self_loop: bool = False, repeated_edges: bool = False):
-        """Mutates the current directed graph by swapping pairs of edges, without impacting the degree sequence.
+        """
+        Mutates the current directed graph by swapping pairs of edges, 
+        without impacting the degree sequence.
 
-        A switch is a general term for a small change in the structure of a graph, achieved by swapping small numbers
-        of edges.
+        A switch is a general term for a small change in the structure of a graph, 
+        achieved by swapping small numbers of edges.
 
         Returns:
-            If a switch was performed, then return True. If the switch was rejected, then return False.
+            If a switch was performed, then return True.
+            If the switch was rejected, then return False.
         """
-        first, second = random.choices(
-            list(self.__edges.keys()), list(self.__edges.values()), k=2
-        )
+        first, second = random.choices(list(self.__edges.keys()),
+                                       list(self.__edges.values()),
+                                       k=2)
         x1, y1 = first if self.directed else sorted(first)
         x2, y2 = second if self.directed else sorted(second)
 
@@ -123,14 +135,19 @@ class SwitchGraph:
         return True
 
     @staticmethod
-    def from_directed_degree_sequence(
-        degree_sequence: Sequence[Tuple[int, int]],
-        start_id: int = 1,
-        *,
-        self_loop: bool = False,
-        repeated_edges: bool = False
-    ):
-        """Generate a directed graph greedily based on the degree sequence."""
+    def from_directed_degree_sequence(degree_sequence: Sequence[Tuple[int,
+                                                                      int]],
+                                      *,
+                                      self_loop: bool = False,
+                                      repeated_edges: bool = False):
+        """
+        Generate a directed graph greedily based on the degree sequence.
+        
+        Args:
+            degree_sequence: The degree sequence of the graph.
+            self_loop: Whether to allow self loops or not.
+            repeated_edges: Whether to allow repeated edges or not.
+        """
         if any(x < 0 or y < 0 for (x, y) in degree_sequence):
             raise ValueError("Degree sequence is not graphical.")
 
@@ -143,9 +160,8 @@ class SwitchGraph:
         if len(degree_sequence) == 0:
             return ret
 
-        degseq = [
-            [sout, sin, vn] for vn, (sin, sout) in enumerate(degree_sequence, start_id)
-        ]
+        degseq = [[sout, sin, vn]
+                  for vn, (sin, sout) in enumerate(degree_sequence, 1)]
         degseq.sort(reverse=True)
 
         try:
@@ -167,20 +183,24 @@ class SwitchGraph:
                             break
                     j += 1
                 degseq.sort(reverse=True)
-        except IndexError:
-            raise ValueError("Degree sequence is not graphical.")
+        except IndexError as e:
+            raise ValueError("Degree sequence is not graphical.") from e
 
         return ret
 
     @staticmethod
-    def from_undirected_degree_sequence(
-        degree_sequence: Sequence[int],
-        start_id: int = 1,
-        *,
-        self_loop: bool = False,
-        repeated_edges: bool = False
-    ):
-        """Generate an undirected graph greedily based on the degree sequence."""
+    def from_undirected_degree_sequence(degree_sequence: Sequence[int],
+                                        *,
+                                        self_loop: bool = False,
+                                        repeated_edges: bool = False):
+        """
+        Generate an undirected graph greedily based on the degree sequence.
+        
+        Args:
+            degree_sequence: The degree sequence of the graph.
+            self_loop: Whether to allow self loops or not.
+            repeated_edges: Whether to allow repeated edges or not.
+        """
         if any(x < 0 for x in degree_sequence):
             raise ValueError("Degree sequence is not graphical.")
 
@@ -190,7 +210,7 @@ class SwitchGraph:
         if len(degree_sequence) == 0:
             return SwitchGraph((), False)
 
-        degseq = [[deg, i] for i, deg in enumerate(degree_sequence, start_id)]
+        degseq = [[deg, i] for i, deg in enumerate(degree_sequence, 1)]
         degseq.sort(reverse=True)
 
         edges: List[Tuple[int, int]] = []
@@ -214,13 +234,13 @@ class SwitchGraph:
                             break
                     y += 1
                 degseq.sort(reverse=True)
-        except IndexError:
-            raise ValueError("Degree sequence is not graphical.")
+        except IndexError as e:
+            raise ValueError("Degree sequence is not graphical.") from e
 
         return SwitchGraph(edges, False)
 
     def __iter__(self):
-        return iter(self.__edges)
+        return self.__edges.elements()
 
 
 class Graph:
@@ -513,16 +533,16 @@ class Graph:
         return graph
 
     @staticmethod
-    def from_degree_sequence(
-        degree_sequence: Union[Sequence[Tuple[int, int]], Sequence[int]],
-        n_iter: Optional[int] = None,
-        *,
-        self_loop: bool = False,
-        repeated_edges: bool = False,
-        weight_limit: Union[int, Tuple[int, int]] = (1, 1),
-        weight_gen: Optional[Callable[[], int]] = None,
-        iter_limit: int = int(1e6)
-    ):
+    def from_degree_sequence(degree_sequence: Union[Sequence[Tuple[int, int]],
+                                                    Sequence[int]],
+                             n_iter: Optional[int] = None,
+                             *,
+                             self_loop: bool = False,
+                             repeated_edges: bool = False,
+                             weight_limit: Union[int, Tuple[int,
+                                                            int]] = (1, 1),
+                             weight_gen: Optional[Callable[[], int]] = None,
+                             iter_limit: int = int(1e6)):
         if len(degree_sequence) == 0:
             return Graph(0)
         if isinstance(weight_limit, int):
@@ -553,9 +573,7 @@ class Graph:
                     directed,
                     self_loop,
                     repeated_edges,
-                )
-                / math.log(edge_cnt)
-            )
+                ) / math.log(edge_cnt))
         n_iter = min(n_iter, iter_limit)
         for _ in range(n_iter):
             sg.switch(self_loop=self_loop, repeated_edges=repeated_edges)
@@ -776,7 +794,8 @@ class Graph:
     @staticmethod
     def _estimate_comb(n: int, k: int):
         try:
-            return float(sum(math.log(n - i) - math.log(i + 1) for i in range(k)))
+            return float(
+                sum(math.log(n - i) - math.log(i + 1) for i in range(k)))
         except ValueError:
             return 0.0
 
