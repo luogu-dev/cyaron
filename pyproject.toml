@@ -1,3 +1,6 @@
+[project]
+name = "cyaron"
+
 [tool.poetry]
 name = "cyaron"
 version = "0.6.0"
