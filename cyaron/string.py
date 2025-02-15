@@ -6,6 +6,7 @@ import xeger
 
 
 class String:
+
     @staticmethod
     def random(length_range, **kwargs):
         length = length_range
@@ -22,7 +23,8 @@ class String:
     def random_sentence(word_count_range, **kwargs):
         word_count = word_count_range
         if list_like(word_count_range):
-            word_count = random.randint(word_count_range[0], word_count_range[1])
+            word_count = random.randint(word_count_range[0],
+                                        word_count_range[1])
 
         word_length_range = kwargs.get("word_length_range", (3, 8))
         first_letter_uppercase = kwargs.get("first_letter_uppercase", True)
@@ -32,7 +34,8 @@ class String:
         if word_separators is None or len(word_separators) == 0:
             word_separators = [""]
 
-        sentence_terminators = kwargs.get("sentence_terminators", SENTENCE_TERMINATORS)
+        sentence_terminators = kwargs.get("sentence_terminators",
+                                          SENTENCE_TERMINATORS)
         if sentence_terminators is None or len(sentence_terminators) == 0:
             sentence_terminators = [""]
 
@@ -44,7 +47,8 @@ class String:
 
         # We cannot just `sentence_separators.join()` here
         # since we want to randomly select one on each join
-        sentence = reduce(lambda x, y: x + random.choice(word_separators) + y, words)
+        sentence = reduce(lambda x, y: x + random.choice(word_separators) + y,
+                          words)
         sentence += random.choice(sentence_terminators)
 
         return sentence
@@ -53,7 +57,8 @@ class String:
     def random_paragraph(sentence_count_range, **kwargs):
         sentence_count = sentence_count_range
         if list_like(sentence_count_range):
-            sentence_count = random.randint(sentence_count_range[0], sentence_count_range[1])
+            sentence_count = random.randint(sentence_count_range[0],
+                                            sentence_count_range[1])
 
         word_count_range = kwargs.get("word_count_range", (6, 10))
 
@@ -68,11 +73,13 @@ class String:
         if sentence_joiners is None or len(sentence_joiners) == 0:
             sentence_joiners = [""]
 
-        sentence_separators = kwargs.get("sentence_separators", SENTENCE_SEPARATORS)
+        sentence_separators = kwargs.get("sentence_separators",
+                                         SENTENCE_SEPARATORS)
         if sentence_separators is None or len(sentence_separators) == 0:
             sentence_separators = [""]
 
-        sentence_terminators = kwargs.get("sentence_terminators", SENTENCE_TERMINATORS)
+        sentence_terminators = kwargs.get("sentence_terminators",
+                                          SENTENCE_TERMINATORS)
         if sentence_terminators is None or len(sentence_terminators) == 0:
             sentence_terminators = [""]
         kwargs["sentence_terminators"] = None
@@ -95,7 +102,8 @@ class String:
 
             sentences.append(string)
 
-        paragraph = reduce(lambda x, y: x + random.choice(sentence_joiners) + y, sentences)
+        paragraph = reduce(
+            lambda x, y: x + random.choice(sentence_joiners) + y, sentences)
         return paragraph
 
     @staticmethod

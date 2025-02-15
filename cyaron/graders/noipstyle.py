@@ -21,12 +21,14 @@ def noipstyle(content, std):
                                 i + 1, j + 1, content_lines[i][j:j + 5],
                                 std_lines[i][j:j + 5]))
             if len(std_lines[i]) > len(content_lines[i]):
-                return False, TextMismatch(
-                    content, std, 'Too short on line {}.', i + 1, j + 1,
-                    content_lines[i][j:j + 5], std_lines[i][j:j + 5])
+                return False, TextMismatch(content, std,
+                                           'Too short on line {}.', i + 1,
+                                           j + 1, content_lines[i][j:j + 5],
+                                           std_lines[i][j:j + 5])
             if len(std_lines[i]) < len(content_lines[i]):
-                return False, TextMismatch(
-                    content, std, 'Too long on line {}.', i + 1, j + 1,
-                    content_lines[i][j:j + 5], std_lines[i][j:j + 5])
+                return False, TextMismatch(content, std,
+                                           'Too long on line {}.', i + 1,
+                                           j + 1, content_lines[i][j:j + 5],
+                                           std_lines[i][j:j + 5])
 
     return True, None

@@ -3,12 +3,14 @@ A module that provides a class IO to process the input and output files.
 Classes:
     IO: IO tool class. It will process the input and output files.
 """
+
 from __future__ import absolute_import
 import os
 import re
+import signal
 import subprocess
 import tempfile
-from typing import Union, overload, Optional
+from typing import Union, overload, Optional, List, cast
 from io import IOBase
 from . import log
 from .utils import list_like, make_unicode
@@ -18,34 +20,39 @@ class IO:
     """IO tool class. It will process the input and output files."""
 
     @overload
-    def __init__(self,
-                 input_file: Optional[Union[IOBase, str, int]] = None,
-                 output_file: Optional[Union[IOBase, str, int]] = None,
-                 data_id: Optional[int] = None,
-                 disable_output: bool = False,
-                 make_dirs: bool = False):
+    def __init__(
+        self,
+        input_file: Optional[Union[IOBase, str, int]] = None,
+        output_file: Optional[Union[IOBase, str, int]] = None,
+        data_id: Optional[int] = None,
+        disable_output: bool = False,
+        make_dirs: bool = False,
+    ):
         ...
 
     @overload
-    def __init__(self,
-                 data_id: Optional[int] = None,
-                 file_prefix: Optional[str] = None,
-                 input_suffix: str = '.in',
-                 output_suffix: str = '.out',
-                 disable_output: bool = False,
-                 make_dirs: bool = False):
+    def __init__(
+        self,
+        data_id: Optional[int] = None,
+        file_prefix: Optional[str] = None,
+        input_suffix: str = ".in",
+        output_suffix: str = ".out",
+        disable_output: bool = False,
+        make_dirs: bool = False,
+    ):
         ...
 
     def __init__(  # type: ignore
-            self,
-            input_file: Optional[Union[IOBase, str, int]] = None,
-            output_file: Optional[Union[IOBase, str, int]] = None,
-            data_id: Optional[int] = None,
-            file_prefix: Optional[str] = None,
-            input_suffix: str = '.in',
-            output_suffix: str = '.out',
-            disable_output: bool = False,
-            make_dirs: bool = False):
+        self,
+        input_file: Optional[Union[IOBase, str, int]] = None,
+        output_file: Optional[Union[IOBase, str, int]] = None,
+        data_id: Optional[int] = None,
+        file_prefix: Optional[str] = None,
+        input_suffix: str = ".in",
+        output_suffix: str = ".out",
+        disable_output: bool = False,
+        make_dirs: bool = False,
+    ):
         """
         Args:
             input_file (optional): input file object or filename or file descriptor.
@@ -84,12 +91,13 @@ class IO:
             # if the dir "./io" not found it will be created
         """
         self.__closed = False
-        self.input_file, self.output_file = None, None
+        self.input_file = cast(IOBase, None)
+        self.output_file = None
         if file_prefix is not None:
             # legacy mode
-            input_file = '{}{{}}{}'.format(self.__escape_format(file_prefix),
+            input_file = "{}{{}}{}".format(self.__escape_format(file_prefix),
                                            self.__escape_format(input_suffix))
-            output_file = '{}{{}}{}'.format(
+            output_file = "{}{{}}{}".format(
                 self.__escape_format(file_prefix),
                 self.__escape_format(output_suffix))
         self.input_filename, self.output_filename = None, None
@@ -101,9 +109,13 @@ class IO:
             self.output_file = None
         self.is_first_char = {}
 
-    def __init_file(self, f: Union[IOBase, str, int,
-                                   None], data_id: Union[int, None],
-                    file_type: str, make_dirs: bool):
+    def __init_file(
+        self,
+        f: Union[IOBase, str, int, None],
+        data_id: Union[int, None],
+        file_type: str,
+        make_dirs: bool,
+    ):
         if isinstance(f, IOBase):
             # consider ``f`` as a file object
             if file_type == "i":
@@ -112,8 +124,12 @@ class IO:
                 self.output_file = f
         elif isinstance(f, int):
             # consider ``f`` as a file descor
-            self.__init_file(open(f, 'w+', encoding="utf-8", newline='\n'),
-                             data_id, file_type, make_dirs)
+            self.__init_file(
+                open(f, "w+", encoding="utf-8", newline="\n"),
+                data_id,
+                file_type,
+                make_dirs,
+            )
         elif f is None:
             # consider wanna temp file
             fd, self.input_filename = tempfile.mkstemp()
@@ -133,8 +149,11 @@ class IO:
             else:
                 self.output_filename = filename
             self.__init_file(
-                open(filename, 'w+', newline='\n', encoding='utf-8'), data_id,
-                file_type, make_dirs)
+                open(filename, "w+", newline="\n", encoding="utf-8"),
+                data_id,
+                file_type,
+                make_dirs,
+            )
 
     def __escape_format(self, st: str):
         """replace "{}" to "{{}}" """
@@ -211,6 +230,15 @@ class IO:
         self.is_first_char[file] = True
         file.seek(pos)
 
+    @staticmethod
+    def _kill_process_and_children(proc: subprocess.Popen):
+        if os.name == "posix":
+            os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        elif os.name == "nt":
+            os.system(f"TASKKILL /F /T /PID {proc.pid} > nul")
+        else:
+            proc.kill()  # Not currently supported
+
     def input_write(self, *args, **kwargs):
         """
         Write every element in *args into the input file. Splits with `separator`.
@@ -243,7 +271,11 @@ class IO:
 
         self.__clear(self.input_file, pos)
 
-    def output_gen(self, shell_cmd, time_limit=None):
+    def output_gen(self,
+                   shell_cmd: Union[str, List[str]],
+                   time_limit: Optional[float] = None,
+                   *,
+                   replace_EOL: bool = True):
         """
         Run the command `shell_cmd` (usually the std program) and send it the input file as stdin.
         Write its output to the output file.
@@ -251,30 +283,37 @@ class IO:
             shell_cmd: the command to run, usually the std program.
             time_limit: the time limit (seconds) of the command to run.
                 None means infinity. Defaults to None.
+            replace_EOL: Set whether to replace the end-of-line sequence with `'\\n'`.
+                Defaults to True.
         """
         if self.output_file is None:
             raise ValueError("Output file is disabled")
         self.flush_buffer()
         origin_pos = self.input_file.tell()
         self.input_file.seek(0)
-        if time_limit is not None:
-            subprocess.check_call(
-                shell_cmd,
-                shell=True,
-                timeout=time_limit,
-                stdin=self.input_file.fileno(),
-                stdout=self.output_file.fileno(),
-                universal_newlines=True,
-            )
+
+        proc = subprocess.Popen(
+            shell_cmd,
+            shell=True,
+            stdin=self.input_file.fileno(),
+            stdout=subprocess.PIPE,
+            universal_newlines=replace_EOL,
+            preexec_fn=os.setsid if os.name == "posix" else None,
+        )
+
+        try:
+            output, _ = proc.communicate(timeout=time_limit)
+        except subprocess.TimeoutExpired:
+            # proc.kill()  # didn't work because `shell=True`.
+            self._kill_process_and_children(proc)
+            raise
         else:
-            subprocess.check_call(
-                shell_cmd,
-                shell=True,
-                stdin=self.input_file.fileno(),
-                stdout=self.output_file.fileno(),
-                universal_newlines=True,
-            )
-        self.input_file.seek(origin_pos)
+            if replace_EOL:
+                self.output_file.write(output)
+            else:
+                os.write(self.output_file.fileno(), output)
+        finally:
+            self.input_file.seek(origin_pos)
 
         log.debug(self.output_filename, " done")
 
@@ -309,6 +348,8 @@ class IO:
         Args:
             pos: Where file will truncate
         """
+        if self.output_file is None:
+            raise ValueError("Output file is disabled")
         self.__clear(self.output_file, pos)
 
     def flush_buffer(self):

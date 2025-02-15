@@ -11,13 +11,16 @@ from cyaron.compare import CompareMismatch
 
 log.set_verbose()
 
+
 class TestCompare(unittest.TestCase):
 
     def setUp(self):
+        self.original_directory = os.getcwd()
         self.temp_directory = tempfile.mkdtemp()
         os.chdir(self.temp_directory)
 
     def tearDown(self):
+        os.chdir(self.original_directory)
         try:
             shutil.rmtree(self.temp_directory)
         except:
@@ -60,7 +63,10 @@ class TestCompare(unittest.TestCase):
             self.assertTrue(False)
 
         result = out.getvalue().strip()
-        self.assertEqual(result, "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3.")
+        self.assertEqual(
+            result,
+            "test_another_incorrect.out: !!!INCORRECT!!! On line 2 column 7, read 4, expected 3."
+        )
 
     def test_fulltext_program(self):
         with open("correct.py", "w") as f:
@@ -77,14 +83,24 @@ class TestCompare(unittest.TestCase):
 
         try:
             with captured_output() as (out, err):
-                Compare.program("python correct.py", "python incorrect.py", std=io, input=io, grader="FullText")
+                Compare.program("python correct.py",
+                                "python incorrect.py",
+                                std=io,
+                                input=io,
+                                grader="FullText")
         except CompareMismatch as e:
             self.assertEqual(e.name, 'python incorrect.py')
             e = e.mismatch
             self.assertEqual(e.content, '2\n')
             self.assertEqual(e.std, '1\n')
-            self.assertEqual(e.content_hash, '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3')
-            self.assertEqual(e.std_hash, '4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865')
+            self.assertEqual(
+                e.content_hash,
+                '53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3'
+            )
+            self.assertEqual(
+                e.std_hash,
+                '4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
+            )
         else:
             self.assertTrue(False)
 
@@ -106,7 +122,10 @@ class TestCompare(unittest.TestCase):
         io.input_writeln("233")
 
         with captured_output() as (out, err):
-            Compare.program("python correct.py", std_program="python std.py", input=io, grader="NOIPStyle")
+            Compare.program("python correct.py",
+                            std_program="python std.py",
+                            input=io,
+                            grader="NOIPStyle")
 
         result = out.getvalue().strip()
         correct_out = 'python correct.py: Correct'
@@ -120,7 +139,11 @@ class TestCompare(unittest.TestCase):
         with open('std.py', 'w') as f:
             f.write('print({})'.format(16))
         with IO() as test:
-            Compare.program(*[(sys.executable, program) for program in programs], std_program=(sys.executable, 'std.py'), max_workers=None, input=test)
+            Compare.program(*[(sys.executable, program)
+                              for program in programs],
+                            std_program=(sys.executable, 'std.py'),
+                            max_workers=None,
+                            input=test)
 
         ios = [IO() for i in range(16)]
         try:
@@ -137,7 +160,10 @@ class TestCompare(unittest.TestCase):
         if sys.version_info >= (3, 3):
             with IO() as test:
                 try:
-                    Compare.program(((sys.executable, '-c', '__import__(\'time\').sleep(10)'), 1), std=test, input=test)
+                    Compare.program(((sys.executable, '-c',
+                                      '__import__(\'time\').sleep(10)'), 1),
+                                    std=test,
+                                    input=test)
                 except subprocess.TimeoutExpired:
                     pass
                 else:
