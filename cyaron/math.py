@@ -549,3 +549,94 @@ def n2words(num: int, join: bool = True):
     if join:
         return ' '.join(words)
     return words
+
+
+def nextprime(n: int):
+    """
+    Find the next prime number after a given number.
+    Args:
+        n: The number after which to find the next prime.
+    Returns:
+        The next prime number after n.
+    """
+
+    if n < 2:
+        return 2
+    if n == 2:
+        return 3
+    if n % 6 == 0:
+        if miller_rabin(n + 1):
+            return n + 1
+        n += 6
+    elif 1 <= n % 6 < 5:
+        n += 6 - n % 6
+    else:
+        if miller_rabin(n + 2):
+            return n + 2
+        n += 7
+    while True:
+        if miller_rabin(n - 1):
+            return n - 1
+        if miller_rabin(n + 1):
+            return n + 1
+        n += 6
+
+
+def prevprime(n: int, raise_error: bool = True):
+    """
+    Find the previous prime number before a given number.
+    Args:
+        n: The number before which to find the previous prime.
+        raise_error: Raise an error if there is no prime number less than `n`. Default is True.
+    Returns:
+        The previous prime number before `n`.
+    Raises:
+        ValueError: If there is no prime number less than `n` and `raise_error` is True.
+    """
+    if n <= 2:
+        if raise_error:
+            raise ValueError(f"No prime number less than {n}")
+        return 0
+    if n == 3:
+        return 2
+    if n <= 5:
+        return 3
+    if n % 6 == 0:
+        if miller_rabin(n - 1):
+            return n - 1
+        n -= 6
+    elif n % 6 == 1:
+        if miller_rabin(n - 2):
+            return n - 2
+        n -= 7
+    else:
+        n -= n % 6
+    while True:
+        if miller_rabin(n + 1):
+            return n + 1
+        if miller_rabin(n - 1):
+            return n - 1
+        n -= 6
+
+
+def randprime(a: int, b: int, raise_error: bool = True):
+    """
+    Generate a random prime number in the range [a, b].
+    Args:
+        a: The lower bound of the range.
+        b: The upper bound of the range.
+    Returns:
+        A random prime number in the specified range.
+    """
+    st = random.randint(a, b)
+    if miller_rabin(st):
+        return st
+    nxt = nextprime(st)
+    if nxt <= b:
+        return nxt
+    pre = prevprime(st)
+    if pre >= a:
+        return pre
+    if raise_error:
+        raise ValueError(f"No prime number in the range [{a}, {b}]")
+    return 0
