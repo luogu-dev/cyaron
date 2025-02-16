@@ -22,9 +22,10 @@ class TestMath(unittest.TestCase):
                 if n in self.prime_set:
                     return n
 
-        for _ in range(20):
+        for i in range(20):
             n = randint(1, self.prime_range)
             self.assertEqual(nextprime(n), bf_nextprime(n))
+            self.assertEqual(nextprime(i), bf_nextprime(i))
 
     def test_prevprime(self):
 
@@ -36,11 +37,10 @@ class TestMath(unittest.TestCase):
                 if n < 2:
                     return 0
 
-        for _ in range(20):
+        for i in range(20):
             n = randint(1, self.prime_range)
             self.assertEqual(prevprime(n, False), bf_prevprime(n))
+            self.assertEqual(prevprime(i, False), bf_prevprime(i))
 
         self.assertRaises(ValueError, prevprime, 1)
         self.assertRaises(ValueError, prevprime, 2)
-        self.assertEqual(prevprime(1, False), 0)
-        self.assertEqual(prevprime(2, False), 0)
