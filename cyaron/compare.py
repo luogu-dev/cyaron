@@ -1,14 +1,19 @@
 from __future__ import absolute_import, print_function
-from .io import IO
-from . import log
-from cyaron.utils import *
+
+import multiprocessing
+import os
+import subprocess
+import sys
+from concurrent.futures import ThreadPoolExecutor
+from io import open
+from typing import List, Optional, Tuple, Union
+
 from cyaron.consts import *
 from cyaron.graders import CYaRonGraders
-import subprocess
-import multiprocessing
-import sys
-from io import open
-import os
+from cyaron.utils import *
+
+from . import log
+from .io import IO
 
 
 class CompareMismatch(ValueError):
@@ -34,13 +39,18 @@ class Compare:
             raise CompareMismatch(name, info)
 
     @staticmethod
-    def __process_file(file):
+    def __process_output_file(file: Union[str, IO]):
         if isinstance(file, IO):
+            if file.output_filename is None:
+                raise ValueError("IO object has no output file.")
             file.flush_buffer()
-            file.output_file.seek(0)
-            return file.output_filename, file.output_file.read()
+            with open(file.output_filename,
+                      "r",
+                      newline="\n",
+                      encoding='utf-8') as f:
+                return file.output_filename, f.read()
         else:
-            with open(file, "r", newline="\n") as f:
+            with open(file, "r", newline="\n", encoding="utf-8") as f:
                 return file, f.read()
 
     @staticmethod
@@ -87,7 +97,7 @@ class Compare:
                 pass
 
         def get_std():
-            return cls.__process_file(std)[1]
+            return cls.__process_output_file(std)[1]
 
         if job_pool is not None:
             std = job_pool.submit(get_std).result()
@@ -95,7 +105,7 @@ class Compare:
             std = get_std()
 
         def do(file):
-            (file_name, content) = cls.__process_file(file)
+            (file_name, content) = cls.__process_output_file(file)
             cls.__compare_two(file_name, content, std, grader)
 
         if job_pool is not None:
@@ -104,35 +114,36 @@ class Compare:
             [x for x in map(do, files)]
 
     @classmethod
-    def program(cls, *programs, **kwargs):
-        kwargs = unpack_kwargs(
-            "program",
-            kwargs,
-            (
-                "input",
-                ("std", None),
-                ("std_program", None),
-                ("grader", DEFAULT_GRADER),
-                ("max_workers", -1),
-                ("job_pool", None),
-                ("stop_on_incorrect", None),
-            ),
-        )
-        input = kwargs["input"]
-        std = kwargs["std"]
-        std_program = kwargs["std_program"]
-        grader = kwargs["grader"]
-        max_workers = kwargs["max_workers"]
-        job_pool = kwargs["job_pool"]
-        if kwargs["stop_on_incorrect"] is not None:
+    def program(cls,
+                *programs: Optional[Union[str, Tuple[str, ...], List[str]]],
+                input: Union[IO, str],
+                std: Optional[Union[str, IO]] = None,
+                std_program: Optional[Union[str, Tuple[str, ...],
+                                            List[str]]] = None,
+                grader: Optional[str] = DEFAULT_GRADER,
+                max_workers: int = -1,
+                job_pool: Optional[ThreadPoolExecutor] = None,
+                stop_on_incorrect=None):
+        """
+        Compare the output of the programs with the standard output.
+        
+        Args:
+            programs: The programs to be compared.
+            input: The input file.
+            std: The standard output file.
+            std_program: The program that generates the standard output.
+            grader: The grader to be used.
+            max_workers: The maximum number of workers.
+            job_pool: The job pool.
+            stop_on_incorrect: Deprecated and has no effect.
+        """
+        if stop_on_incorrect is not None:
             log.warn(
                 "parameter stop_on_incorrect is deprecated and has no effect.")
 
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             max_workers = cls.__normal_max_workers(max_workers)
             try:
-                from concurrent.futures import ThreadPoolExecutor
-
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
                     return cls.program(*programs,
                                        input=input,
@@ -144,74 +155,74 @@ class Compare:
             except ImportError:
                 pass
 
-        if not isinstance(input, IO):
-            raise TypeError("expect {}, got {}".format(
-                type(IO).__name__,
-                type(input).__name__))
-        input.flush_buffer()
-        input.input_file.seek(0)
+        if isinstance(input, IO):
+            input.flush_buffer()
 
         if std_program is not None:
 
-            def get_std():
-                with open(os.dup(input.input_file.fileno()), "r",
-                          newline="\n") as input_file:
-                    content = make_unicode(
-                        subprocess.check_output(
-                            std_program,
-                            shell=(not list_like(std_program)),
-                            stdin=input.input_file,
-                            universal_newlines=True,
-                        ))
-                    input_file.seek(0)
+            def get_std_from_std_program():
+                with open(input.input_filename
+                          if isinstance(input, IO) else input,
+                          "r",
+                          newline="\n",
+                          encoding="utf-8") as input_file:
+                    content = subprocess.check_output(
+                        std_program,
+                        shell=(not list_like(std_program)),
+                        stdin=input_file,
+                        universal_newlines=True,
+                        encoding="utf-8")
                 return content
 
             if job_pool is not None:
-                std = job_pool.submit(get_std).result()
+                std = job_pool.submit(get_std_from_std_program).result()
             else:
-                std = get_std()
+                std = get_std_from_std_program()
         elif std is not None:
 
-            def get_std():
-                return cls.__process_file(std)[1]
+            def get_std_from_std_file():
+                return cls.__process_output_file(std)[1]
 
             if job_pool is not None:
-                std = job_pool.submit(get_std).result()
+                std = job_pool.submit(get_std_from_std_file).result()
             else:
-                std = get_std()
+                std = get_std_from_std_file()
         else:
             raise TypeError(
                 "program() missing 1 required non-None keyword-only argument: 'std' or 'std_program'"
             )
 
-        def do(program_name):
-            timeout = None
-            if (list_like(program_name) and len(program_name) == 2
-                    and int_like(program_name[-1])):
-                program_name, timeout = program_name
-            with open(os.dup(input.input_file.fileno()), "r",
-                      newline="\n") as input_file:
+        with open(input.input_filename if isinstance(input, IO) else input,
+                  "r",
+                  newline="\n",
+                  encoding="utf-8") as input_file:
+
+            def do(program_name):
+                timeout = None
+                if (list_like(program_name) and len(program_name) == 2
+                        and int_like(program_name[-1])):
+                    program_name, timeout = program_name
                 if timeout is None:
-                    content = make_unicode(
-                        subprocess.check_output(
-                            program_name,
-                            shell=(not list_like(program_name)),
-                            stdin=input_file,
-                            universal_newlines=True,
-                        ))
+                    content = subprocess.check_output(
+                        program_name,
+                        shell=(not list_like(program_name)),
+                        stdin=input_file,
+                        universal_newlines=True,
+                        encoding="utf-8",
+                    )
                 else:
-                    content = make_unicode(
-                        subprocess.check_output(
+                    content = subprocess.check_output(
                             program_name,
                             shell=(not list_like(program_name)),
                             stdin=input_file,
                             universal_newlines=True,
                             timeout=timeout,
-                        ))
-                input_file.seek(0)
-            cls.__compare_two(program_name, content, std, grader)
+                            encoding="utf-8",
+                        )
+                cls.__compare_two(program_name, content, std, grader)
 
-        if job_pool is not None:
-            job_pool.map(do, programs)
-        else:
-            [x for x in map(do, programs)]
+            if job_pool is not None:
+                job_pool.map(do, programs)
+            else:
+                for program in programs:
+                    do(program)

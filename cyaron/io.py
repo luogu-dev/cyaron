@@ -100,7 +100,7 @@ class IO:
             output_file = "{}{{}}{}".format(
                 self.__escape_format(file_prefix),
                 self.__escape_format(output_suffix))
-        self.input_filename, self.output_filename = None, None
+        self.input_filename, self.output_filename = cast(str, None), None
         self.__input_temp, self.__output_temp = False, False
         self.__init_file(input_file, data_id, "i", make_dirs)
         if not disable_output:
@@ -357,3 +357,5 @@ class IO:
     def flush_buffer(self):
         """Flush the input file"""
         self.input_file.flush()
+        if self.output_file:
+            self.output_file.flush()
