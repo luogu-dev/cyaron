@@ -25,6 +25,9 @@ Functions:
     miu(x): The MIU function of x
     dec2base(n,base): Number base conversion
     n2words(num,join=True): Number to words
+    nextprime(n): Find the next prime number after n
+    prevprime(n,raise_error=True): Find the previous prime number before n
+    randprime(a,b,raise_error=True): Generate a random prime number in the range [a,b]
 
 forked from https://blog.dreamshire.com/common-functions-routines-project-euler/
 """
