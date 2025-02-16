@@ -8,6 +8,7 @@ from cyaron import IO, Compare, log
 from cyaron.output_capture import captured_output
 from cyaron.graders.mismatch import *
 from cyaron.compare import CompareMismatch
+from cyaron.graders import CYaRonGraders
 
 log.set_verbose()
 
@@ -176,3 +177,56 @@ class TestCompare(unittest.TestCase):
                     pass
                 else:
                     self.assertTrue(False)
+
+    def test_custom_grader_by_name(self):
+
+        @CYaRonGraders.grader("CustomTestGrader")
+        def custom_test_grader(content: str, std: str):
+            if content == '1\n' and std == '2\n':
+                return True, None
+            return False, "CustomTestGrader failed"
+
+        io = IO()
+        io.output_writeln("2")
+
+        Compare.program("echo 1",
+                        std=io,
+                        input=IO(),
+                        grader="CustomTestGrader")
+
+        try:
+            Compare.program("echo 2",
+                            std=io,
+                            input=IO(),
+                            grader="CustomTestGrader")
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'echo 2')
+            self.assertEqual(e.mismatch, "CustomTestGrader failed")
+        else:
+            self.fail("Should raise CompareMismatch")
+
+    def test_custom_grader_by_function(self):
+
+        def custom_test_grader(content: str, std: str):
+            if content == '1\n' and std == '2\n':
+                return True, None
+            return False, "CustomTestGrader failed"
+
+        io = IO()
+        io.output_writeln("2")
+
+        Compare.program("echo 1",
+                        std=io,
+                        input=IO(),
+                        grader=custom_test_grader)
+
+        try:
+            Compare.program("echo 2",
+                            std=io,
+                            input=IO(),
+                            grader=custom_test_grader)
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'echo 2')
+            self.assertEqual(e.mismatch, "CustomTestGrader failed")
+        else:
+            self.fail("Should raise CompareMismatch")

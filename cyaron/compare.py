@@ -9,7 +9,7 @@ from io import open
 from typing import List, Optional, Tuple, Union
 
 from cyaron.consts import *
-from cyaron.graders import CYaRonGraders
+from cyaron.graders import CYaRonGraders, GraderType
 from cyaron.utils import *
 
 from . import log
@@ -27,11 +27,14 @@ class CompareMismatch(ValueError):
         return "In program: '{}'. {}".format(self.name, self.mismatch)
 
 
+PrgoramType = Optional[Union[str, Tuple[str, ...], List[str]]]
+
+
 class Compare:
 
     @staticmethod
     def __compare_two(name, content, std, grader):
-        (result, info) = CYaRonGraders.invoke(grader, content, std)
+        result, info = CYaRonGraders.invoke(grader, content, std)
         status = "Correct" if result else "!!!INCORRECT!!!"
         info = info if info is not None else ""
         log.debug("{}: {} {}".format(name, status, info))
@@ -85,8 +88,6 @@ class Compare:
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             max_workers = cls.__normal_max_workers(max_workers)
             try:
-                from concurrent.futures import ThreadPoolExecutor
-
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
                     return cls.output(*files,
                                       std=std,
@@ -115,12 +116,12 @@ class Compare:
 
     @classmethod
     def program(cls,
-                *programs: Optional[Union[str, Tuple[str, ...], List[str]]],
+                *programs: Union[PrgoramType, Tuple[PrgoramType, float]],
                 input: Union[IO, str],
                 std: Optional[Union[str, IO]] = None,
                 std_program: Optional[Union[str, Tuple[str, ...],
                                             List[str]]] = None,
-                grader: Optional[str] = DEFAULT_GRADER,
+                grader: Union[str, GraderType] = DEFAULT_GRADER,
                 max_workers: int = -1,
                 job_pool: Optional[ThreadPoolExecutor] = None,
                 stop_on_incorrect=None):
@@ -212,13 +213,13 @@ class Compare:
                     )
                 else:
                     content = subprocess.check_output(
-                            program_name,
-                            shell=(not list_like(program_name)),
-                            stdin=input_file,
-                            universal_newlines=True,
-                            timeout=timeout,
-                            encoding="utf-8",
-                        )
+                        program_name,
+                        shell=(not list_like(program_name)),
+                        stdin=input_file,
+                        universal_newlines=True,
+                        timeout=timeout,
+                        encoding="utf-8",
+                    )
                 cls.__compare_two(program_name, content, std, grader)
 
             if job_pool is not None:
