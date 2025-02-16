@@ -132,11 +132,13 @@ class IO:
             )
         elif f is None:
             # consider wanna temp file
-            fd, self.input_filename = tempfile.mkstemp()
+            fd, filename = tempfile.mkstemp()
             self.__init_file(fd, data_id, file_type, make_dirs)
             if file_type == "i":
+                self.input_filename = filename
                 self.__input_temp = True
             else:
+                self.output_filename = filename
                 self.__output_temp = True
         else:
             # consider ``f`` as filename template
