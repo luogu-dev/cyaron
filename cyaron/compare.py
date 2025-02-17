@@ -1,15 +1,14 @@
 from __future__ import absolute_import, print_function
 
 import multiprocessing
-import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from io import open
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 
 from cyaron.consts import *
-from cyaron.graders import CYaRonGraders, GraderType
+from cyaron.graders import CYaRonGraders, GraderType3
 from cyaron.utils import *
 
 from . import log
@@ -27,14 +26,16 @@ class CompareMismatch(ValueError):
         return "In program: '{}'. {}".format(self.name, self.mismatch)
 
 
-PrgoramType = Optional[Union[str, Tuple[str, ...], List[str]]]
+PrgoramType = Union[str, Tuple[str, ...], List[str]]
 
 
 class Compare:
 
     @staticmethod
-    def __compare_two(name, content, std, grader):
-        result, info = CYaRonGraders.invoke(grader, content, std)
+    def __compare_two(name: PrgoramType, content: str, std: str,
+                      input_content: str, grader: Union[str, GraderType3]):
+        result, info = CYaRonGraders.invoke(grader, content, std,
+                                            input_content)
         status = "Correct" if result else "!!!INCORRECT!!!"
         info = info if info is not None else ""
         log.debug("{}: {} {}".format(name, status, info))
@@ -77,7 +78,7 @@ class Compare:
                 ("stop_on_incorrect", None),
             ),
         )
-        std = kwargs["std"]
+        std: IO = kwargs["std"]
         grader = kwargs["grader"]
         max_workers = kwargs["max_workers"]
         job_pool = kwargs["job_pool"]
@@ -101,13 +102,18 @@ class Compare:
             return cls.__process_output_file(std)[1]
 
         if job_pool is not None:
-            std = job_pool.submit(get_std).result()
+            std_answer = job_pool.submit(get_std).result()
         else:
-            std = get_std()
+            std_answer = get_std()
+
+        with open(std.input_filename, "r", newline="\n",
+                  encoding="utf-8") as input_file:
+            input_text = input_file.read()
 
         def do(file):
             (file_name, content) = cls.__process_output_file(file)
-            cls.__compare_two(file_name, content, std, grader)
+            cls.__compare_two(file_name, content, std_answer, input_text,
+                              grader)
 
         if job_pool is not None:
             job_pool.map(do, files)
@@ -121,8 +127,8 @@ class Compare:
                 std: Optional[Union[str, IO]] = None,
                 std_program: Optional[Union[str, Tuple[str, ...],
                                             List[str]]] = None,
-                grader: Union[str, GraderType] = DEFAULT_GRADER,
-                max_workers: int = -1,
+                grader: Union[str, GraderType3] = DEFAULT_GRADER,
+                max_workers: Optional[int] = -1,
                 job_pool: Optional[ThreadPoolExecutor] = None,
                 stop_on_incorrect=None):
         """
@@ -182,7 +188,7 @@ class Compare:
         elif std is not None:
 
             def get_std_from_std_file():
-                return cls.__process_output_file(std)[1]
+                return cls.__process_output_file(cast(Union[str, IO], std))[1]
 
             if job_pool is not None:
                 std = job_pool.submit(get_std_from_std_file).result()
@@ -197,33 +203,29 @@ class Compare:
                   "r",
                   newline="\n",
                   encoding="utf-8") as input_file:
+            input_text = input_file.read()
 
-            def do(program_name):
-                timeout = None
-                if (list_like(program_name) and len(program_name) == 2
-                        and int_like(program_name[-1])):
-                    program_name, timeout = program_name
-                if timeout is None:
-                    content = subprocess.check_output(
-                        program_name,
-                        shell=(not list_like(program_name)),
-                        stdin=input_file,
-                        universal_newlines=True,
-                        encoding="utf-8",
-                    )
-                else:
-                    content = subprocess.check_output(
-                        program_name,
-                        shell=(not list_like(program_name)),
-                        stdin=input_file,
-                        universal_newlines=True,
-                        timeout=timeout,
-                        encoding="utf-8",
-                    )
-                cls.__compare_two(program_name, content, std, grader)
-
-            if job_pool is not None:
-                job_pool.map(do, programs)
+        def do(program_name: Union[PrgoramType, Tuple[PrgoramType, float]]):
+            timeout = None
+            if isinstance(program_name, tuple) and len(program_name) == 2 and (
+                    isinstance(program_name[1], float)
+                    or isinstance(program_name[1], int)):
+                program_name, timeout = cast(Tuple[PrgoramType, float],
+                                             program_name)
             else:
-                for program in programs:
-                    do(program)
+                program_name = cast(PrgoramType, program_name)
+            content = subprocess.check_output(
+                list(program_name)
+                if isinstance(program_name, tuple) else program_name,
+                shell=(not list_like(program_name)),
+                input=input_text,
+                universal_newlines=True,
+                encoding="utf-8",
+                timeout=timeout)
+            cls.__compare_two(program_name, content, std, input_text, grader)
+
+        if job_pool is not None:
+            job_pool.map(do, programs)
+        else:
+            for program in programs:
+                do(program)

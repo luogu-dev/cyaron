@@ -123,15 +123,15 @@ class TestCompare(unittest.TestCase):
                             grader="NOIPStyle")
 
     def test_file_input_fail(self):
-        with open("correct.py", "w") as f:
-            f.write("print(input())")
-        with open("std.py", "w") as f:
+        with open("incorrect.py", "w") as f:
             f.write("print(input()+'154')")
+        with open("std.py", "w") as f:
+            f.write("print(input())")
         io = IO()
         io.input_writeln("233")
         try:
             with captured_output():
-                Compare.program((sys.executable, "correct.py"),
+                Compare.program((sys.executable, "incorrect.py"),
                                 std_program=(sys.executable, "std.py"),
                                 input=io,
                                 grader="NOIPStyle")
@@ -178,10 +178,11 @@ class TestCompare(unittest.TestCase):
                 else:
                     self.assertTrue(False)
 
-    def test_custom_grader_by_name(self):
+    def test_custom_grader2_by_name(self):
+        self.assertEqual(CYaRonGraders.grader, CYaRonGraders.grader2)
 
-        @CYaRonGraders.grader("CustomTestGrader")
-        def custom_test_grader(content: str, std: str):
+        @CYaRonGraders.grader("CustomTestGrader2")
+        def custom_test_grader2(content: str, std: str):
             if content == '1\n' and std == '2\n':
                 return True, None
             return False, "CustomTestGrader failed"
@@ -192,13 +193,38 @@ class TestCompare(unittest.TestCase):
         Compare.program("echo 1",
                         std=io,
                         input=IO(),
-                        grader="CustomTestGrader")
+                        grader="CustomTestGrader2")
 
         try:
             Compare.program("echo 2",
                             std=io,
                             input=IO(),
-                            grader="CustomTestGrader")
+                            grader="CustomTestGrader2")
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'echo 2')
+            self.assertEqual(e.mismatch, "CustomTestGrader failed")
+        else:
+            self.fail("Should raise CompareMismatch")
+
+    def test_custom_grader3_by_name(self):
+
+        @CYaRonGraders.grader3("CustomTestGrader3")
+        def custom_test_grader3(content: str, std: str, input_content: str):
+            if input_content == '0\n' and content == '1\n' and std == '2\n':
+                return True, None
+            return False, "CustomTestGrader failed"
+
+        io = IO()
+        io.input_writeln("0")
+        io.output_writeln("2")
+
+        Compare.program("echo 1", std=io, input=io, grader="CustomTestGrader3")
+
+        try:
+            Compare.program("echo 2",
+                            std=io,
+                            input=io,
+                            grader='CustomTestGrader3')
         except CompareMismatch as e:
             self.assertEqual(e.name, 'echo 2')
             self.assertEqual(e.mismatch, "CustomTestGrader failed")
@@ -207,23 +233,21 @@ class TestCompare(unittest.TestCase):
 
     def test_custom_grader_by_function(self):
 
-        def custom_test_grader(content: str, std: str):
-            if content == '1\n' and std == '2\n':
+        def custom_test_grader(content: str, std: str, input_content: str):
+            if input_content == '0\n' and content == '1\n' and std == '2\n':
                 return True, None
             return False, "CustomTestGrader failed"
 
         io = IO()
+        io.input_writeln("0")
         io.output_writeln("2")
 
-        Compare.program("echo 1",
-                        std=io,
-                        input=IO(),
-                        grader=custom_test_grader)
+        Compare.program("echo 1", std=io, input=io, grader=custom_test_grader)
 
         try:
             Compare.program("echo 2",
                             std=io,
-                            input=IO(),
+                            input=io,
                             grader=custom_test_grader)
         except CompareMismatch as e:
             self.assertEqual(e.name, 'echo 2')
