@@ -23,7 +23,7 @@ class GraderRegistry:
             return func
 
         return wrapper
-    
+
     grader = grader2
 
     def grader3(self, name: str):
@@ -47,7 +47,7 @@ class GraderRegistry:
         else:
             return grader(content, std, input_content)
 
-    def check(self, name):
+    def check(self, name: str):
         """Check if a grader is registered."""
         return name in self._registry
 
