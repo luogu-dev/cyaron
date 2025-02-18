@@ -35,6 +35,33 @@ import random
 import itertools
 from typing import Union, Tuple, List
 
+__all__ = [
+    'factorial',
+    'is_perm',
+    'is_palindromic',
+    'is_pandigital',
+    'd',
+    'pal_list',
+    'sof_digits',
+    'fibonacci',
+    'sos_digits',
+    'pow_digits',
+    'is_prime',
+    'miller_rabin',
+    'factor',
+    'perm',
+    'binomial',
+    'catalan_number',
+    'prime_sieve',
+    'exgcd',
+    'mod_inverse',
+    'phi',
+    'miu',
+    'dec2base',
+    'n2words'
+]
+
+
 fact = (1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880)
 
 
