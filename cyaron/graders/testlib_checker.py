@@ -47,6 +47,9 @@ class TestlibChecker:
                                     stderr=subprocess.PIPE,
                                     text=True,
                                     check=False)
+            if result.stderr.strip() != 'See file to check exit message':
+                raise ValueError("Invalid output from checker: " +
+                                 result.stderr)
             checker_output = result.stdout
 
             result_element = xmlElementTree.fromstring(checker_output)
