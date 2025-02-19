@@ -1,10 +1,8 @@
 import tempfile
 import subprocess
-import os
 import xml.etree.ElementTree as xmlElementTree
 from typing import Optional
-
-STDOUT_DEV = "con" if os.name == "nt" else "/dev/stdout"
+from os.path import join as path_join
 
 __all__ = ["TestlibChecker"]
 
@@ -32,17 +30,21 @@ class TestlibChecker:
         self.checker_path = checker_path
 
     def __call__(self, outs: str, ans: str, ins: str):
-        with tempfile.NamedTemporaryFile(
-                'w') as inf, tempfile.NamedTemporaryFile(
-                    'w') as outf, tempfile.NamedTemporaryFile('w') as ansf:
+        with tempfile.NamedTemporaryFile('w') as inf, \
+             tempfile.NamedTemporaryFile('w') as outf, \
+             tempfile.NamedTemporaryFile('w') as ansf, \
+             tempfile.TemporaryDirectory() as checker_output_dir:
             inf.write(ins)
             outf.write(outs)
             ansf.write(ans)
             inf.flush()
             outf.flush()
             ansf.flush()
+            checker_output_file = path_join(checker_output_dir,
+                                            'checker_output.xml')
+
             result = subprocess.run((self.checker_path, inf.name, outf.name,
-                                     ansf.name, STDOUT_DEV, '-appes'),
+                                     ansf.name, checker_output_file, '-appes'),
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     text=True,
@@ -50,9 +52,9 @@ class TestlibChecker:
             if result.stderr.strip() != 'See file to check exit message':
                 raise ValueError("Invalid output from checker: " +
                                  result.stderr)
-            checker_output = result.stdout
 
-            result_element = xmlElementTree.fromstring(checker_output)
+            result_element = xmlElementTree.parse(
+                checker_output_file).getroot()
             if result_element.tag != 'result':
                 raise ValueError("Invalid output from checker")
             result_text = result_element.text
