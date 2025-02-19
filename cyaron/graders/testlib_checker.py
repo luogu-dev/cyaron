@@ -30,17 +30,17 @@ class TestlibChecker:
         self.checker_path = checker_path
 
     def __call__(self, outs: str, ans: str, ins: str):
-        with tempfile.NamedTemporaryFile('w') as inf, \
-             tempfile.NamedTemporaryFile('w') as outf, \
-             tempfile.NamedTemporaryFile('w') as ansf, \
-             tempfile.TemporaryDirectory() as checker_output_dir:
+        with tempfile.TemporaryDirectory() as checker_temp_dir, \
+             open(path_join(checker_temp_dir, 'input.txt'), 'w', newline='\n') as inf, \
+             open(path_join(checker_temp_dir, 'output.txt'), 'w', newline='\n') as outf, \
+             open(path_join(checker_temp_dir, 'answer.txt'), 'w', newline='\n') as ansf:
             inf.write(ins)
             outf.write(outs)
             ansf.write(ans)
             inf.flush()
             outf.flush()
             ansf.flush()
-            checker_output_file = path_join(checker_output_dir,
+            checker_output_file = path_join(checker_temp_dir,
                                             'checker_output.xml')
 
             result = subprocess.run((self.checker_path, inf.name, outf.name,
