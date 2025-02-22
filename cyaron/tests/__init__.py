@@ -6,3 +6,4 @@ from .compare_test import TestCompare
 from .graph_test import TestGraph
 from .vector_test import TestVector
 from .general_test import TestGeneral
+from .math_test import TestMath
