@@ -15,6 +15,7 @@ from .consts import *
 from .graph import Edge, Graph
 from .io import IO
 from .math import *
+from .misc import *
 from .merger import Merger
 from .polygon import Polygon
 from .sequence import Sequence
