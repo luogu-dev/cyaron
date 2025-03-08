@@ -83,13 +83,13 @@ class TestCompare(unittest.TestCase):
 
         try:
             with captured_output() as (out, err):
-                Compare.program(f"{sys.executable} correct.py",
-                                f"{sys.executable} incorrect.py",
+                Compare.program(f"\"{sys.executable}\" correct.py",
+                                f"\"{sys.executable}\" incorrect.py",
                                 std=io,
                                 input=io,
                                 grader="FullText")
         except CompareMismatch as e:
-            self.assertEqual(e.name, f'{sys.executable} incorrect.py')
+            self.assertEqual(e.name, f'\"{sys.executable}\" incorrect.py')
             e = e.mismatch
             self.assertEqual(e.content, '2\n')
             self.assertEqual(e.std, '1\n')
@@ -105,7 +105,7 @@ class TestCompare(unittest.TestCase):
             self.assertTrue(False)
 
         result = out.getvalue().strip()
-        correct_out = f'{sys.executable} correct.py: Correct \n{sys.executable} incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
+        correct_out = f'\"{sys.executable}\" correct.py: Correct \n\"{sys.executable}\" incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
         self.assertEqual(result, correct_out)
 
     def test_file_input(self):
@@ -122,13 +122,13 @@ class TestCompare(unittest.TestCase):
         io.input_writeln("233")
 
         with captured_output() as (out, err):
-            Compare.program(f"{sys.executable} correct.py",
-                            std_program=f"{sys.executable} std.py",
+            Compare.program(f"\"{sys.executable}\" correct.py",
+                            std_program=f"\"{sys.executable}\" std.py",
                             input=io,
                             grader="NOIPStyle")
 
         result = out.getvalue().strip()
-        correct_out = f'{sys.executable} correct.py: Correct'
+        correct_out = f'\"{sys.executable}\" correct.py: Correct'
         self.assertEqual(result, correct_out)
 
     def test_concurrent(self):
