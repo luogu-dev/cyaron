@@ -25,7 +25,7 @@ class RangeQueryRandomMode(IntEnum):
 
 class RangeQuery:
     """A class for generating random queries."""
-    result: List[Tuple[List[int], List[int]]]
+    result: List[Tuple[List[int], List[int], List]]  # Vector L, R, weights.
 
     def __init__(self):
         self.result = []
@@ -46,13 +46,17 @@ class RangeQuery:
     def to_str(self):
         """
         Return a string to output the queries. 
-        The string contains all the queries with l and r in a row, splits with "\\n".
+        The string contains all the queries with l and r (and w if generated) in a row, splits with "\\n".
         """
         res = ''
-        for l, r, in self.result:
+        for l, r, w in self.result:
             l_to_str = [str(x) for x in l]
             r_to_str = [str(x) for x in r]
-            res += ' '.join(l_to_str) + ' ' + ' '.join(r_to_str) + '\n'
+            w_to_str = [str(x) for x in w]
+            res += ' '.join(l_to_str) + ' ' + ' '.join(r_to_str)
+            if len(w_to_str) > 0:
+                res += ' ' + ' '.join(w_to_str)
+            res += '\n'
         return res[:-1]  # remove the last '\n'
 
     @staticmethod
@@ -60,6 +64,7 @@ class RangeQuery:
         num: int = 1,
         position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
         mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
+        weight_generator=None,
     ):
         """
         Generate `num` random queries with dimension limit.
@@ -69,26 +74,35 @@ class RangeQuery:
                 single number x represents range [1, x]
                 list [x, y] or tuple (x, y) represents range [x, y]
             mode: the mode queries generate, see Enum Class RangeQueryRandomMode
+            weight_generator: A function that generates the weights for the queries. It should:
+                - Take the index of query (starting from 1), starting and ending positions as input.
+                - Return a list of weights of any length.
         """
         if position_range is None:
             position_range = [10]
+
+        if weight_generator is None:
+            weight_generator = lambda i, l, r: []
 
         ret = RangeQuery()
 
         if not list_like(position_range):
             raise TypeError("the 2nd param must be a list or tuple")
 
-        for _ in range(num):
-            ret.result.append(RangeQuery.get_one_query(position_range, mode))
+        for i in range(num):
+            ret.result.append(
+                RangeQuery.get_one_query(position_range, mode,
+                                         weight_generator, i + 1))
         return ret
 
     @staticmethod
     def get_one_query(
-        position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
-        mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
-    ) -> Tuple[List[int], List[int]]:
+            position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
+            mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
+            weight_generator=None,
+            index: int = 1) -> Tuple[List[int], List[int], List]:
         """
-        Generate a pair of query lists (query_l, query_r) based on the given position ranges and mode.
+        Generate a pair of query lists (query_l, query_r, w) based on the given position ranges and mode.
         Args:
             position_range (Optional[List[Union[int, Tuple[int, int]]]]): A list of position ranges. Each element can be:
                 - An integer, which will be treated as a range from 1 to that integer.
@@ -96,6 +110,9 @@ class RangeQuery:
             mode (RangeQueryRandomMode): The mode for generating the queries. It can be:
                 - RangeQueryRandomMode.allow_equal: Allow the generated l and r to be equal.
                 - RangeQueryRandomMode.less: Ensure that l and r are not equal.
+            weight_generator: A function that generates the weights for the queries. It should:
+                - Take the index of query (starting from 1), starting and ending positions as input.
+                - Return a list of weights of any length.
         Returns:
             Tuple[List[int], List[int]]: A tuple containing two lists:
                 - query_l: A list of starting positions.
@@ -106,6 +123,9 @@ class RangeQuery:
         """
         if position_range is None:
             position_range = [10]
+
+        if weight_generator is None:
+            weight_generator = lambda i, l, r: []
 
         dimension = len(position_range)
         query_l: List[int] = []
@@ -131,6 +151,7 @@ class RangeQuery:
             l = random.randint(cur_range[0], cur_range[1])
             r = random.randint(cur_range[0], cur_range[1])
             # Expected complexity is O(1)
+            # We can use random.sample, But it's actually slower according to benchmarks.
             while mode == RangeQueryRandomMode.less and l == r:
                 l = random.randint(cur_range[0], cur_range[1])
                 r = random.randint(cur_range[0], cur_range[1])
@@ -138,4 +159,4 @@ class RangeQuery:
                 l, r = r, l
             query_l.append(l)
             query_r.append(r)
-        return (query_l, query_r)
+        return (query_l, query_r, weight_generator(index, query_l, query_r))

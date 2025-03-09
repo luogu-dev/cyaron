@@ -1,5 +1,6 @@
 import unittest
 import random
+import hashlib
 from cyaron.query import *
 from cyaron.vector import *
 
@@ -114,3 +115,23 @@ class TestRangeQuery(unittest.TestCase):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
                             limits))
+
+    def test_weight(self):
+
+        def foo(i, l, r):
+            ret = pow(114514, i, 19260817)
+            self.assertEqual(len(l), len(r))
+            for j in range(len(l)):
+                ret = (ret + l[j] * r[j] * 3301) % 19260817
+            return ret
+
+        dimension = 10
+        limits = Vector.random(dimension, [(1, 1000), (1, 1000)])  # n1, n2 ...
+        for i in range(dimension):
+            if limits[i][0] > limits[i][1]:
+                limits[i][0], limits[i][1] = limits[i][1], limits[i][0]
+        Q = RangeQuery.random(TEST_LEN, limits, weight_generator=foo)
+        i = 1
+        for l, r, w in Q.result:
+            self.assertEqual(w, foo(i, l, r))
+            i += 1
