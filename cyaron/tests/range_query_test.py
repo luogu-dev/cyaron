@@ -123,9 +123,9 @@ class TestRangeQuery(unittest.TestCase):
             self.assertEqual(len(l), len(r))
             for j in range(len(l)):
                 ret = (ret + l[j] * r[j] * 3301) % 19260817
-            return ret
+            return [ret]
 
-        dimension = 10
+        dimension = random.randint(1, 10)
         limits = Vector.random(dimension, [(1, 1000), (1, 1000)])  # n1, n2 ...
         for i in range(dimension):
             if limits[i][0] > limits[i][1]:
