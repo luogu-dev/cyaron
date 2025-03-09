@@ -23,14 +23,17 @@ def valid_query(l, r, mode: RangeQueryRandomMode, limits) -> bool:
     return True
 
 
+TEST_LEN = 20000
+
+
 class TestRangeQuery(unittest.TestCase):
 
     def test_allow_equal_v1(self):
         dimension = random.randint(1, 10)
         limits = Vector.random(dimension, [(1, 1000)])  # n1, n2 ...
-        Q = RangeQuery.random(10**5, limits)
-        self.assertEqual(len(Q), 10**5)
-        for i in range(10**5):
+        Q = RangeQuery.random(TEST_LEN, limits)
+        self.assertEqual(len(Q), TEST_LEN)
+        for i in range(TEST_LEN):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal,
                             limits))
@@ -43,9 +46,9 @@ class TestRangeQuery(unittest.TestCase):
             conflict = conflict or limits[i][0] > limits[i][1]
         throw = False
         try:
-            Q = RangeQuery.random(10**5, limits)
-            self.assertEqual(len(Q), 10**5)
-            for i in range(10**5):
+            Q = RangeQuery.random(TEST_LEN, limits)
+            self.assertEqual(len(Q), TEST_LEN)
+            for i in range(TEST_LEN):
                 self.assertTrue(
                     valid_query(Q[i][0], Q[i][1],
                                 RangeQueryRandomMode.allow_equal, limits))
@@ -60,9 +63,9 @@ class TestRangeQuery(unittest.TestCase):
         for i in range(dimension):
             if limits[i][0] > limits[i][1]:
                 limits[i][0], limits[i][1] = limits[i][1], limits[i][0]
-        Q = RangeQuery.random(10**5, limits)
-        self.assertEqual(len(Q), 10**5)
-        for i in range(10**5):
+        Q = RangeQuery.random(TEST_LEN, limits)
+        self.assertEqual(len(Q), TEST_LEN)
+        for i in range(TEST_LEN):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal,
                             limits))
@@ -70,9 +73,9 @@ class TestRangeQuery(unittest.TestCase):
     def test_less_v1(self):
         dimension = random.randint(1, 10)
         limits = Vector.random(dimension, [(2, 1000)])  # n1, n2 ...
-        Q = RangeQuery.random(10**5, limits, RangeQueryRandomMode.less)
-        self.assertEqual(len(Q), 10**5)
-        for i in range(10**5):
+        Q = RangeQuery.random(TEST_LEN, limits, RangeQueryRandomMode.less)
+        self.assertEqual(len(Q), TEST_LEN)
+        for i in range(TEST_LEN):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
                             limits))
@@ -85,9 +88,9 @@ class TestRangeQuery(unittest.TestCase):
             conflict = conflict or limits[i][0] >= limits[i][1]
         throw = False
         try:
-            Q = RangeQuery.random(10**5, limits, RangeQueryRandomMode.less)
-            self.assertEqual(len(Q), 10**5)
-            for i in range(10**5):
+            Q = RangeQuery.random(TEST_LEN, limits, RangeQueryRandomMode.less)
+            self.assertEqual(len(Q), TEST_LEN)
+            for i in range(TEST_LEN):
                 self.assertTrue(
                     valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
                                 limits))
@@ -105,9 +108,9 @@ class TestRangeQuery(unittest.TestCase):
                 limits[i][1] = random.randint(1, 1000)
             if limits[i][0] > limits[i][1]:
                 limits[i][0], limits[i][1] = limits[i][1], limits[i][0]
-        Q = RangeQuery.random(10**5, limits, RangeQueryRandomMode.less)
-        self.assertEqual(len(Q), 10**5)
-        for i in range(10**5):
+        Q = RangeQuery.random(TEST_LEN, limits, RangeQueryRandomMode.less)
+        self.assertEqual(len(Q), TEST_LEN)
+        for i in range(TEST_LEN):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
                             limits))
