@@ -1,6 +1,5 @@
 import unittest
 import random
-import hashlib
 from cyaron.query import *
 from cyaron.vector import *
 
@@ -38,6 +37,7 @@ class TestRangeQuery(unittest.TestCase):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal,
                             limits))
+            self.assertTrue(Q[i][2] == [])
 
     def test_allow_equal_v2_throw(self):
         dimension = random.randint(1, 10)
@@ -70,6 +70,7 @@ class TestRangeQuery(unittest.TestCase):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.allow_equal,
                             limits))
+            self.assertTrue(Q[i][2] == [])
 
     def test_less_v1(self):
         dimension = random.randint(1, 10)
@@ -80,6 +81,7 @@ class TestRangeQuery(unittest.TestCase):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
                             limits))
+            self.assertTrue(Q[i][2] == [])
 
     def test_less_v2_throw(self):
         dimension = random.randint(1, 10)
@@ -115,6 +117,7 @@ class TestRangeQuery(unittest.TestCase):
             self.assertTrue(
                 valid_query(Q[i][0], Q[i][1], RangeQueryRandomMode.less,
                             limits))
+            self.assertTrue(Q[i][2] == [])
 
     def test_weight(self):
 
