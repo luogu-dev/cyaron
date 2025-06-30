@@ -24,25 +24,26 @@ class IO:
         self,
         input_file: Optional[Union[IOBase, str, int]] = None,
         output_file: Optional[Union[IOBase, str, int]] = None,
-        data_id: Optional[int] = None,
+        *,
         disable_output: bool = False,
         make_dirs: bool = False,
-    ):
+    ) -> None:
         ...
 
     @overload
     def __init__(
         self,
+        *,
         data_id: Optional[int] = None,
         file_prefix: Optional[str] = None,
         input_suffix: str = ".in",
         output_suffix: str = ".out",
         disable_output: bool = False,
         make_dirs: bool = False,
-    ):
+    ) -> None:
         ...
 
-    def __init__(  # type: ignore
+    def __init__(
         self,
         input_file: Optional[Union[IOBase, str, int]] = None,
         output_file: Optional[Union[IOBase, str, int]] = None,
