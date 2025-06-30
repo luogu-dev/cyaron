@@ -1,11 +1,13 @@
 """Some utility functions."""
+import os
+import shlex
 import sys
 import random
 from typing import cast, Any, Dict, Iterable, Tuple, Union
 
 __all__ = [
     "ati", "list_like", "int_like", "strtolines", "make_unicode",
-    "unpack_kwargs", "process_args"
+    "unpack_kwargs", "process_args", "escape_path"
 ]
 
 
@@ -79,3 +81,10 @@ def process_args():
     for s in sys.argv:
         if s.startswith("--randseed="):
             random.seed(s.split("=")[1])
+
+def escape_path(path: str) -> str:
+    """Escape the path."""
+    if os.name == 'nt':
+        return '"' + path.replace('\\', '/') + '"'
+    else:
+        return shlex.quote(path)
