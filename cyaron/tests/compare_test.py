@@ -8,6 +8,7 @@ from cyaron import IO, Compare, log
 from cyaron.output_capture import captured_output
 from cyaron.graders.mismatch import *
 from cyaron.compare import CompareMismatch
+from cyaron.graders import CYaRonGraders
 
 log.set_verbose()
 
@@ -108,28 +109,36 @@ class TestCompare(unittest.TestCase):
         correct_out = f'{sys.executable} correct.py: Correct \n{sys.executable} incorrect.py: !!!INCORRECT!!! Hash mismatch: read 53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3, expected 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865'
         self.assertEqual(result, correct_out)
 
-    def test_file_input(self):
+    def test_file_input_success(self):
         with open("correct.py", "w") as f:
             f.write("print(input())")
-
         with open("std.py", "w") as f:
             f.write("print(input())")
-
-        io = None
-        with captured_output() as (out, err):
-            io = IO()
-
+        io = IO()
         io.input_writeln("233")
-
-        with captured_output() as (out, err):
-            Compare.program(f"{sys.executable} correct.py",
-                            std_program=f"{sys.executable} std.py",
+        with captured_output():
+            Compare.program((sys.executable, "correct.py"),
+                            std_program=(sys.executable, "std.py"),
                             input=io,
                             grader="NOIPStyle")
 
-        result = out.getvalue().strip()
-        correct_out = f'{sys.executable} correct.py: Correct'
-        self.assertEqual(result, correct_out)
+    def test_file_input_fail(self):
+        with open("incorrect.py", "w") as f:
+            f.write("print(input()+'154')")
+        with open("std.py", "w") as f:
+            f.write("print(input())")
+        io = IO()
+        io.input_writeln("233")
+        try:
+            with captured_output():
+                Compare.program((sys.executable, "incorrect.py"),
+                                std_program=(sys.executable, "std.py"),
+                                input=io,
+                                grader="NOIPStyle")
+        except CompareMismatch:
+            pass
+        else:
+            self.fail("Should raise CompareMismatch")
 
     def test_concurrent(self):
         programs = ['test{}.py'.format(i) for i in range(16)]
@@ -168,3 +177,80 @@ class TestCompare(unittest.TestCase):
                     pass
                 else:
                     self.assertTrue(False)
+
+    def test_custom_grader2_by_name(self):
+        self.assertEqual(CYaRonGraders.grader, CYaRonGraders.grader2)
+
+        @CYaRonGraders.grader("CustomTestGrader2")
+        def custom_test_grader2(content: str, std: str):
+            if content == '1\n' and std == '2\n':
+                return True, None
+            return False, "CustomTestGrader failed"
+
+        io = IO()
+        io.output_writeln("2")
+
+        Compare.program("echo 1",
+                        std=io,
+                        input=IO(),
+                        grader="CustomTestGrader2")
+
+        try:
+            Compare.program("echo 2",
+                            std=io,
+                            input=IO(),
+                            grader="CustomTestGrader2")
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'echo 2')
+            self.assertEqual(e.mismatch, "CustomTestGrader failed")
+        else:
+            self.fail("Should raise CompareMismatch")
+
+    def test_custom_grader3_by_name(self):
+
+        @CYaRonGraders.grader3("CustomTestGrader3")
+        def custom_test_grader3(content: str, std: str, input_content: str):
+            if input_content == '0\n' and content == '1\n' and std == '2\n':
+                return True, None
+            return False, "CustomTestGrader failed"
+
+        io = IO()
+        io.input_writeln("0")
+        io.output_writeln("2")
+
+        Compare.program("echo 1", std=io, input=io, grader="CustomTestGrader3")
+
+        try:
+            Compare.program("echo 2",
+                            std=io,
+                            input=io,
+                            grader='CustomTestGrader3')
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'echo 2')
+            self.assertEqual(e.mismatch, "CustomTestGrader failed")
+        else:
+            self.fail("Should raise CompareMismatch")
+
+    def test_custom_grader_by_function(self):
+
+        def custom_test_grader(content: str, std: str, input_content: str):
+            if input_content == '0\n' and content == '1\n' and std == '2\n':
+                return True, None
+            return False, "CustomTestGrader failed"
+
+        io = IO()
+        io.input_writeln("0")
+        io.output_writeln("2")
+
+        Compare.program("echo 1", std=io, input=io, grader=custom_test_grader)
+
+        try:
+            Compare.program("echo 2",
+                            std=io,
+                            input=io,
+                            grader=custom_test_grader)
+        except CompareMismatch as e:
+            self.assertEqual(e.name, 'echo 2')
+            self.assertEqual(e.mismatch, "CustomTestGrader failed")
+        else:
+            self.fail("Should raise CompareMismatch")
