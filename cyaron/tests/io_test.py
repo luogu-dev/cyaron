@@ -5,7 +5,7 @@ import time
 import shutil
 import tempfile
 import subprocess
-from cyaron import IO
+from cyaron import IO, escape_path
 from cyaron.output_capture import captured_output
 
 
@@ -92,7 +92,7 @@ class TestIO(unittest.TestCase):
                 abs_input_filename: str = os.path.abspath(input_filename)
                 with self.assertRaises(subprocess.TimeoutExpired):
                     test.input_writeln(abs_input_filename)
-                    test.output_gen(f'"{sys.executable}" long_time.py',
+                    test.output_gen(f'{escape_path(sys.executable)} long_time.py',
                                     time_limit=TIMEOUT)
                 time.sleep(WAIT_TIME)
                 try:
@@ -108,7 +108,7 @@ class TestIO(unittest.TestCase):
                         "print(1)")
 
             with IO("test_gen.in", "test_gen.out") as test:
-                test.output_gen(f'"{sys.executable}" short_time.py',
+                test.output_gen(f'{escape_path(sys.executable)} short_time.py',
                                 time_limit=0.5)
         with open("test_gen.out", encoding="utf-8") as f:
             output = f.read()
