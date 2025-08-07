@@ -65,6 +65,7 @@ class RangeQuery:
         position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
         mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
         weight_generator=None,
+        big_query: float = 0.2,
     ):
         """
         Generate `num` random queries with dimension limit.
@@ -77,6 +78,7 @@ class RangeQuery:
             weight_generator: A function that generates the weights for the queries. It should:
                 - Take the index of query (starting from 1), starting and ending positions as input.
                 - Return a list of weights of any length.
+            big_query: a float number representing the probability for generating big queries.
         """
         if position_range is None:
             position_range = [10]
@@ -91,13 +93,14 @@ class RangeQuery:
 
         for i in range(num):
             ret.result.append(
-                RangeQuery.get_one_query(position_range, mode,
+                RangeQuery.get_one_query(position_range, big_query, mode,
                                          weight_generator, i + 1))
         return ret
 
     @staticmethod
     def get_one_query(
             position_range: Optional[List[Union[int, Tuple[int, int]]]] = None,
+            big_query: float = 0.2,
             mode: RangeQueryRandomMode = RangeQueryRandomMode.allow_equal,
             weight_generator=None,
             index: int = 1) -> Tuple[List[int], List[int], List]:
@@ -147,6 +150,13 @@ class RangeQuery:
                 raise ValueError(
                     "mode is set to less but upper-bound is equal to lower-bound"
                 )
+
+            if random.random() < big_query:
+                # Generate a big query
+                cur_l = cur_range[1] - cur_range[0] + 1
+                len = random.randint(cur_l // 2, cur_l)
+                l = random.randint(cur_range[0], cur_range[1] - len)
+                r = l + len
 
             l = random.randint(cur_range[0], cur_range[1])
             r = random.randint(cur_range[0], cur_range[1])
