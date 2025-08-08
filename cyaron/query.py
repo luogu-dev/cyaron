@@ -154,19 +154,23 @@ class RangeQuery:
             if random.random() < big_query:
                 # Generate a big query
                 cur_l = cur_range[1] - cur_range[0] + 1
-                len = random.randint(cur_l // 2, cur_l)
-                l = random.randint(cur_range[0], cur_range[1] - len)
-                r = l + len
-
-            l = random.randint(cur_range[0], cur_range[1])
-            r = random.randint(cur_range[0], cur_range[1])
-            # Expected complexity is O(1)
-            # We can use random.sample, But it's actually slower according to benchmarks.
-            while mode == RangeQueryRandomMode.less and l == r:
+                lb = max(
+                    2, cur_l //
+                    2) if mode == RangeQueryRandomMode.less else cur_l // 2
+                ql = random.randint(lb, cur_l)
+                l = random.randint(cur_range[0], cur_range[1] - ql + 1)
+                r = l + ql - 1
+            else:
                 l = random.randint(cur_range[0], cur_range[1])
                 r = random.randint(cur_range[0], cur_range[1])
-            if l > r:
-                l, r = r, l
+                # Expected complexity is O(1)
+                # We can use random.sample, But it's actually slower according to benchmarks.
+                while mode == RangeQueryRandomMode.less and l == r:
+                    l = random.randint(cur_range[0], cur_range[1])
+                    r = random.randint(cur_range[0], cur_range[1])
+                if l > r:
+                    l, r = r, l
+
             query_l.append(l)
             query_r.append(r)
         return (query_l, query_r, weight_generator(index, query_l, query_r))
