@@ -8,7 +8,7 @@ from __future__ import absolute_import
 
 from random import choice, randint, random, randrange, uniform
 
-#from .visual import visualize
+# from .visual import visualize
 from . import log
 from .compare import Compare
 from .consts import *
@@ -21,3 +21,4 @@ from .sequence import Sequence
 from .string import String
 from .utils import *
 from .vector import Vector
+from .query import RangeQuery

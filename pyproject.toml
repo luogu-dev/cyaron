@@ -16,7 +16,7 @@ colorful = "^0.5.6"
 
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core<2.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [project.urls]
