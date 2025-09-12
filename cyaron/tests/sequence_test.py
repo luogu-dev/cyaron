@@ -20,4 +20,3 @@ class TestSequence(unittest.TestCase):
     def test_func_get_many(self):
         seq = Sequence(lambda i, f: 3 * i + 2 * f(i - 1), [0])
         self.assertEqual(seq.get(3, 5), [33, 78, 171])
-

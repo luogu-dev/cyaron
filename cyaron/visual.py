@@ -1,6 +1,7 @@
-from .graph import * 
+from .graph import *
 from .merger import Merger
 import pygraphviz as pgv
+
 
 def visualize(graph, output_path="a.png"):
     """visualize(graph, **kwargs) -> None
@@ -14,7 +15,7 @@ def visualize(graph, output_path="a.png"):
     G.add_nodes_from([i for i in xrange(1, len(graph.edges))])
     for edge in graph.iterate_edges():
         G.add_edge(edge.start, edge.end, label=edge.weight)
-        
+
     G.node_attr['shape'] = 'egg'
     G.node_attr['width'] = '0.25'
     G.node_attr['height'] = '0.25'
@@ -22,5 +23,3 @@ def visualize(graph, output_path="a.png"):
 
     G.layout(prog='dot')
     G.draw(output_path)
-    
-

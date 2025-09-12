@@ -1,4 +1,5 @@
 config.py
+*.cpp
 *.in
 *.out
 *.exe

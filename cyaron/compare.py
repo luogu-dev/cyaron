@@ -12,6 +12,7 @@ import os
 
 
 class CompareMismatch(ValueError):
+
     def __init__(self, name, mismatch):
         super(CompareMismatch, self).__init__(name, mismatch)
         self.name = name
@@ -22,6 +23,7 @@ class CompareMismatch(ValueError):
 
 
 class Compare:
+
     @staticmethod
     def __compare_two(name, content, std, grader):
         (result, info) = CYaRonGraders.invoke(grader, content, std)
@@ -67,7 +69,8 @@ class Compare:
         max_workers = kwargs["max_workers"]
         job_pool = kwargs["job_pool"]
         if kwargs["stop_on_incorrect"] is not None:
-            log.warn("parameter stop_on_incorrect is deprecated and has no effect.")
+            log.warn(
+                "parameter stop_on_incorrect is deprecated and has no effect.")
 
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             max_workers = cls.__normal_max_workers(max_workers)
@@ -75,13 +78,11 @@ class Compare:
                 from concurrent.futures import ThreadPoolExecutor
 
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
-                    return cls.output(
-                        *files,
-                        std=std,
-                        grader=grader,
-                        max_workers=max_workers,
-                        job_pool=job_pool
-                    )
+                    return cls.output(*files,
+                                      std=std,
+                                      grader=grader,
+                                      max_workers=max_workers,
+                                      job_pool=job_pool)
             except ImportError:
                 pass
 
@@ -124,7 +125,8 @@ class Compare:
         max_workers = kwargs["max_workers"]
         job_pool = kwargs["job_pool"]
         if kwargs["stop_on_incorrect"] is not None:
-            log.warn("parameter stop_on_incorrect is deprecated and has no effect.")
+            log.warn(
+                "parameter stop_on_incorrect is deprecated and has no effect.")
 
         if (max_workers is None or max_workers >= 0) and job_pool is None:
             max_workers = cls.__normal_max_workers(max_workers)
@@ -132,39 +134,35 @@ class Compare:
                 from concurrent.futures import ThreadPoolExecutor
 
                 with ThreadPoolExecutor(max_workers=max_workers) as job_pool:
-                    return cls.program(
-                        *programs,
-                        input=input,
-                        std=std,
-                        std_program=std_program,
-                        grader=grader,
-                        max_workers=max_workers,
-                        job_pool=job_pool
-                    )
+                    return cls.program(*programs,
+                                       input=input,
+                                       std=std,
+                                       std_program=std_program,
+                                       grader=grader,
+                                       max_workers=max_workers,
+                                       job_pool=job_pool)
             except ImportError:
                 pass
 
         if not isinstance(input, IO):
-            raise TypeError(
-                "expect {}, got {}".format(type(IO).__name__, type(input).__name__)
-            )
+            raise TypeError("expect {}, got {}".format(
+                type(IO).__name__,
+                type(input).__name__))
         input.flush_buffer()
         input.input_file.seek(0)
 
         if std_program is not None:
 
             def get_std():
-                with open(
-                    os.dup(input.input_file.fileno()), "r", newline="\n"
-                ) as input_file:
+                with open(os.dup(input.input_file.fileno()), "r",
+                          newline="\n") as input_file:
                     content = make_unicode(
                         subprocess.check_output(
                             std_program,
                             shell=(not list_like(std_program)),
                             stdin=input.input_file,
                             universal_newlines=True,
-                        )
-                    )
+                        ))
                     input_file.seek(0)
                 return content
 
@@ -188,15 +186,11 @@ class Compare:
 
         def do(program_name):
             timeout = None
-            if (
-                list_like(program_name)
-                and len(program_name) == 2
-                and int_like(program_name[-1])
-            ):
+            if (list_like(program_name) and len(program_name) == 2
+                    and int_like(program_name[-1])):
                 program_name, timeout = program_name
-            with open(
-                os.dup(input.input_file.fileno()), "r", newline="\n"
-            ) as input_file:
+            with open(os.dup(input.input_file.fileno()), "r",
+                      newline="\n") as input_file:
                 if timeout is None:
                     content = make_unicode(
                         subprocess.check_output(
@@ -204,8 +198,7 @@ class Compare:
                             shell=(not list_like(program_name)),
                             stdin=input_file,
                             universal_newlines=True,
-                        )
-                    )
+                        ))
                 else:
                     content = make_unicode(
                         subprocess.check_output(
@@ -214,8 +207,7 @@ class Compare:
                             stdin=input_file,
                             universal_newlines=True,
                             timeout=timeout,
-                        )
-                    )
+                        ))
                 input_file.seek(0)
             cls.__compare_two(program_name, content, std, grader)
 

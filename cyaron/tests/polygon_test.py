@@ -3,8 +3,11 @@ from cyaron import Polygon, Vector
 
 
 class TestPolygon(unittest.TestCase):
+
     def test_convex_hull(self):
-        hull = Polygon.convex_hull(300, fx=lambda x: int(x * 100000), fy=lambda x: int(x * 100000))
+        hull = Polygon.convex_hull(300,
+                                   fx=lambda x: int(x * 100000),
+                                   fy=lambda x: int(x * 100000))
         points = hull.points
         points = sorted(points)
         # unique

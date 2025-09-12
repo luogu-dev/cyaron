@@ -7,6 +7,7 @@ def has_duplicates(lst: list):
 
 
 class TestVector(unittest.TestCase):
+
     def test_unique_vector(self):
         v = Vector.random(10**5, [10**6])
         self.assertFalse(has_duplicates(list(map(lambda tp: tuple(tp), v))))
@@ -14,8 +15,9 @@ class TestVector(unittest.TestCase):
         v = Vector.random(1000, [(10**5, 10**6)])
         self.assertTrue(all(map(lambda v: 10**5 <= v[0] <= 10**6, v)))
         with self.assertRaises(
-            Exception,
-            msg="1st param is so large that CYaRon can not generate unique vectors",
+                Exception,
+                msg=
+                "1st param is so large that CYaRon can not generate unique vectors",
         ):
             v = Vector.random(10**5, [10**4])
 

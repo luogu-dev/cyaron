@@ -5,6 +5,7 @@ try:
 except ImportError:
     from io import StringIO
 
+
 @contextmanager
 def captured_output():
     new_out, new_err = StringIO(), StringIO()
