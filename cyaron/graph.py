@@ -49,7 +49,7 @@ class Graph:
 
     def vertex_count(self):
         """vertex_count(self) -> int
-            Return the vertex of the edges in the graph.
+            Return the count of the vertexes in the graph.
         """
         return len(self.edges) - 1
 
