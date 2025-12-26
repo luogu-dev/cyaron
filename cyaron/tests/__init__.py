@@ -7,3 +7,4 @@ from .graph_test import TestGraph
 from .vector_test import TestVector
 from .range_query_test import TestRangeQuery
 from .general_test import TestGeneral
+from .math_test import TestMath
