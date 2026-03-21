@@ -25,6 +25,7 @@ Functions:
     miu(x): The MIU function of x
     dec2base(n,base): Number base conversion
     n2words(num,join=True): Number to words
+    anti_primes_up_to(n,use_primes=47): anti-primes in 1..n, ordered by value.
 
 forked from https://blog.dreamshire.com/common-functions-routines-project-euler/
 """
@@ -549,3 +550,78 @@ def n2words(num: int, join: bool = True):
     if join:
         return ' '.join(words)
     return words
+
+def anti_primes_up_to(n: int, use_primes: int = 47) -> List[int]:
+    """
+    Return the sequence of record-holders (anti-primes) in 1..n, ordered by value.
+
+    An anti-prime (highly composite record) is a number whose divisor count exceeds
+    that of every smaller positive integer. This function generates candidate numbers
+    using small primes with non-increasing exponent patterns, keeps the maximal tau
+    for each value, and then extracts the record-holders in ascending value order.
+    Args:
+        n: Upper bound (inclusive) within which to search for anti-primes. Must satisfy 1 <= n < 2**63.
+        use_primes: Number of initial primes to use when generating candidates (default 47).
+    Returns:
+        A list of integers that are anti-primes in the range [1, n], sorted by value.
+    """
+    assert (1 <= n and n < (1 << 63))
+    if n < 1:
+        return []
+    records: List[Tuple[int, int]] = [1]
+
+    primes = prime_sieve(use_primes)  # Get enough small primes
+
+
+    def _gen_by_exponents(limit: int, primes: List[int]) -> List[Tuple[int, int]]:
+        """
+        Generate numbers <= limit by assigning non-increasing exponents to the given primes.
+
+        This routine performs a DFS over exponent choices (with the exponent sequence non-increasing)
+        to produce candidate integers together with their divisor counts (tau).
+        Args:
+            limit: The inclusive upper bound for generated values.
+            primes: A list of primes to use (in increasing order).
+        Returns:
+            A list of (value, tau) pairs where value <= limit and tau is the number of divisors of value.
+        """
+        results: List[Tuple[int, int]] = []
+
+        def dfs(idx: int, prev_exp: int, cur_val: int, cur_tau: int):
+            if cur_val > 1:
+                results.append((cur_val, cur_tau))
+            if idx >= len(primes):
+                return
+            p = primes[idx]
+            val = cur_val
+            for e in range(1, prev_exp + 1):
+                if val > limit // p:
+                    break
+                val *= p
+                dfs(idx + 1, e, val, cur_tau * (e + 1))
+
+        dfs(0, 63, 1, 1)
+
+        return results
+    
+    candidates: List[Tuple[int, int]] = _gen_by_exponents(n, primes)
+    
+     # Merge candidates with the same value, keeping maximum tau for each value
+    best: dict = {}
+    for v, t in candidates:
+        if v <= n:
+            if v in best:
+                if t > best[v]:
+                    best[v] = t
+            else:
+                best[v] = t
+
+    # Traverse values in ascending order, select those with new highest tau
+    items = sorted(best.items(), key=lambda it: it[0])
+    max_tau = 0
+    for v, t in items:
+        if t > max_tau:
+            records.append(v)
+            max_tau = t
+
+    return records
