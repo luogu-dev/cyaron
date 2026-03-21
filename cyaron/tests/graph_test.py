@@ -1,6 +1,7 @@
+import itertools
 import unittest
 from cyaron import Graph
-from random import randint
+from random import randint, sample
 
 
 class UnionFindSet:
@@ -198,18 +199,12 @@ class TestGraph(unittest.TestCase):
         merge2 = lambda val, edge: max(edge.weight, val)
         merge3 = lambda val, edge: min(edge.weight, val)
         merge4 = lambda val, edge: gcd(val, edge.weight)
-        merge5 = lambda val, edge: lcm(val, edge.weight
-                                       ) if val else edge.weight
-        self.assertEqual(str(g.to_matrix(merge=merge1)),
-                         "-1 -1 3\n-1 -1 3\n-1 1 1")
-        self.assertEqual(str(g.to_matrix(merge=merge2)),
-                         "-1 -1 3\n-1 -1 7\n-1 1 1")
-        self.assertEqual(str(g.to_matrix(default=9, merge=merge3)),
-                         "9 9 3\n9 9 3\n9 1 1")
-        self.assertEqual(str(g.to_matrix(default=0, merge=merge4)),
-                         "0 0 3\n0 0 1\n0 1 1")
-        self.assertEqual(str(g.to_matrix(default=0, merge=merge5)),
-                         "0 0 3\n0 0 84\n0 1 1")
+        merge5 = lambda val, edge: lcm(val, edge.weight) if val else edge.weight
+        self.assertEqual(str(g.to_matrix(merge=merge1)), "-1 -1 3\n-1 -1 3\n-1 1 1")
+        self.assertEqual(str(g.to_matrix(merge=merge2)), "-1 -1 3\n-1 -1 7\n-1 1 1")
+        self.assertEqual(str(g.to_matrix(default=9, merge=merge3)), "9 9 3\n9 9 3\n9 1 1")
+        self.assertEqual(str(g.to_matrix(default=0, merge=merge4)), "0 0 3\n0 0 1\n0 1 1")
+        self.assertEqual(str(g.to_matrix(default=0, merge=merge5)), "0 0 3\n0 0 84\n0 1 1")
 
     def test_forest(self):
         for i in range(10):
@@ -264,3 +259,55 @@ class TestGraph(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             Graph.from_degree_sequence(((2, 1), (0, 1)))
+
+    def test_shuffle(self):
+        def read_graph(n, data, directed = False):
+            g = Graph(n, directed)
+            for l in data.split('\n'):
+                u, v, w = map(int, l.split())
+                g.add_edge(u, v, weight=w)
+            return g
+
+        def isomorphic(graph1, graph2, mapping = None, directed = False):
+            n = graph1.vertex_count()
+            if n != graph2.vertex_count():
+                return False
+            if graph1.edge_count() != graph2.edge_count():
+                return False
+            if mapping is None:
+                for per in itertools.permutations(range(1, n + 1)):
+                    if isomorphic(graph1, graph2, (0, ) + per):
+                        return True
+                return False
+            edges = {}
+            for e in graph2.iterate_edges():
+                key, val = (e.start, e.end), e.weight
+                if key in edges:
+                    edges[key].append(val)
+                else:
+                    edges[key] = [val]
+            for e in graph1.iterate_edges():
+                key, val = (mapping[e.start], mapping[e.end]), e.weight
+                if not directed and key[0] > key[1]:
+                    key = key[1], key[0]
+                if key not in edges:
+                    return False
+                if val not in edges[key]:
+                    return False
+                edges[key].remove(val)
+            return True
+
+        def unit_test(n, m, shuffle_kwargs = {}, check_kwargs = {}):
+            g = Graph.graph(n, m)
+            data = g.to_str(**shuffle_kwargs)
+            h = read_graph(n, data)
+            self.assertTrue(isomorphic(g, h, **check_kwargs))
+
+        unit_test(8, 20)
+        unit_test(8, 20, {"shuffle": True})
+        mapping = [0] + sample(range(1, 8), k = 7)
+        shuffer = lambda n: list(map(lambda i: mapping[i], range(1, n + 1)))
+        unit_test(7, 10, {"shuffle": True, "node_shuffler": shuffer})
+        unit_test(7, 14, {"shuffle": True, "node_shuffler": shuffer}, {"mapping": mapping})
+        shuffer_without_swap = lambda table: sample(table, k=len(table))
+        unit_test(7, 12, {"shuffle": True, "edge_shuffler": shuffer_without_swap}, {"directed": True})
