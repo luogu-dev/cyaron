@@ -2,7 +2,19 @@ from .consts import ALPHABET_SMALL, SENTENCE_SEPARATORS, SENTENCE_TERMINATORS, N
 from .utils import *
 from functools import reduce
 import random
-import xeger
+
+try:
+    import xeger
+except AttributeError:
+    # xeger <= 0.4.0 imports the sre_parse module, which Python 3.15 removed.
+    # The same parser is still available as re._parser (Python 3.11+).
+    import re
+    import sys
+    sys.modules["sre_parse"] = re._parser
+    try:
+        import xeger
+    finally:
+        sys.modules.pop("sre_parse", None)
 
 
 class String:
